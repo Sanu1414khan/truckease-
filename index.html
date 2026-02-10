@@ -48,6 +48,7 @@
     <div id="login-screen" class="screen active">
         <h2 id="l-title">लॉगिन करें</h2>
         <input type="tel" id="mob" placeholder="मोबाइल नंबर (10 अंक)">
+        <div id="recaptcha-container"></div>
         <button id="l-btn" onclick="sendOTP()"><i class="fas fa-paper-plane"></i> OTP भेजें</button>
     </div>
 
@@ -65,7 +66,7 @@
         <input type="tel" id="dri-phone" placeholder="मोबाइल नंबर">
         <input type="text" placeholder="ID नंबर (आधार/लाइसेंस)">
         
-        <label>अपनी गाड़ी का प्रकार चुनें:</label>
+        <label>अपनी गाड़ी का प्रकार चुनें:</label>
         <select id="dri-truck-type">
             <option value="छोटा हाथी">छोटा हाथी (Small Pickup)</option>
             <option value="मझोला ट्रक">मझोला ट्रक (Medium Truck)</option>
@@ -115,6 +116,53 @@
     <footer>© 2026 TruckEase</footer>
 </div>
 
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+  import { getAuth, RecaptchaVerifier, signInWithPhoneNumber } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyByh4tT4zcUpjjQ_ebaYzpSulGtsDHjbw0",
+    authDomain: "truckease-cb961.firebaseapp.com",
+    projectId: "truckease-cb961",
+    storageBucket: "truckease-cb961.firebasestorage.app",
+    messagingSenderId: "558046020925",
+    appId: "1:558046020925:web:573533af4bbf93841e3154"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+
+  // OTP भेजने का फंक्शन
+  window.sendOTP = function() {
+      const number = document.getElementById('mob').value;
+      if (number.length !== 10) {
+          alert("कृपया 10 अंकों का सही मोबाइल नंबर डालें!");
+          return;
+      }
+
+      const phoneNumber = "+91" + number;
+
+      window.recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
+          'size': 'invisible'
+      });
+
+      signInWithPhoneNumber(auth, phoneNumber, window.recaptchaVerifier)
+          .then((confirmationResult) => {
+              window.confirmationResult = confirmationResult;
+              let code = prompt("आपके मोबाइल पर 6 अंकों का OTP भेजा गया है, उसे यहाँ डालें:");
+              if (code) {
+                  confirmationResult.confirm(code).then(() => {
+                      nav('user-type-screen');
+                  }).catch(() => {
+                      alert("गलत OTP! कृपया फिर से कोशिश करें।");
+                  });
+              }
+          }).catch((error) => {
+              alert("Error: " + error.message);
+          });
+  }
+</script>
+
 <script>
     let selTruck = ""; let baseP = 0; let finalP = 0;
     let currentLabourCount = 2; // डिफ़ॉल्ट मजदूर
@@ -122,9 +170,9 @@
     const langData = {
         hindi: { l: "लॉगिन करें", lbtn: "OTP भेजें", ut: "आप कौन हैं?", h: "गाड़ी चुनें", b: "बुकिंग जानकारी", bc: "कन्फर्म करें", s: "बुकिंग सफल!", cust: "ग्राहक", dri: "ड्राइवर पंजीकरण", hist: "इतिहास" },
         english: { l: "Login Now", lbtn: "Send OTP", ut: "Who are you?", h: "Pick a Truck", b: "Booking Details", bc: "Confirm Booking", s: "Booking Successful!", cust: "Customer", dri: "Driver Register", hist: "History" },
-        bihari: { l: "लॉगिन करीं", lbtn: "OTP भेजीं", ut: "रउवा के हईं?", h: "गाड़ी चुनीं", b: "बुकिंग जानकारी", bc: "पक्का करीं", s: "बुकिंग भइल!", cust: "ग्राहक", dri: "ड्राइवर पंजीकरण", hist: "इतिहास" },
-        bengali: { l: "লগইন করুন", lbtn: "OTP পাঠান", ut: "আপনি কে?", h: "গাড়ি বেছে নিন", b: "বুকিং বিবরণ", bc: "নিশ্চিত করুন", s: "বুকিং সফল!", cust: "গ্রাহক", dri: "ড্রাইভার রেজিস্টার", hist: "ইতিহাস" },
-        urdu: { l: "لاگ इन करें", lbtn: "او ٹی پی بھیجیں", ut: "آپ کون ہیں؟", h: "گاڑی منتخب کریں", b: "بکنگ کی تفصیلات", bc: "کنفرم کریں", s: "بکنگ کامیاب!", cust: "گاہک", dri: "ڈرائیور رجسٹریشن", hist: "تاریخ" }
+        bihari: { l: "लॉगिन करीं", lbtn: "OTP भेजीं", ut: "रउवा के हईं?", h: "गाड़ी चुनीं", b: "बुकिंग जानकारी", bc: "पक्का करीं", s: "बुकिंग भइल!", cust: "ग्राहक", dri: "ड्राइवर पंजीकरण", hist: "इतिहास" },
+        bengali: { l: "লগইন করুন", lbtn: "OTP পাঠান", ut: "আপনি কে?", h: "গাড়ি বেছে নিন", b: "বুকিং বিবরণ", bc: "নিশ্চিত করুন", s: "বুকিং সফল!", cust: "গ্রাহক", dri: "ড্রাইভার রেজিস্টার", hist: "ইতিহাস" },
+        urdu: { l: "لاگ इन करें", lbtn: "او ٹی پی भीजें", ut: "آپ کون ہیں؟", h: "گاڑی منتخب کریں", b: "بکنگ کی تفصیلات", bc: "کنفرم کریں", s: "بکنگ کامیاب!", cust: "گاہک", dri: "ڈرائیवर رجسٹریشن", hist: "تاریخ" }
     };
 
     function changeLang() {
@@ -162,17 +210,16 @@
         }
 
         currentLabourCount = lab;
-        // यहाँ हम यह मान रहे हैं कि ड्राइवर ने जो गाड़ी चुनी वही अब एक्टिव है
         alert(`बधाई हो ${name}! आपकी '${truck}' गाड़ी ${lab} मजदूरों के साथ रजिस्टर हो गई है।`);
         nav('user-type-screen');
     }
 
-    function sendOTP() { alert("आपका OTP है: 1234"); nav('user-type-screen'); }
+    // sendOTP फंक्शन को ऊपर स्क्रिप्ट मॉड्यूल में डिफाइन किया गया है
     
     function pickTruck(n, p) { 
         selTruck = n; baseP = p; 
-        document.getElementById('selected-truck-info').innerText = "चुनी गई गाड़ी: " + n;
-        document.getElementById('labour-info').innerHTML = `<i class="fas fa-users"></i> इस गाड़ी के साथ <b>${currentLabourCount} मजदूर</b> आयेंगे।`;
+        document.getElementById('selected-truck-info').innerText = "चुनी गई गाड़ी: " + n;
+        document.getElementById('labour-info').innerHTML = `<i class="fas fa-users"></i> इस गाड़ी के साथ <b>${currentLabourCount} मजदूर</b> आयेंगे।`;
         nav('booking-screen'); 
     }
 
