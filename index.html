@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TruckEase - Professional Truck Booking</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #1a73e8;
+            --secondary-color: #34a853;
+            --dark-color: #202124;
+            --light-color: #f8f9fa;
+            --gray-color: #dadce0;
+            --shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            --border-radius: 12px;
+        }
+        body { font-family: 'Noto Sans Devanagari', sans-serif; margin: 0; background: #f5f7fa; color: var(--dark-color); }
+        .container { max-width: 400px; margin: 0 auto; background: white; min-height: 100vh; box-shadow: var(--shadow); display: flex; flex-direction: column; }
+        header { background: var(--primary-color); color: white; padding: 20px; display: flex; justify-content: space-between; align-items: center; }
+        .screen { display: none; padding: 20px; flex-grow: 1; }
+        .active { display: block; }
+        input, button, select { width: 100%; padding: 14px; margin: 10px 0; border: 1px solid var(--gray-color); border-radius: var(--border-radius); font-size: 16px; box-sizing: border-box; }
+        button { background: var(--primary-color); color: white; border: none; cursor: pointer; font-weight: 600; transition: 0.3s; }
+        .secondary-btn { background: var(--light-color); color: var(--dark-color); border: 1px solid var(--gray-color); }
+        .back-btn { width: auto; background: transparent; color: var(--primary-color); padding: 5px; font-weight: bold; }
+        .truck-card { border: 1px solid var(--gray-color); padding: 15px; border-radius: var(--border-radius); margin-bottom: 12px; display: flex; align-items: center; gap: 15px; background: #fff; cursor: pointer; }
+        .price-display { background: #e8f5e9; padding: 15px; text-align: center; border-radius: 10px; font-weight: bold; margin: 10px 0; border-left: 5px solid var(--secondary-color); }
+        footer { background: var(--dark-color); color: white; padding: 15px; text-align: center; font-size: 12px; margin-top: auto; }
+        .rtl { direction: rtl; text-align: right; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1 style="font-size: 20px; margin: 0;"><i class="fas fa-truck-moving"></i> TruckEase</h1>
+        <select id="lang-select" onchange="changeLang()" style="width: auto; margin: 0; padding: 5px; background: rgba(255,255,255,0.2); color: white; border: none; border-radius: 4px;">
+            <option value="hindi">हिन्दी</option>
+            <option value="english">English</option>
+            <option value="bihari">बिहारी</option>
+            <option value="bengali">বাংলা</option>
+            <option value="urdu">اردو</option>
+        </select>
+    </header>
+
+    <div id="login-screen" class="screen active">
+        <h2 id="l-title">लॉगिन करें</h2>
+        <input type="tel" id="mob" placeholder="मोबाइल नंबर (10 अंक)">
+        <button id="l-btn" onclick="sendOTP()"><i class="fas fa-paper-plane"></i> OTP भेजें</button>
+    </div>
+
+    <div id="user-type-screen" class="screen">
+        <h2 id="ut-title">आप कौन हैं?</h2>
+        <button id="btn-cust" onclick="nav('home-screen')"><i class="fas fa-user"></i> ग्राहक (Customer)</button>
+        <button id="btn-dri" onclick="nav('driver-reg-screen')"><i class="fas fa-id-card"></i> ड्राइवर पंजीकरण (Register)</button>
+        <button class="secondary-btn" id="btn-hist" onclick="nav('history-screen')"><i class="fas fa-history"></i> बुकिंग इतिहास</button>
+    </div>
+
+    <div id="driver-reg-screen" class="screen">
+        <button class="back-btn" onclick="nav('user-type-screen')">← वापस</button>
+        <h2>ड्राइवर रजिस्ट्रेशन</h2>
+        <input type="text" id="dri-name" placeholder="पूरा नाम">
+        <input type="tel" id="dri-phone" placeholder="मोबाइल नंबर">
+        <input type="text" placeholder="ID नंबर (आधार/लाइसेंस)">
+        
+        <label>अपनी गाड़ी का प्रकार चुनें:</label>
+        <select id="dri-truck-type">
+            <option value="छोटा हाथी">छोटा हाथी (Small Pickup)</option>
+            <option value="मझोला ट्रक">मझोला ट्रक (Medium Truck)</option>
+            <option value="भारी ट्रक">भारी ट्रक (Heavy Truck)</option>
+        </select>
+
+        <input type="text" placeholder="गाड़ी का नंबर">
+        <label>गाड़ी के साथ कितने मजदूर रहेंगे?</label>
+        <input type="number" id="dri-labour" placeholder="मजदूरों की संख्या (जैसे: 2)">
+        <label style="font-size: 14px;">गाड़ी की फोटो:</label>
+        <input type="file" accept="image/*">
+        <button onclick="registerDriver()">सफलतापूर्वक रजिस्टर करें</button>
+    </div>
+
+    <div id="home-screen" class="screen">
+        <button class="back-btn" onclick="nav('user-type-screen')">← वापस</button>
+        <h3 id="h-title">अपनी गाड़ी चुनें</h3>
+        <div class="truck-card" onclick="pickTruck('छोटा हाथी', 0)"><i class="fas fa-truck-pickup"></i> <div><b>छोटा हाथी</b><br><small>10KM: ₹500 | 20KM: ₹1000</small></div></div>
+        <div class="truck-card" onclick="pickTruck('मझोला ट्रक', 1200)"><i class="fas fa-truck"></i> <div><b>मझोला ट्रक</b><br><small>लंबी दूरी के लिए</small></div></div>
+        <div class="truck-card" onclick="pickTruck('भारी ट्रक', 2500)"><i class="fas fa-shipping-fast"></i> <div><b>भारी ट्रक</b><br><small>इंडस्ट्रियल लोड</small></div></div>
+    </div>
+
+    <div id="booking-screen" class="screen">
+        <button class="back-btn" onclick="nav('home-screen')">← वापस</button>
+        <h3 id="b-title">बुकिंग जानकारी</h3>
+        <p id="selected-truck-info" style="font-weight: bold; color: var(--primary-color); margin-bottom: 5px;"></p>
+        <p id="labour-info" style="font-size: 14px; color: #555; background: #eee; padding: 10px; border-radius: 8px;"></p>
+        <input type="number" id="dist" placeholder="कितने KM जाना है?" oninput="calcFare()">
+        
+        <div id="price-box" class="price-display">कुल किराया: ₹0</div>
+        <button id="b-confirm" onclick="confirmBooking()">कन्फर्म करें</button>
+    </div>
+
+    <div id="success-screen" class="screen" style="text-align: center;">
+        <i class="fas fa-check-circle" style="font-size: 60px; color: var(--secondary-color);"></i>
+        <h2 id="s-msg">बुकिंग सफल!</h2>
+        <div id="bill" style="text-align: left; background: #f9f9f9; padding: 15px; border-radius: 8px; border: 1px solid #ddd; margin: 20px 0;"></div>
+        <button onclick="nav('user-type-screen')">मुख्य मेनू</button>
+    </div>
+
+    <div id="history-screen" class="screen">
+        <button class="back-btn" onclick="nav('user-type-screen')">← वापस</button>
+        <h2 id="hist-title">पुरानी बुकिंग</h2>
+        <div id="history-list"></div>
+    </div>
+
+    <footer>© 2026 TruckEase</footer>
+</div>
+
+<script>
+    let selTruck = ""; let baseP = 0; let finalP = 0;
+    let currentLabourCount = 2; // डिफ़ॉल्ट मजदूर
+
+    const langData = {
+        hindi: { l: "लॉगिन करें", lbtn: "OTP भेजें", ut: "आप कौन हैं?", h: "गाड़ी चुनें", b: "बुकिंग जानकारी", bc: "कन्फर्म करें", s: "बुकिंग सफल!", cust: "ग्राहक", dri: "ड्राइवर पंजीकरण", hist: "इतिहास" },
+        english: { l: "Login Now", lbtn: "Send OTP", ut: "Who are you?", h: "Pick a Truck", b: "Booking Details", bc: "Confirm Booking", s: "Booking Successful!", cust: "Customer", dri: "Driver Register", hist: "History" },
+        bihari: { l: "लॉगिन करीं", lbtn: "OTP भेजीं", ut: "रउवा के हईं?", h: "गाड़ी चुनीं", b: "बुकिंग जानकारी", bc: "पक्का करीं", s: "बुकिंग भइल!", cust: "ग्राहक", dri: "ड्राइवर पंजीकरण", hist: "इतिहास" },
+        bengali: { l: "লগইন করুন", lbtn: "OTP পাঠান", ut: "আপনি কে?", h: "গাড়ি বেছে নিন", b: "বুকিং বিবরণ", bc: "নিশ্চিত করুন", s: "বুকিং সফল!", cust: "গ্রাহক", dri: "ড্রাইভার রেজিস্টার", hist: "ইতিহাস" },
+        urdu: { l: "لاگ इन करें", lbtn: "او ٹی پی بھیجیں", ut: "آپ کون ہیں؟", h: "گاڑی منتخب کریں", b: "بکنگ کی تفصیلات", bc: "کنفرم کریں", s: "بکنگ کامیاب!", cust: "گاہک", dri: "ڈرائیور رجسٹریشن", hist: "تاریخ" }
+    };
+
+    function changeLang() {
+        let val = document.getElementById('lang-select').value;
+        let d = langData[val];
+        document.getElementById('l-title').innerText = d.l;
+        document.getElementById('l-btn').innerText = d.lbtn;
+        document.getElementById('ut-title').innerText = d.ut;
+        document.getElementById('h-title').innerText = d.h;
+        document.getElementById('b-title').innerText = d.b;
+        document.getElementById('b-confirm').innerText = d.bc;
+        document.getElementById('s-msg').innerText = d.s;
+        document.getElementById('btn-cust').innerHTML = `<i class="fas fa-user"></i> ` + d.cust;
+        document.getElementById('btn-dri').innerHTML = `<i class="fas fa-id-card"></i> ` + d.dri;
+        document.getElementById('btn-hist').innerHTML = `<i class="fas fa-history"></i> ` + d.hist;
+        if(val === 'urdu') document.body.classList.add('rtl'); else document.body.classList.remove('rtl');
+    }
+
+    function nav(id) {
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
+        if(id === 'history-screen') loadHistory();
+    }
+
+    // ड्राइवर रजिस्ट्रेशन फंक्शन
+    function registerDriver() {
+        let name = document.getElementById('dri-name').value;
+        let phone = document.getElementById('dri-phone').value;
+        let truck = document.getElementById('dri-truck-type').value;
+        let lab = document.getElementById('dri-labour').value;
+
+        if(!name || !phone || !lab) {
+            alert("कृपया पूरी जानकारी भरें!");
+            return;
+        }
+
+        currentLabourCount = lab;
+        // यहाँ हम यह मान रहे हैं कि ड्राइवर ने जो गाड़ी चुनी वही अब एक्टिव है
+        alert(`बधाई हो ${name}! आपकी '${truck}' गाड़ी ${lab} मजदूरों के साथ रजिस्टर हो गई है।`);
+        nav('user-type-screen');
+    }
+
+    function sendOTP() { alert("आपका OTP है: 1234"); nav('user-type-screen'); }
+    
+    function pickTruck(n, p) { 
+        selTruck = n; baseP = p; 
+        document.getElementById('selected-truck-info').innerText = "चुनी गई गाड़ी: " + n;
+        document.getElementById('labour-info').innerHTML = `<i class="fas fa-users"></i> इस गाड़ी के साथ <b>${currentLabourCount} मजदूर</b> आयेंगे।`;
+        nav('booking-screen'); 
+    }
+
+    function calcFare() {
+        let k = parseFloat(document.getElementById('dist').value) || 0;
+        if (selTruck === 'छोटा हाथी') {
+            if (k > 0 && k <= 10) finalP = 500;
+            else if (k > 10 && k <= 20) finalP = 1000;
+            else if (k > 20) finalP = k * 50;
+            else finalP = 0;
+        } else {
+            finalP = baseP + (k * 40);
+        }
+        document.getElementById('price-box').innerText = "कुल किराया: ₹" + finalP;
+    }
+
+    function confirmBooking() {
+        if (finalP <= 0) { alert("कृपया दूरी सही से डालें!"); return; }
+        let bId = "TKE" + Math.floor(1000 + Math.random() * 9000);
+        let data = { id: bId, truck: selTruck, fare: finalP, labour: currentLabourCount, date: new Date().toLocaleString() };
+        
+        let history = JSON.parse(localStorage.getItem('truckHistory')) || [];
+        history.unshift(data);
+        localStorage.setItem('truckHistory', JSON.stringify(history));
+        
+        document.getElementById('bill').innerHTML = `
+            <b>बुकिंग ID:</b> ${bId}<br>
+            <b>गाड़ी का प्रकार:</b> ${selTruck}<br>
+            <b>मजदूर:</b> ${currentLabourCount} (ड्राइवर की टीम)<br>
+            <b>कुल किराया:</b> ₹${finalP}<br>
+            <b>समय:</b> ${data.date}
+        `;
+        nav('success-screen');
+    }
+
+    function loadHistory() {
+        let history = JSON.parse(localStorage.getItem('truckHistory')) || [];
+        let list = document.getElementById('history-list');
+        list.innerHTML = history.length ? "" : "अभी तक कोई बुकिंग नहीं की गई है।";
+        history.forEach(item => {
+            list.innerHTML += `
+                <div class="history-item">
+                    <b>ID: ${item.id}</b><br>
+                    ${item.truck} - ₹${item.fare}<br>
+                    <small>मजदूर: ${item.labour} | तारीख: ${item.date}</small>
+                </div>`;
+        });
+    }
+</script>
+</body>
+</html>
