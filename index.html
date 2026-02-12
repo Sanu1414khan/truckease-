@@ -130,21 +130,31 @@
     
 
     <!-- ========== स्क्रीन : ग्राहक पैनल – गाड़ी चुनो ========= -->
-    <div id="customerPanel" class="hidden">
-        <button class="action-btn" style="background:#e0e0e0;" onclick="backToHome()">← वापस</button>
-        <h2>🚛 गाड़ी चुनें</h2>
-        <div class="card" onclick="selectTruck('छोटा हाथी', 0)">
-            <b style="font-size:18px;">🛻 छोटा हाथी</b><br>
-            <span>₹500 (10km), ₹1000 (20km), फिर ₹50/km</span>
-        </div>
-        <div class="card" onclick="selectTruck('मझोला ट्रक', 1200)">
-            <b style="font-size:18px;">🚚 मझोला ट्रक</b><br>
-            <span>₹1200 बेस + ₹40/km</span>
-        </div>
-        <div class="card" onclick="selectTruck('भारी ट्रक', 2500)">
-            <b style="font-size:18px;">🚛 भारी ट्रक</b><br>
-            <span>₹2500 बेस + ₹40/km</span>
-        </div>
+<div id="customerPanel" class="hidden">
+    <button class="action-btn" style="background:#e0e0e0;" onclick="backToHome()">← वापस</button>
+    <h2>🚛 गाड़ी चुनें</h2>
+    
+    <!-- पहला कार्ड - छोटा हाथी → Total chhote truck -->
+    <div class="card" onclick="selectTruck('Total chhote truck', 0)">
+        <b style="font-size:18px;">🛻 Total chhote truck</b><br>
+        <span>छोटी गाड़ी - ₹500 (10km), ₹1000 (20km), फिर ₹50/km</span>
+    </div>
+    
+    <!-- दूसरा कार्ड - मझोला ट्रक → Total medium truck -->
+    <div class="card" onclick="selectTruck('Total medium truck', 1200)">
+        <b style="font-size:18px;">🚚 Total medium truck</b><br>
+        <span>मझोली गाड़ी - ₹1200 बेस + ₹40/km</span>
+    </div>
+    
+    <!-- तीसरा कार्ड - भारी ट्रक → Total Bhari aur badhiya truck -->
+    <div class="card" onclick="selectTruck('Total Bhari aur badhiya truck', 2500)">
+        <b style="font-size:18px;">🚛 Total Bhari aur badhiya truck</b><br>
+        <span>भारी गाड़ी - ₹2500 बेस + ₹40/km</span>
+    </div>
+    
+    <!-- यहाँ नए कार्ड्स डालेंगे (अगले स्टेप में) -->
+    
+</div>
     </div>
 
     <!-- ========== स्क्रीन : बुकिंग डिटेल ========= -->
