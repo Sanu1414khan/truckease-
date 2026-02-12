@@ -93,7 +93,10 @@
     <div id="loginScreen">
         <h2>📱 अपना मोबाइल नंबर डालो</h2>
         <input type="tel" id="mobileInput" placeholder="उदा: 9876543210" maxlength="10">
-        <button class="screen-btn" onclick="login()">✅ लॉगिन / शुरू करें</button>
+        <button id="login-btn" class="screen-btn" onclick="sendOTP()">✅ OTP भेजें</button>
+<div id="recaptcha-container"></div>
+<p style="margin-top:16px; color:gray; font-size:14px;">सुरक्षित लॉगिन के लिए आपके नंबर पर OTP आएगा।</p>
+        
         <p style="margin-top:16px; color:gray; font-size:14px;">कोई OTP नहीं, बस नंबर डालो और आगे बढ़ो।</p>
     </div>
 
