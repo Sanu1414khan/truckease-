@@ -1,4 +1,4 @@
-3<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="hi">
 <head>
     <meta charset="UTF-8">
@@ -83,24 +83,18 @@
 <body>
 <div class="app" id="app">
 
-    <!-- हेडर -->
     <div style="display:flex; justify-content: space-between; align-items:center; margin-bottom:20px;">
         <h1 style="font-size:28px; margin:0;">🚛 TruckEase</h1>
         <span style="background:#0b3b5c; color:white; padding:6px 14px; border-radius:30px;">बिना OTP</span>
     </div>
 
-    <!-- ========== स्क्रीन : लॉगिन (सिर्फ नंबर डालो) ========= -->
     <div id="loginScreen">
         <h2>📱 अपना मोबाइल नंबर डालो</h2>
-        <input type="tel" id="mobileInput" placeholder="उदा: 9876543210" maxlength="10">
-        <button id="login-btn" class="screen-btn" onclick="sendOTP()">✅ OTP भेजें</button>
-<div id="recaptcha-container"></div>
-<p style="margin-top:16px; color:gray; font-size:14px;">सुरक्षित लॉगिन के लिए आपके नंबर पर OTP आएगा।</p>
-        
-        <p style="margin-top:16px; color:gray; font-size:14px;">कोई OTP नहीं, बस नंबर डालो और आगे बढ़ो।</p>
+        <input type="tel" id="mobileInput" placeholder="9876543210" maxlength="10">
+        <button id="login-btn" class="screen-btn" onclick="login()">✅ आगे बढ़ें</button>
+        <p style="margin-top:16px; color:gray; font-size:14px;">कोई OTP नहीं, बस नंबर डालो और शुरू करो।</p>
     </div>
 
-    <!-- ========== स्क्रीन : होम (यूजर टाइप) ========= -->
     <div id="homeScreen" class="hidden">
         <h2>👋 स्वागत है, <span id="userPhoneDisplay"></span></h2>
         <button class="truck-btn" onclick="showCustomerPanel()">🙋‍♂️ मैं ग्राहक हूँ – गाड़ी बुक करूँ</button>
@@ -108,42 +102,174 @@
         <button class="action-btn" onclick="showHistory()">📜 पुरानी बुकिंग देखें</button>
     </div>
 
-    <!-- ========== स्क्रीन : ड्राइवर रजिस्टर ========= -->
     <div id="driverRegScreen" class="hidden">
-    <button class="action-btn" style="background:#e0e0e0; color:black;" onclick="backToHome()">← वापस</button>
-    <h2>🚛 ड्राइवर रजिस्ट्रेशन</h2>
-    <input type="text" id="driverName" placeholder="पूरा नाम">
-    <input type="text" id="driverVehicle" placeholder="गाड़ी का नंबर">
-    <select id="driverTruckType">
-        <option value="छोटा हाथी">छोटा हाथी (छोटी गाड़ी)</option>
-        <option value="मझोला ट्रक (मीडियम)">मझोला ट्रक (मीडियम)</option>
-        <option value="भारी ट्रक (बड़ा)">भारी ट्रक (बड़ा)</option>
-    </select>
-    <input type="number" id="driverLabour" placeholder="कितने मजदूर? (0-5)">
-
-    <input type="tel" id="driverMobile" placeholder="मोबाइल नंबर (10 अंक)" maxlength="10">
-    <input type="text" id="driverAadhaar" placeholder="आधार कार्ड नंबर (12 अंक)" maxlength="12">
-    <input type="text" id="driverLicense" placeholder="ड्राइविंग लाइसेंस नंबर">
-    
-    <button class="screen-btn" onclick="registerDriver()">✅ रजिस्टर करें</button>
+        <button class="action-btn" style="background:#e0e0e0; color:black;" onclick="backToHome()">← वापस</button>
+        <h2>🚛 ड्राइवर रजिस्ट्रेशन</h2>
+        <input type="text" id="driverName" placeholder="पूरा नाम">
+        <input type="text" id="driverVehicle" placeholder="गाड़ी का नंबर">
+        <select id="driverTruckType">
+            <option value="छोटा हाथी">छोटा हाथी (छोटी गाड़ी)</option>
+            <option value="मझोला ट्रक (मीडियम)">मझोला ट्रक (मीडियम)</option>
+            <option value="भारी ट्रक (बड़ा)">भारी ट्रक (बड़ा)</option>
+        </select>
+        <input type="number" id="driverLabour" placeholder="कितने मजदूर? (0-5)">
+        <button class="screen-btn" onclick="registerDriver()">✅ रजिस्टर करें</button>
     </div>
-    
 
-    <!-- ========== स्क्रीन : ग्राहक पैनल – गाड़ी चुनो ========= -->
-<div id="customerPanel" class="hidden">
-    <button class="action-btn" style="background:#e0e0e0;" onclick="backToHome()">← वापस</button>
-    <h2>🚛 गाड़ी चुनें</h2>
-    
-    <!-- पहला कार्ड - छोटा हाथी → Total chhote truck -->
-    <div class="card" onclick="selectTruck('Total chhote truck', 0)">
-        <b style="font-size:18px;">🛻 Total chhote truck</b><br>
-        <span>छोटी गाड़ी - ₹500 (10km), ₹1000 (20km), फिर ₹50/km</span>
+    <div id="customerPanel" class="hidden">
+        <button class="action-btn" style="background:#e0e0e0;" onclick="backToHome()">← वापस</button>
+        <h2>🚛 गाड़ी चुनें</h2>
+        <div class="card" onclick="selectTruck('Total chhote truck', 0)">
+            <b style="font-size:18px;">🛻 Total chhote truck</b><br>
+            <span>छोटी गाड़ी - ₹500 (10km), ₹1000 (20km), फिर ₹50/km</span>
+        </div>
+        <div class="card" onclick="selectTruck('Total medium truck', 1200)">
+            <b style="font-size:18px;">🚚 Total medium truck</b><br>
+            <span>मझोली गाड़ी - ₹1200 बेस + ₹40/km</span>
+        </div>
+        <div class="card" onclick="selectTruck('Total Bhari aur bade truck', 2500)">
+            <b style="font-size:18px;">🚛 Total Bhari aur badhiya truck</b><br>
+            <span>भारी गाड़ी - ₹2500 बेस + ₹40/km</span>
+        </div>
+        <div class="card" onclick="selectTruck('Total JCB and bulldozer', 3000)">
+            <b style="font-size:18px;">🟨🚜 Total JCB and bulldozer</b><br>
+            <span>JCB & बुलडोज़र - ₹3000 बेस + ₹60/km</span>
+        </div>
+        <div class="card" onclick="selectTruck('Total chhoti aur Badi crane', 4000)">
+            <b style="font-size:18px;">🏗️ Total chhoti aur Badi crane</b><br>
+            <span>क्रेन - ₹4000 बेस + ₹80/km</span>
+        </div>
+        <div class="card" onclick="selectTruck('Total bade aur chhote tractor', 1800)">
+            <b style="font-size:18px;">🚜 Total bade aur chhote tractor</b><br>
+            <span>ट्रैक्टर - ₹1800 बेस + ₹35/km</span>
+        </div>
     </div>
-    
-    <!-- दूसरा कार्ड - मझोला ट्रक → Total medium truck -->
-    <div class="card" onclick="selectTruck('Total medium truck', 1200)">
-        <b style="font-size:18px;">🚚 Total medium truck</b><br>
-        <span>मझोली गाड़ी - ₹1200 बेस + ₹40/km</span>
+
+    <div id="bookingScreen" class="hidden">
+        <button class="action-btn" style="background:#e0e0e0;" onclick="backToCustomerPanel()">← वापस</button>
+        <h3>📋 बुकिंग</h3>
+        <div id="selectedTruckDisplay" style="background:#bbdefb; padding:12px; border-radius:20px; margin-bottom:12px; font-weight:bold;"></div>
+        <div id="labourDisplay" style="background:#fff3cd; padding:12px; border-radius:16px; margin-bottom:12px;">👷 मजदूर: 2</div>
+        <input type="number" id="kmInput" placeholder="कितने किलोमीटर?" oninput="calculateFare()">
+        <div class="fare-box" id="fareDisplay">कुल किराया: ₹0</div>
+        <div class="commission" id="commissionDisplay">🟢 15% ऐप कमीशन: ₹0</div>
+        <button class="screen-btn" onclick="confirmBooking()">✅ बुकिंग कन्फर्म करें</button>
+    </div>
+
+    <div id="successScreen" class="hidden">
+        <div style="text-align:center;">
+            <span style="font-size:64px;">✅</span>
+            <h2>बुकिंग सफल!</h2>
+            <div id="billDetails" class="card" style="background:#e8f5e9;"></div>
+            <button class="truck-btn" onclick="backToHome()">🏠 होम जाएँ</button>
+        </div>
+    </div>
+
+    <div id="historyScreen" class="hidden">
+        <button class="action-btn" style="background:#e0e0e0;" onclick="backToHome()">← वापस</button>
+        <h2>📜 आपकी बुकिंग</h2>
+        <div id="historyList"></div>
+    </div>
+
+</div> <script>
+    let currentUser = localStorage.getItem('truckUser') || '';
+    let selectedTruck = '';
+    let basePrice = 0;
+    let finalFare = 0;
+    let commission = 0;
+    let labourCount = 2;
+
+    window.onload = function() {
+        if (currentUser) {
+            document.getElementById('userPhoneDisplay').innerText = currentUser;
+            showScreen('homeScreen');
+        } else {
+            showScreen('loginScreen');
+        }
+    };
+
+    function showScreen(screenId) {
+        let screens = ['loginScreen', 'homeScreen', 'driverRegScreen', 'customerPanel', 'bookingScreen', 'successScreen', 'historyScreen'];
+        screens.forEach(s => document.getElementById(s).classList.add('hidden'));
+        document.getElementById(screenId).classList.remove('hidden');
+    }
+
+    window.login = function() {
+        let mobile = document.getElementById('mobileInput').value.trim();
+        if (mobile.length !== 10) { alert('10 अंकों का नंबर डालें'); return; }
+        currentUser = mobile;
+        localStorage.setItem('truckUser', mobile);
+        document.getElementById('userPhoneDisplay').innerText = mobile;
+        showScreen('homeScreen');
+    };
+
+    window.backToHome = function() { showScreen('homeScreen'); };
+    window.backToCustomerPanel = function() { showScreen('customerPanel'); };
+    window.showDriverReg = function() { showScreen('driverRegScreen'); };
+    window.showCustomerPanel = function() { showScreen('customerPanel'); };
+
+    window.selectTruck = function(truck, base) {
+        selectedTruck = truck;
+        basePrice = base;
+        document.getElementById('selectedTruckDisplay').innerHTML = '🚛 गाड़ी: <b>' + truck + '</b>';
+        showScreen('bookingScreen');
+        document.getElementById('kmInput').value = '';
+        calculateFare();
+    };
+
+    window.calculateFare = function() {
+        let km = parseFloat(document.getElementById('kmInput').value) || 0;
+        
+        // रेट का हिसाब (किराया सूत्र)
+        if (selectedTruck === 'Total chhote truck') {
+            if (km <= 10) finalFare = 500;
+            else if (km <= 20) finalFare = 1000;
+            else finalFare = km * 50;
+        } else if (selectedTruck === 'Total medium truck' || selectedTruck === 'Total Bhari aur bade truck') {
+            finalFare = basePrice + (km * 40);
+        } else if (selectedTruck === 'Total JCB and bulldozer') {
+            finalFare = basePrice + (km * 60);
+        } else if (selectedTruck === 'Total chhoti aur Badi crane') {
+            finalFare = basePrice + (km * 80);
+        } else if (selectedTruck === 'Total bade aur chhote tractor') {
+            finalFare = basePrice + (km * 35);
+        }
+
+        commission = Math.round(finalFare * 0.15);
+        document.getElementById('fareDisplay').innerHTML = '💰 कुल किराया: ₹' + finalFare;
+        document.getElementById('commissionDisplay').innerHTML = '🟢 15% ऐप कमीशन: ₹' + commission;
+    };
+
+    window.confirmBooking = function() {
+        if (finalFare <= 0) { alert('पहले दूरी डालो!'); return; }
+        let bookingId = 'TKE' + Math.floor(1000 + Math.random() * 9000);
+        let booking = {
+            id: bookingId,
+            truck: selectedTruck,
+            fare: finalFare,
+            time: new Date().toLocaleString()
+        };
+        let history = JSON.parse(localStorage.getItem('truckHistory')) || [];
+        history.unshift(booking);
+        localStorage.setItem('truckHistory', JSON.stringify(history));
+
+        document.getElementById('billDetails').innerHTML = `<b>ID:</b> ${bookingId}<br><b>गाड़ी:</b> ${selectedTruck}<br><b>किराया:</b> ₹${finalFare}`;
+        showScreen('successScreen');
+    };
+
+    window.showHistory = function() {
+        let history = JSON.parse(localStorage.getItem('truckHistory')) || [];
+        let listDiv = document.getElementById('historyList');
+        let html = '';
+        history.forEach(b => {
+            html += `<div class="history-item"><b>🆔 ${b.id}</b><br>${b.truck} - ₹${b.fare}<br><small>${b.time}</small></div>`;
+        });
+        listDiv.innerHTML = html || '<p>कोई बुकिंग नहीं</p>';
+        showScreen('historyScreen');
+    };
+</script>
+</body>
+</html>
     </div>
     
     <!-- तीसरा कार्ड - भारी ट्रक → Total Bhari aur badhiya truck -->
