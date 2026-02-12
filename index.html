@@ -110,18 +110,24 @@
 
     <!-- ========== स्क्रीन : ड्राइवर रजिस्टर ========= -->
     <div id="driverRegScreen" class="hidden">
-        <button class="action-btn" style="background:#e0e0e0; color:black;" onclick="backToHome()">← वापस</button>
-        <h2>🚛 ड्राइवर रजिस्ट्रेशन</h2>
-        <input type="text" id="driverName" placeholder="पूरा नाम">
-        <input type="text" id="driverVehicle" placeholder="गाड़ी का नंबर">
-        <select id="driverTruckType">
-            <option value="छोटा हाथी">छोटा हाथी (छोटी गाड़ी)</option>
-            <option value="मझोला ट्रक">मझोला ट्रक (मीडियम)</option>
-            <option value="भारी ट्रक">भारी ट्रक (बड़ा)</option>
-        </select>
-        <input type="number" id="driverLabour" placeholder="कितने मजदूर? (0-5)">
-        <button class="screen-btn" onclick="registerDriver()">✅ रजिस्टर करें</button>
+    <button class="action-btn" style="background:#e0e0e0; color:black;" onclick="backToHome()">← वापस</button>
+    <h2>🚛 ड्राइवर रजिस्ट्रेशन</h2>
+    <input type="text" id="driverName" placeholder="पूरा नाम">
+    <input type="text" id="driverVehicle" placeholder="गाड़ी का नंबर">
+    <select id="driverTruckType">
+        <option value="छोटा हाथी">छोटा हाथी (छोटी गाड़ी)</option>
+        <option value="मझोला ट्रक (मीडियम)">मझोला ट्रक (मीडियम)</option>
+        <option value="भारी ट्रक (बड़ा)">भारी ट्रक (बड़ा)</option>
+    </select>
+    <input type="number" id="driverLabour" placeholder="कितने मजदूर? (0-5)">
+
+    <input type="tel" id="driverMobile" placeholder="मोबाइल नंबर (10 अंक)" maxlength="10">
+    <input type="text" id="driverAadhaar" placeholder="आधार कार्ड नंबर (12 अंक)" maxlength="12">
+    <input type="text" id="driverLicense" placeholder="ड्राइविंग लाइसेंस नंबर">
+    
+    <button class="screen-btn" onclick="registerDriver()">✅ रजिस्टर करें</button>
     </div>
+    
 
     <!-- ========== स्क्रीन : ग्राहक पैनल – गाड़ी चुनो ========= -->
     <div id="customerPanel" class="hidden">
