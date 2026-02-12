@@ -2,692 +2,435 @@
 <html lang="hi">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TruckEase - Professional Truck Booking</title>
-    
-    <!-- Fonts & Icons -->
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
-    <!-- Leaflet Map CSS -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>TruckEase Pro · फायरबेस ऐप</title>
+    <!-- फॉन्ट और फॉन्टअवेसम -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- फायरबेस SDK (मॉड्यूलर) -->
+    <script type="importmap">
+        {
+            "imports": {
+                "firebase/app": "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js",
+                "firebase/auth": "https://www.gstatic.com/firebasejs/10.14.0/firebase-auth.js",
+                "firebase/firestore": "https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js"
+            }
+        }
+    </script>
     <style>
-        :root {
-            --primary: #667eea;
-            --secondary: #764ba2;
-            --success: #10b981;
-            --danger: #ef4444;
-            --warning: #f59e0b;
-            --dark: #1e293b;
-            --light: #f8fafc;
-        }
-        
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        
+        :root {
+            --primary: #1a73e8;
+            --secondary: #34a853;
+            --dark: #202124;
+            --light: #f8f9fa;
+            --gray: #dadce0;
+            --shadow: 0 4px 12px rgba(0,0,0,0.08);
+            --radius: 14px;
+        }
         body {
-            font-family: 'Poppins', sans-serif;
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            font-family: 'Noto Sans Devanagari', sans-serif;
+            background: #e9eef2;
+            display: flex;
+            justify-content: center;
+            align-items: center;
             min-height: 100vh;
+            margin: 0;
+            padding: 12px;
         }
-        
-        .container {
-            max-width: 480px;
-            margin: 0 auto;
-            background: white;
-            min-height: 100vh;
-            box-shadow: 0 0 50px rgba(0,0,0,0.3);
-            position: relative;
-        }
-        
-        /* Splash Screen */
-        .splash {
-            position: fixed;
-            top: 0;
-            left: 0;
+        .app-container {
+            max-width: 420px;
             width: 100%;
-            height: 100%;
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            background: white;
+            border-radius: 28px;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            position: relative;
+            min-height: 680px;
             display: flex;
             flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            z-index: 9999;
         }
-        
-        .splash-logo {
-            font-size: 80px;
-            color: white;
-            margin-bottom: 20px;
-            animation: bounce 1s infinite;
-        }
-        
-        .splash-text {
-            color: white;
-            font-size: 36px;
-            font-weight: 700;
-            margin-bottom: 10px;
-        }
-        
-        @keyframes bounce {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-15px); }
-        }
-        
-        /* Header */
         header {
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            background: var(--primary);
             color: white;
-            padding: 15px 20px;
-            position: sticky;
-            top: 0;
-            z-index: 1000;
+            padding: 18px 20px;
             display: flex;
-            align-items: center;
             justify-content: space-between;
-        }
-        
-        .logo {
-            font-size: 22px;
-            font-weight: 700;
-            display: flex;
             align-items: center;
-            gap: 10px;
         }
-        
-        .back-btn {
+        header h1 { font-size: 1.5rem; font-weight: 600; margin: 0; display: flex; gap: 8px; align-items: center; }
+        #lang-select {
             background: rgba(255,255,255,0.2);
-            border: none;
             color: white;
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            cursor: pointer;
-            display: none;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        /* Mode Switch */
-        .mode-switch {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            background: white;
-            border-radius: 25px;
-            padding: 5px;
-            display: flex;
-            gap: 5px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-        
-        .mode-btn {
-            padding: 8px 16px;
-            border-radius: 20px;
             border: none;
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s;
+            padding: 6px 10px;
+            border-radius: 30px;
+            font-size: 0.85rem;
+            font-weight: 500;
         }
-        
-        .mode-btn.active {
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            color: white;
-        }
-        
-        .mode-btn:not(.active) {
-            background: transparent;
-            color: var(--dark);
-        }
-        
-        /* Screens */
         .screen {
             display: none;
-            padding: 25px;
-            min-height: calc(100vh - 70px);
+            padding: 22px 20px;
+            flex: 1;
         }
-        
-        .screen.active {
-            display: block;
-            animation: fadeIn 0.3s;
-        }
-        
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        
-        /* Login Screen */
-        .login-header {
-            margin: 40px 0;
-        }
-        
-        .login-header h1 {
-            font-size: 28px;
-            margin-bottom: 10px;
-            color: var(--dark);
-        }
-        
-        .login-header p {
-            color: #64748b;
-            font-size: 14px;
-        }
-        
-        .phone-input-group {
-            display: flex;
-            border-bottom: 2px solid var(--primary);
-            padding: 15px 0;
-            margin: 30px 0;
-        }
-        
-        .phone-input-group input {
+        .active { display: block; }
+        .back-btn {
+            background: none;
             border: none;
-            outline: none;
-            font-size: 18px;
-            flex: 1;
-            font-family: 'Poppins', sans-serif;
-        }
-        
-        /* OTP Inputs */
-        .otp-container {
-            display: flex;
-            gap: 10px;
-            justify-content: center;
-            margin: 40px 0;
-        }
-        
-        .otp-input {
-            width: 50px;
-            height: 55px;
-            text-align: center;
-            font-size: 24px;
-            font-weight: bold;
-            border: 2px solid #e2e8f0;
-            border-radius: 10px;
-            outline: none;
-        }
-        
-        .otp-input:focus {
-            border-color: var(--primary);
-        }
-        
-        /* Map */
-        #map {
-            width: 100%;
-            height: 400px;
-            border-radius: 15px;
-            margin: 20px 0;
-            border: 3px solid var(--primary);
-        }
-        
-        .location-search {
-            margin: 15px 0;
-            position: relative;
-        }
-        
-        .location-search input {
-            width: 100%;
-            padding: 15px 15px 15px 45px;
-            border: 2px solid #e2e8f0;
-            border-radius: 12px;
-            font-size: 16px;
-            outline: none;
-        }
-        
-        .location-search i {
-            position: absolute;
-            left: 15px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: #94a3b8;
-        }
-        
-        /* Truck Cards */
-        .truck-grid {
-            display: grid;
-            gap: 15px;
-            margin-top: 20px;
-        }
-        
-        .truck-card {
-            border: 2px solid #e2e8f0;
-            border-radius: 15px;
-            padding: 20px;
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-        
-        .truck-card:hover {
-            border-color: var(--primary);
-            transform: translateY(-3px);
-            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.2);
-        }
-        
-        .truck-card.selected {
-            border-color: var(--primary);
-            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
-        }
-        
-        .truck-icon {
-            width: 80px;
-            height: 80px;
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 36px;
-        }
-        
-        .truck-info {
-            flex: 1;
-        }
-        
-        .truck-info h3 {
-            font-size: 18px;
-            margin-bottom: 5px;
-        }
-        
-        .truck-info p {
-            color: #64748b;
-            font-size: 13px;
-            margin-bottom: 8px;
-        }
-        
-        .truck-price {
-            color: var(--success);
-            font-weight: 700;
-            font-size: 16px;
-        }
-        
-        /* Price Summary */
-        .price-summary {
-            background: linear-gradient(135deg, #f8fafc, #e2e8f0);
-            border-radius: 15px;
-            padding: 20px;
-            margin: 20px 0;
-        }
-        
-        .price-row {
-            display: flex;
-            justify-content: space-between;
-            padding: 10px 0;
-            border-bottom: 1px solid #cbd5e1;
-        }
-        
-        .price-row:last-child {
-            border-bottom: none;
-            font-size: 20px;
-            font-weight: 700;
-            color: var(--success);
-            padding-top: 15px;
-        }
-        
-        /* Admin Panel */
-        .admin-stats {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 15px;
-            margin-top: 20px;
-        }
-        
-        .stat-card {
-            background: linear-gradient(135deg, #f8fafc, #e2e8f0);
-            border-radius: 15px;
-            padding: 20px;
-            text-align: center;
-        }
-        
-        .stat-value {
-            font-size: 32px;
-            font-weight: 700;
             color: var(--primary);
-            margin-bottom: 5px;
-        }
-        
-        .stat-label {
-            font-size: 14px;
-            color: #64748b;
-        }
-        
-        /* Buttons */
-        .btn {
-            width: 100%;
-            padding: 16px;
-            border-radius: 12px;
-            border: none;
-            font-size: 16px;
+            font-size: 1rem;
             font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s;
-            font-family: 'Poppins', sans-serif;
             display: flex;
             align-items: center;
-            justify-content: center;
-            gap: 10px;
-            margin-top: 15px;
+            gap: 5px;
+            padding: 0 0 15px 0;
+            width: auto;
         }
-        
-        .btn-primary {
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
+        input, button, select {
+            width: 100%;
+            padding: 14px 16px;
+            margin: 8px 0 16px;
+            border: 1.5px solid var(--gray);
+            border-radius: 50px;
+            font-size: 1rem;
+            font-family: inherit;
+            background: white;
+        }
+        button {
+            background: var(--primary);
             color: white;
-            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+            border: none;
+            font-weight: 600;
+            transition: 0.2s;
+            cursor: pointer;
         }
-        
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
-        }
-        
-        .btn-primary:disabled {
-            background: #cbd5e1;
-            cursor: not-allowed;
-            transform: none;
-            box-shadow: none;
-        }
-        
-        .btn-secondary {
+        .secondary-btn {
             background: white;
             color: var(--dark);
-            border: 2px solid #e2e8f0;
+            border: 1.5px solid var(--gray);
         }
-        
-        /* Spinner */
-        .spinner {
-            border: 3px solid rgba(255,255,255,0.3);
-            border-top: 3px solid white;
-            border-radius: 50%;
-            width: 20px;
-            height: 20px;
-            animation: spin 1s linear infinite;
-            display: inline-block;
-        }
-        
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-        
-        /* Success Icon */
-        .success-icon {
-            text-align: center;
-            margin: 40px 0;
-        }
-        
-        .success-icon i {
-            font-size: 100px;
-            color: var(--success);
-            animation: scaleIn 0.5s;
-        }
-        
-        @keyframes scaleIn {
-            0% { transform: scale(0); }
-            50% { transform: scale(1.1); }
-            100% { transform: scale(1); }
-        }
-        
-        /* Receipt */
-        .receipt {
+        .truck-card {
+            border: 1.5px solid var(--gray);
+            border-radius: 20px;
+            padding: 16px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
             background: white;
-            border: 2px dashed var(--primary);
-            border-radius: 15px;
-            padding: 25px;
-            margin: 20px 0;
+            transition: 0.2s;
+            cursor: pointer;
         }
-        
-        .receipt-header {
-            text-align: center;
-            border-bottom: 2px solid #e2e8f0;
-            padding-bottom: 15px;
-            margin-bottom: 20px;
+        .truck-card:hover { border-color: var(--primary); background: #f0f7ff; }
+        .price-display {
+            background: #e6f4ea;
+            padding: 16px;
+            border-radius: 20px;
+            border-left: 6px solid var(--secondary);
+            font-weight: 700;
+            font-size: 1.2rem;
+            margin: 10px 0;
         }
-        
-        /* Footer */
         footer {
             background: var(--dark);
-            color: white;
+            color: #ccc;
+            padding: 14px;
             text-align: center;
-            padding: 20px;
-            font-size: 13px;
+            font-size: 0.75rem;
         }
-        
-        /* Notification */
-        .notification {
-            position: fixed;
-            top: 80px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: white;
-            padding: 15px 25px;
-            border-radius: 12px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
-            z-index: 9999;
-            display: none;
-            animation: slideDown 0.3s;
-        }
-        
-        .notification.show {
-            display: block;
-        }
-        
-        @keyframes slideDown {
-            from {
-                transform: translateX(-50%) translateY(-20px);
-                opacity: 0;
-            }
-            to {
-                transform: translateX(-50%) translateY(0);
-                opacity: 1;
-            }
-        }
-        
-        /* Driver Dashboard */
-        .driver-stats {
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            color: white;
-            border-radius: 15px;
-            padding: 25px;
-            margin: 20px 0;
-        }
-        
-        .earnings {
-            font-size: 36px;
-            font-weight: 700;
+        .rtl { direction: rtl; text-align: right; }
+        .success-check { font-size: 64px; color: var(--secondary); margin-bottom: 10px; }
+        .history-item {
+            background: #f5f7fa;
+            padding: 14px;
+            border-radius: 16px;
             margin-bottom: 10px;
+            border-left: 4px solid var(--primary);
         }
-        
-        .toggle-switch {
-            background: rgba(255,255,255,0.2);
-            border-radius: 25px;
-            padding: 5px;
-            display: inline-flex;
-            gap: 5px;
-            margin: 20px 0;
-        }
-        
-        .toggle-btn {
-            padding: 8px 20px;
-            border-radius: 20px;
-            border: none;
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
-            background: transparent;
-            color: white;
-            transition: all 0.3s;
-        }
-        
-        .toggle-btn.active {
-            background: white;
-            color: var(--primary);
-        }
-        
-        /* Admin Access (Hidden - Triple tap logo) */
-        .admin-unlock {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            background: var(--warning);
-            color: white;
-            display: none;
-            align-items: center;
-            justify-content: center;
-            font-size: 24px;
-            cursor: pointer;
-            box-shadow: 0 4px 15px rgba(245, 158, 11, 0.4);
-            animation: pulse 2s infinite;
-        }
-        
-        @keyframes pulse {
-            0%, 100% {
-                box-shadow: 0 4px 15px rgba(245, 158, 11, 0.4);
-            }
-            50% {
-                box-shadow: 0 4px 25px rgba(245, 158, 11, 0.8);
-            }
-        }
+        #recaptcha-container { margin: 15px 0; }
     </style>
 </head>
 <body>
+    <div class="app-container" id="app">
+        <header>
+            <h1><i class="fas fa-truck-moving"></i> TruckEase</h1>
+            <select id="lang-select" onchange="changeLang()">
+                <option value="hindi">हिन्दी</option>
+                <option value="english">English</option>
+                <option value="bihari">बिहारी</option>
+                <option value="bengali">বাংলা</option>
+                <option value="urdu">اردو</option>
+            </select>
+        </header>
 
-<!-- Splash Screen -->
-<div class="splash" id="splash">
-    <div class="splash-logo">🚛</div>
-    <div class="splash-text">TruckEase</div>
-</div>
+        <!-- स्क्रीन : लॉगिन -->
+        <div id="screen-login" class="screen active">
+            <h2 id="login-title">📱 लॉगिन करें</h2>
+            <input type="tel" id="phone-number" placeholder="मोबाइल नंबर (10 अंक)" maxlength="10">
+            <div id="recaptcha-container"></div>
+            <button id="send-otp-btn"><i class="fas fa-paper-plane"></i> <span id="send-otp-text">OTP भेजें</span></button>
+            <p style="font-size: 0.9rem; color: #555; margin-top: 20px; text-align: center;">📞 OTP आने के बाद डालें</p>
+            <input type="text" id="otp-input" placeholder="6 अंकों का OTP" style="display: none;">
+            <button id="verify-otp-btn" style="display: none;">✅ OTP वेरिफाई करें</button>
+        </div>
 
-<!-- Notification -->
-<div class="notification" id="notification"></div>
+        <!-- स्क्रीन : यूजर टाइप -->
+        <div id="screen-usertype" class="screen">
+            <h2 id="ut-title">👤 आप कौन हैं?</h2>
+            <button id="btn-customer" onclick="goToHome()"><i class="fas fa-user"></i> ग्राहक (Customer)</button>
+            <button id="btn-driver" onclick="goToDriverReg()"><i class="fas fa-id-card"></i> ड्राइवर पंजीकरण</button>
+            <button class="secondary-btn" id="btn-history" onclick="loadHistory()"><i class="fas fa-history"></i> बुकिंग इतिहास</button>
+        </div>
 
-<!-- Admin Unlock Button (Hidden) -->
-<div class="admin-unlock" id="admin-unlock" onclick="nav('admin-screen')">
-    <i class="fas fa-crown"></i>
-</div>
+        <!-- स्क्रीन : ड्राइवर रजिस्टर -->
+        <div id="screen-driverreg" class="screen">
+            <button class="back-btn" onclick="goBackToUserType()"><i class="fas fa-arrow-left"></i> वापस</button>
+            <h2>🚛 ड्राइवर रजिस्ट्रेशन</h2>
+            <input type="text" id="dri-name" placeholder="पूरा नाम">
+            <input type="tel" id="dri-phone" placeholder="मोबाइल नंबर" readonly>
+            <input type="text" id="dri-license" placeholder="लाइसेंस / आधार नंबर">
+            <select id="dri-truck-type">
+                <option value="छोटा हाथी">छोटा हाथी (Small Pickup)</option>
+                <option value="मझोला ट्रक">मझोला ट्रक (Medium Truck)</option>
+                <option value="भारी ट्रक">भारी ट्रक (Heavy Truck)</option>
+            </select>
+            <input type="text" id="dri-vehicle-no" placeholder="गाड़ी का नंबर">
+            <input type="number" id="dri-labour" placeholder="मजदूरों की संख्या (जैसे 2)">
+            <button onclick="registerDriver()">✅ सफलतापूर्वक रजिस्टर करें</button>
+        </div>
 
-<div class="container" id="app" style="display: none;">
-    <!-- Header -->
-    <header>
-        <button class="back-btn" id="back-btn" onclick="goBack()">
-            <i class="fas fa-arrow-left"></i>
-        </button>
-        <div class="logo" id="logo" onclick="logoTapCount()">
-            <i class="fas fa-truck-moving"></i>
-            <span>TruckEase</span>
-        </div>
-        <div></div>
-    </header>
-    
-    <!-- Mode Switch (Visible on Home) -->
-    <div class="mode-switch" id="mode-switch" style="display: none;">
-        <button class="mode-btn active" id="customer-mode-btn" onclick="switchMode('customer')">
-            <i class="fas fa-user"></i> Customer
-        </button>
-        <button class="mode-btn" id="driver-mode-btn" onclick="switchMode('driver')">
-            <i class="fas fa-car"></i> Driver
-        </button>
-    </div>
-    
-    <!-- LOGIN SCREEN -->
-    <div id="login-screen" class="screen active">
-        <div class="login-header">
-            <h1>Welcome to TruckEase</h1>
-            <p>India's #1 Truck Booking Platform</p>
-        </div>
-        
-        <div class="phone-input-group">
-            <img src="https://upload.wikimedia.org/wikipedia/en/4/41/Flag_of_India.svg" style="width:30px; margin-right:10px;">
-            <span style="font-size:18px; margin-right:10px;">+91</span>
-            <input type="tel" id="phone-input" placeholder="Enter mobile number" maxlength="10">
-        </div>
-        
-        <div id="recaptcha-container"></div>
-        
-        <button class="btn btn-primary" id="send-otp-btn" disabled>
-            <i class="fas fa-paper-plane"></i> Send OTP
-        </button>
-    </div>
-    
-    <!-- OTP SCREEN -->
-    <div id="otp-screen" class="screen">
-        <div class="login-header">
-            <h1>Enter OTP</h1>
-            <p>Code sent to <strong id="phone-display"></strong></p>
-        </div>
-        
-        <div class="otp-container">
-            <input type="text" class="otp-input" maxlength="1" id="otp1">
-            <input type="text" class="otp-input" maxlength="1" id="otp2">
-            <input type="text" class="otp-input" maxlength="1" id="otp3">
-            <input type="text" class="otp-input" maxlength="1" id="otp4">
-            <input type="text" class="otp-input" maxlength="1" id="otp5">
-            <input type="text" class="otp-input" maxlength="1" id="otp6">
-        </div>
-        
-        <button class="btn btn-primary" id="verify-otp-btn">
-            <i class="fas fa-check-circle"></i> Verify OTP
-        </button>
-        
-        <button class="btn btn-secondary" onclick="nav('login-screen')">
-            <i class="fas fa-edit"></i> Change Number
-        </button>
-    </div>
-    
-    <!-- HOME SCREEN (Customer Mode) -->
-    <div id="home-screen" class="screen">
-        <h2>Select Vehicle Type</h2>
-        
-        <div class="truck-grid">
-            <div class="truck-card" onclick="selectTruck('Electric Auto', 400)">
-                <div class="truck-icon"><i class="fas fa-bicycle"></i></div>
-                <div class="truck-info">
-                    <h3>Electric Auto</h3>
-                    <p>Perfect for small items</p>
-                    <div class="truck-price">₹400 base fare</div>
-                </div>
+        <!-- स्क्रीन : होम (गाड़ी चुनें) -->
+        <div id="screen-home" class="screen">
+            <button class="back-btn" onclick="goBackToUserType()"><i class="fas fa-arrow-left"></i> वापस</button>
+            <h3 id="home-title">🚛 गाड़ी चुनें</h3>
+            <div class="truck-card" onclick="pickTruck('छोटा हाथी', 0)">
+                <i class="fas fa-truck-pickup fa-2x" style="color:var(--primary);"></i>
+                <div><b>छोटा हाथी</b><br><small>10km: ₹500, 20km: ₹1000, फिर ₹50/km</small></div>
             </div>
-            
-            <div class="truck-card" onclick="selectTruck('Loader Auto', 600)">
-                <div class="truck-icon"><i class="fas fa-truck-pickup"></i></div>
-                <div class="truck-info">
-                    <h3>Loader Auto</h3>
-                    <p>Medium cargo capacity</p>
-                    <div class="truck-price">₹600 base fare</div>
-                </div>
+            <div class="truck-card" onclick="pickTruck('मझोला ट्रक', 1200)">
+                <i class="fas fa-truck fa-2x" style="color:var(--primary);"></i>
+                <div><b>मझोला ट्रक</b><br><small>₹1200 + ₹40/km</small></div>
             </div>
-            
-            <div class="truck-card" onclick="selectTruck('Pickup Truck', 1200)">
-                <div class="truck-icon"><i class="fas fa-truck"></i></div>
-                <div class="truck-info">
-                    <h3>Pickup Truck</h3>
-                    <p>14 feet, large items</p>
-                    <div class="truck-price">₹1200 base fare</div>
-                </div>
-            </div>
-            
-            <div class="truck-card" onclick="selectTruck('Heavy Truck', 2500)">
-                <div class="truck-icon"><i class="fas fa-shipping-fast"></i></div>
-                <div class="truck-info">
-                    <h3>Heavy Truck</h3>
-                    <p>Industrial loads</p>
-                    <div class="truck-price">₹2500 base fare</div>
-                </div>
+            <div class="truck-card" onclick="pickTruck('भारी ट्रक', 2500)">
+                <i class="fas fa-shipping-fast fa-2x" style="color:var(--primary);"></i>
+                <div><b>भारी ट्रक</b><br><small>₹2500 + ₹40/km</small></div>
             </div>
         </div>
-    </div>
-    
-    <!-- DRIVER HOME SCREEN -->
-    <div id="driver-home-screen" class="screen">
-        <div class="driver-stats">
-            <div class="earnings" id="driver-earnings">₹0</div>
-            <div>Today's Earnings</div>
+
+        <!-- स्क्रीन : बुकिंग -->
+        <div id="screen-booking" class="screen">
+            <button class="back-btn" onclick="goBackToHome()"><i class="fas fa-arrow-left"></i> वापस</button>
+            <h3>📋 बुकिंग जानकारी</h3>
+            <div id="selected-truck-info" style="background:#eef; padding:12px; border-radius:16px; margin-bottom:10px; font-weight:600;"></div>
+            <div id="labour-info" style="background:#f1f3f4; padding:12px; border-radius:16px; margin-bottom:15px; font-size:0.95rem;"></div>
+            <input type="number" id="distance" placeholder="कितने KM जाना है?" oninput="calcFare()">
+            <div id="fare-box" class="price-display">🚛 कुल किराया: ₹0</div>
+            <div style="background:#fff3cd; padding:12px; border-radius:12px; margin:10px 0;">
+                <span style="font-weight:bold;">🟢 15% ऐप कमीशन:</span> <span id="commission-display">₹0</span> (हमारा हिस्सा)
+            </div>
+            <button id="confirm-booking-btn" onclick="confirmBooking()">✅ कन्फर्म करें</button>
         </div>
+
+        <!-- स्क्रीन : सक्सेस / बिल -->
+        <div id="screen-success" class="screen" style="text-align:center;">
+            <i class="fas fa-check-circle success-check"></i>
+            <h2 id="success-msg">बुकिंग सफल!</h2>
+            <div id="bill-details" style="background:#f5f5f5; padding:20px; border-radius:20px; margin:20px 0; text-align:left;"></div>
+            <button onclick="goBackToUserType()">🏠 मुख्य मेनू</button>
+        </div>
+
+        <!-- स्क्रीन : हिस्ट्री -->
+        <div id="screen-history" class="screen">
+            <button class="back-btn" onclick="goBackToUserType()"><i class="fas fa-arrow-left"></i> वापस</button>
+            <h2>📜 बुकिंग इतिहास</h2>
+            <div id="history-list"></div>
+        </div>
+
+        <footer>© 2026 TruckEase · फायरबेस प्रो</footer>
+    </div>
+
+    <script type="module">
+        // ---------------------------------------------
+        // 1. फायरबेस कॉन्फिग (आपकी दी हुई, मैंने यह ली)
+        // ---------------------------------------------
+        import { initializeApp } from 'firebase/app';
+        import { getAuth, signInWithPhoneNumber, RecaptchaVerifier } from 'firebase/auth';
+        import { getFirestore, collection, addDoc, query, where, getDocs, orderBy, limit } from 'firebase/firestore';
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyByh4tT4zcUpjjQ_ebaYzpSulGtsDHjbw0",
+            authDomain: "truckease-cb961.firebaseapp.com",
+            projectId: "truckease-cb961",
+            storageBucket: "truckease-cb961.firebasestorage.app",
+            messagingSenderId: "558046020925",
+            appId: "1:558046020925:web:573533af4bbf93841e3154"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        window.auth = auth;
+        window.db = db;
+        window.RecaptchaVerifier = RecaptchaVerifier;
+        window.signInWithPhoneNumber = signInWithPhoneNumber;
+
+        console.log("🔥 फायरबेस ready!");
+    </script>
+
+    <script>
+        // ---------------------------------------------
+        // 2. पूरा ऐप लॉजिक – ग्लोबल फंक्शन
+        // ---------------------------------------------
         
-        <div class="toggle-switch">
-            <button class="toggle-btn" id
+        // ग्लोबल वेरिएबल
+        let currentUser = null;  // लॉगिन यूजर का फोन
+        let selectedTruck = "";
+        let basePrice = 0;
+        let finalFare = 0;
+        let commission = 0;
+        let labourCount = 2; // डिफ़ॉल्ट मजदूर
+
+        // लैंग्वेज डेटा
+        const langData = {
+            hindi: { login: "📱 लॉगिन करें", sendOtp: "OTP भेजें", ut: "👤 आप कौन हैं?", cust: "ग्राहक", dri: "ड्राइवर पंजीकरण", hist: "बुकिंग इतिहास", home: "🚛 गाड़ी चुनें", success: "बुकिंग सफल!" },
+            english: { login: "📱 Login", sendOtp: "Send OTP", ut: "👤 Who are you?", cust: "Customer", dri: "Driver Register", hist: "Booking History", home: "🚛 Choose Truck", success: "Booking Successful!" },
+            bihari: { login: "📱 लॉगिन करीं", sendOtp: "OTP भेजीं", ut: "👤 रउवा के हईं?", cust: "ग्राहक", dri: "ड्राइवर पंजीकरण", hist: "इतिहास", home: "🚛 गाड़ी चुनीं", success: "बुकिंग भइल!" },
+            bengali: { login: "📱 লগইন করুন", sendOtp: "OTP পাঠান", ut: "👤 আপনি কে?", cust: "গ্রাহক", dri: "ড্রাইভার রেজিস্টার", hist: "ইতিহাস", home: "🚛 গাড়ি বেছে নিন", success: "বুকিং সফল!" },
+            urdu: { login: "📱 لاگ ان کریں", sendOtp: "او ٹی پی بھیجیں", ut: "👤 آپ کون ہیں؟", cust: "گاہک", dri: "ڈرائیور رجسٹریشن", hist: "تاریخ", home: "🚛 گاڑی منتخب کریں", success: "بکنگ کامیاب!" }
+        };
+
+        function changeLang() {
+            const lang = document.getElementById('lang-select').value;
+            const d = langData[lang];
+            if (d) {
+                document.getElementById('login-title').innerText = d.login;
+                document.getElementById('send-otp-text').innerText = d.sendOtp;
+                document.getElementById('ut-title').innerText = d.ut;
+                document.getElementById('btn-customer').innerHTML = `<i class="fas fa-user"></i> ${d.cust}`;
+                document.getElementById('btn-driver').innerHTML = `<i class="fas fa-id-card"></i> ${d.dri}`;
+                document.getElementById('btn-history').innerHTML = `<i class="fas fa-history"></i> ${d.hist}`;
+                document.getElementById('home-title').innerText = d.home;
+                document.getElementById('success-msg').innerText = d.success;
+            }
+            if (lang === 'urdu') document.body.classList.add('rtl');
+            else document.body.classList.remove('rtl');
+        }
+
+        // स्क्रीन नेविगेशन
+        function showScreen(id) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+        }
+
+        // वापसी फंक्शन
+        window.goBackToUserType = function() { showScreen('screen-usertype'); };
+        window.goBackToHome = function() { showScreen('screen-home'); };
+        window.goToHome = function() { showScreen('screen-home'); };
+        window.goToDriverReg = function() { 
+            if (!currentUser) { alert("पहले लॉगिन करें!"); showScreen('screen-login'); return; }
+            document.getElementById('dri-phone').value = currentUser;
+            showScreen('screen-driverreg'); 
+        };
+
+        // ---------------------------------------------
+        // फोन OTP लॉगिन (असली Firebase)
+        // ---------------------------------------------
+        window.setupRecaptcha = function() {
+            window.recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
+                size: 'normal',
+                callback: () => {}
+            });
+            window.recaptchaVerifier.render();
+        };
+
+        document.getElementById('send-otp-btn').addEventListener('click', async function() {
+            const phone = document.getElementById('phone-number').value;
+            if (phone.length !== 10) { alert("✅ 10 अंकों का मोबाइल नंबर डालें"); return; }
+            const fullPhone = "+91" + phone;
+            try {
+                window.setupRecaptcha();
+                const confirmation = await signInWithPhoneNumber(auth, fullPhone, window.recaptchaVerifier);
+                window.confirmationResult = confirmation;
+                alert("OTP भेज दिया गया!");
+                document.getElementById('otp-input').style.display = 'block';
+                document.getElementById('verify-otp-btn').style.display = 'block';
+            } catch (e) {
+                alert("OTP भेजने में समस्या: " + e.message);
+            }
+        });
+
+        document.getElementById('verify-otp-btn').addEventListener('click', async function() {
+            const otp = document.getElementById('otp-input').value;
+            if (otp.length !== 6) { alert("✅ 6 अंकों का OTP डालें"); return; }
+            try {
+                const result = await window.confirmationResult.confirm(otp);
+                currentUser = result.user.phoneNumber;
+                alert("लॉगिन सफल! स्वागत है " + currentUser);
+                showScreen('screen-usertype');
+            } catch (e) {
+                alert("गलत OTP! " + e.message);
+            }
+        });
+
+        // ---------------------------------------------
+        // ड्राइवर रजिस्टर (Firestore)
+        // ---------------------------------------------
+        window.registerDriver = async function() {
+            const name = document.getElementById('dri-name').value;
+            const phone = document.getElementById('dri-phone').value;
+            const license = document.getElementById('dri-license').value;
+            const truck = document.getElementById('dri-truck-type').value;
+            const vehicleNo = document.getElementById('dri-vehicle-no').value;
+            const labour = document.getElementById('dri-labour').value;
+
+            if (!name || !license || !vehicleNo || !labour) {
+                alert("सभी फील्ड भरें!"); return;
+            }
+
+            try {
+                await addDoc(collection(db, "drivers"), {
+                    name, phone, license, truckType: truck, vehicleNo, labour: parseInt(labour),
+                    registeredAt: new Date().toISOString()
+                });
+                labourCount = parseInt(labour);
+                alert(`बधाई हो ${name}! आपकी ${truck} रजिस्टर हो गई।`);
+                showScreen('screen-usertype');
+            } catch (e) {
+                alert("ड्राइवर रजिस्टर फेल: " + e.message);
+            }
+        };
+
+        // ---------------------------------------------
+        // गाड़ी चुनना, किराया, 15% कमीशन
+        // ---------------------------------------------
+        window.pickTruck = function(truck, base) {
+            selectedTruck = truck;
+            basePrice = base;
+            document.getElementById('selected-truck-info').innerHTML = `<i class="fas fa-truck"></i> चुनी गई गाड़ी: <b>${truck}</b>`;
+            document.getElementById('labour-info').innerHTML = `<i class="fas fa-users"></i> इस गाड़ी के साथ <b>${labourCount} मजदूर</b> आयेंगे।`;
+            showScreen('screen-booking');
+        };
+
+        window.calcFare = function() {
+            let km = parseFloat(document.getElementById('distance').value) || 0;
+            if (selectedTruck === 'छोटा हाथी') {
+                if (km <= 10) finalFare = 500;
+                else if (km <= 20) finalFare = 1000;
+                else finalFare = km * 50;
+            } else {
+                finalFare = basePrice + (km * 40);
+            }
+            commission = Math.round(finalFare * 0.15);
+            document.getElementById('fare-box').innerHTML = `🚛 कुल किराया: ₹${finalFare}`;
+            document.getElementById('commission-display').innerHTML = `₹${commission}`;
+        };
+
+        // ---------------------------------------------
+        // बुकिंग कन्फर्म (Firestore)
+        // ---------------------------------------------
+        window.confirmBooking = async function() {
+            if (finalFare <= 0) { alert("दूरी सही डालें!"); return; }
+            if (!currentUser) { alert("पहले लॉगिन करें!"); showScreen('screen-login'); return; }
+
+            const bookingId = "TKE" + Math.floor(1000
