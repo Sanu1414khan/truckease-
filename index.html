@@ -228,27 +228,57 @@
     };
 
     // ---------- ड्राइवर रजिस्टर सेव (लोकल स्टोरेज) ----------
-    window.registerDriver = function() {
-        let name = document.getElementById('driverName').value;
-        let vehicle = document.getElementById('driverVehicle').value;
-        let type = document.getElementById('driverTruckType').value;
-        let labour = document.getElementById('driverLabour').value;
-        if (!name || !vehicle || !labour) {
-            alert('सारी जानकारी भरो भाई!');
-            return;
-        }
-        labourCount = parseInt(labour) || 2;
-        let driver = {
-            name, vehicle, type, labour: labourCount,
-            phone: currentUser,
-            timestamp: new Date().toLocaleString()
+    // ---------- ड्राइवर रजिस्टर सेव (FIREBASE) ----------
+window.registerDriver = async function() {
+    // 1. चेक करो यूजर लॉगिन है या नहीं
+    const user = firebase.auth().currentUser;
+    if (!user) {
+        alert('पहले लॉगिन करो!');
+        showScreen('loginScreen');
+        return;
+    }
+    
+    // 2. फॉर्म से जानकारी लो
+    let name = document.getElementById('driverName').value;
+    let vehicle = document.getElementById('driverVehicle').value;
+    let type = document.getElementById('driverTruckType').value;
+    let labour = document.getElementById('driverLabour').value;
+    
+    // 3. चेक करो सब भरा है या नहीं
+    if (!name || !vehicle || !labour) {
+        alert('सारी जानकारी भरो भाई!');
+        return;
+    }
+    
+    labourCount = parseInt(labour) || 2;
+    
+    try {
+        // 4. ड्राइवर का डेटा तैयार करो
+        const driverData = {
+            name: name,
+            vehicle: vehicle,
+            truckType: type,
+            labour: labourCount,
+            phone: user.phoneNumber || currentUser, // फ़ोन नंबर
+            userId: user.uid,
+            registeredAt: new Date().toISOString(),
+            totalBookings: 0,
+            rating: 0,
+            isAvailable: true
         };
-        let drivers = JSON.parse(localStorage.getItem('truckDrivers')) || [];
-        drivers.push(driver);
-        localStorage.setItem('truckDrivers', JSON.stringify(drivers));
-        alert(`🚛 ${name} जी, आप रजिस्टर हो गए! ${type} के साथ ${labourCount} मजदूर।`);
+        
+        // 5. FIREBASE (Database) में सेव करो
+        const docRef = await db.collection('drivers').add(driverData);
+        
+        alert(`🚛 ${name} जी, आप रजिस्टर हो गए! ड्राइवर ID: ${docRef.id}`);
         showScreen('homeScreen');
-    };
+        
+    } catch (error) {
+        console.error('Error:', error);
+        alert('रजिस्ट्रेशन में गड़बड़ी: ' + error.message);
+    }
+};
+    
 
     // ---------- ड्राइवर लोड (बाद में यूज करेंगे) ----------
     function loadDrivers() {
