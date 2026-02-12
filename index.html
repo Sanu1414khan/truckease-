@@ -2,435 +2,347 @@
 <html lang="hi">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>TruckEase Pro · फायरबेस ऐप</title>
-    <!-- फॉन्ट और फॉन्टअवेसम -->
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <!-- फायरबेस SDK (मॉड्यूलर) -->
-    <script type="importmap">
-        {
-            "imports": {
-                "firebase/app": "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js",
-                "firebase/auth": "https://www.gstatic.com/firebasejs/10.14.0/firebase-auth.js",
-                "firebase/firestore": "https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js"
-            }
-        }
-    </script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5, user-scalable=yes">
+    <title>TruckEase • सुपर सिंपल</title>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        :root {
-            --primary: #1a73e8;
-            --secondary: #34a853;
-            --dark: #202124;
-            --light: #f8f9fa;
-            --gray: #dadce0;
-            --shadow: 0 4px 12px rgba(0,0,0,0.08);
-            --radius: 14px;
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
         body {
-            font-family: 'Noto Sans Devanagari', sans-serif;
-            background: #e9eef2;
+            font-family: 'Segoe UI', Roboto, sans-serif;
+            background: #e9ecef;
+            padding: 16px;
             display: flex;
             justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            margin: 0;
-            padding: 12px;
         }
-        .app-container {
-            max-width: 420px;
+        .app {
+            max-width: 450px;
             width: 100%;
             background: white;
-            border-radius: 28px;
-            box-shadow: var(--shadow);
-            overflow: hidden;
-            position: relative;
-            min-height: 680px;
-            display: flex;
-            flex-direction: column;
-        }
-        header {
-            background: var(--primary);
-            color: white;
-            padding: 18px 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        header h1 { font-size: 1.5rem; font-weight: 600; margin: 0; display: flex; gap: 8px; align-items: center; }
-        #lang-select {
-            background: rgba(255,255,255,0.2);
-            color: white;
-            border: none;
-            padding: 6px 10px;
-            border-radius: 30px;
-            font-size: 0.85rem;
-            font-weight: 500;
-        }
-        .screen {
-            display: none;
+            border-radius: 32px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
             padding: 22px 20px;
-            flex: 1;
         }
-        .active { display: block; }
-        .back-btn {
-            background: none;
-            border: none;
-            color: var(--primary);
-            font-size: 1rem;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            padding: 0 0 15px 0;
-            width: auto;
-        }
-        input, button, select {
-            width: 100%;
-            padding: 14px 16px;
-            margin: 8px 0 16px;
-            border: 1.5px solid var(--gray);
-            border-radius: 50px;
-            font-size: 1rem;
-            font-family: inherit;
-            background: white;
-        }
-        button {
-            background: var(--primary);
+        h1, h2, h3 { color: #0b3b5c; margin-bottom: 16px; }
+        .truck-btn, .screen-btn, .action-btn {
+            background: #1a73e8;
             color: white;
             border: none;
+            padding: 14px 20px;
+            border-radius: 40px;
+            font-size: 18px;
             font-weight: 600;
-            transition: 0.2s;
-            cursor: pointer;
-        }
-        .secondary-btn {
-            background: white;
-            color: var(--dark);
-            border: 1.5px solid var(--gray);
-        }
-        .truck-card {
-            border: 1.5px solid var(--gray);
-            border-radius: 20px;
-            padding: 16px;
-            margin-bottom: 12px;
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            background: white;
-            transition: 0.2s;
-            cursor: pointer;
-        }
-        .truck-card:hover { border-color: var(--primary); background: #f0f7ff; }
-        .price-display {
-            background: #e6f4ea;
-            padding: 16px;
-            border-radius: 20px;
-            border-left: 6px solid var(--secondary);
-            font-weight: 700;
-            font-size: 1.2rem;
+            width: 100%;
             margin: 10px 0;
+            cursor: pointer;
+            transition: 0.2s;
         }
-        footer {
-            background: var(--dark);
-            color: #ccc;
-            padding: 14px;
-            text-align: center;
-            font-size: 0.75rem;
+        .truck-btn { background: #0d47a1; }
+        .screen-btn { background: #34a853; }
+        .action-btn { background: #f9a825; color: black; }
+        input, select {
+            width: 100%;
+            padding: 14px 18px;
+            margin: 8px 0 18px;
+            border: 2px solid #dadce0;
+            border-radius: 30px;
+            font-size: 16px;
         }
-        .rtl { direction: rtl; text-align: right; }
-        .success-check { font-size: 64px; color: var(--secondary); margin-bottom: 10px; }
-        .history-item {
-            background: #f5f7fa;
-            padding: 14px;
+        .card {
+            background: #f1f3f4;
+            border-radius: 24px;
+            padding: 18px;
+            margin: 16px 0;
+            border-left: 8px solid #1a73e8;
+        }
+        .fare-box {
+            background: #e6f4ea;
+            padding: 18px;
+            border-radius: 20px;
+            font-size: 22px;
+            font-weight: bold;
+            color: #0d652d;
+            margin: 15px 0;
+        }
+        .commission {
+            background: #fef7e0;
+            padding: 12px;
             border-radius: 16px;
-            margin-bottom: 10px;
-            border-left: 4px solid var(--primary);
+            margin-top: 5px;
+            font-weight: 600;
         }
-        #recaptcha-container { margin: 15px 0; }
+        .hidden { display: none; }
+        .history-item {
+            background: white;
+            border-radius: 16px;
+            padding: 14px;
+            margin-bottom: 10px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+            border: 1px solid #e0e0e0;
+        }
     </style>
 </head>
 <body>
-    <div class="app-container" id="app">
-        <header>
-            <h1><i class="fas fa-truck-moving"></i> TruckEase</h1>
-            <select id="lang-select" onchange="changeLang()">
-                <option value="hindi">हिन्दी</option>
-                <option value="english">English</option>
-                <option value="bihari">बिहारी</option>
-                <option value="bengali">বাংলা</option>
-                <option value="urdu">اردو</option>
-            </select>
-        </header>
+<div class="app" id="app">
 
-        <!-- स्क्रीन : लॉगिन -->
-        <div id="screen-login" class="screen active">
-            <h2 id="login-title">📱 लॉगिन करें</h2>
-            <input type="tel" id="phone-number" placeholder="मोबाइल नंबर (10 अंक)" maxlength="10">
-            <div id="recaptcha-container"></div>
-            <button id="send-otp-btn"><i class="fas fa-paper-plane"></i> <span id="send-otp-text">OTP भेजें</span></button>
-            <p style="font-size: 0.9rem; color: #555; margin-top: 20px; text-align: center;">📞 OTP आने के बाद डालें</p>
-            <input type="text" id="otp-input" placeholder="6 अंकों का OTP" style="display: none;">
-            <button id="verify-otp-btn" style="display: none;">✅ OTP वेरिफाई करें</button>
-        </div>
-
-        <!-- स्क्रीन : यूजर टाइप -->
-        <div id="screen-usertype" class="screen">
-            <h2 id="ut-title">👤 आप कौन हैं?</h2>
-            <button id="btn-customer" onclick="goToHome()"><i class="fas fa-user"></i> ग्राहक (Customer)</button>
-            <button id="btn-driver" onclick="goToDriverReg()"><i class="fas fa-id-card"></i> ड्राइवर पंजीकरण</button>
-            <button class="secondary-btn" id="btn-history" onclick="loadHistory()"><i class="fas fa-history"></i> बुकिंग इतिहास</button>
-        </div>
-
-        <!-- स्क्रीन : ड्राइवर रजिस्टर -->
-        <div id="screen-driverreg" class="screen">
-            <button class="back-btn" onclick="goBackToUserType()"><i class="fas fa-arrow-left"></i> वापस</button>
-            <h2>🚛 ड्राइवर रजिस्ट्रेशन</h2>
-            <input type="text" id="dri-name" placeholder="पूरा नाम">
-            <input type="tel" id="dri-phone" placeholder="मोबाइल नंबर" readonly>
-            <input type="text" id="dri-license" placeholder="लाइसेंस / आधार नंबर">
-            <select id="dri-truck-type">
-                <option value="छोटा हाथी">छोटा हाथी (Small Pickup)</option>
-                <option value="मझोला ट्रक">मझोला ट्रक (Medium Truck)</option>
-                <option value="भारी ट्रक">भारी ट्रक (Heavy Truck)</option>
-            </select>
-            <input type="text" id="dri-vehicle-no" placeholder="गाड़ी का नंबर">
-            <input type="number" id="dri-labour" placeholder="मजदूरों की संख्या (जैसे 2)">
-            <button onclick="registerDriver()">✅ सफलतापूर्वक रजिस्टर करें</button>
-        </div>
-
-        <!-- स्क्रीन : होम (गाड़ी चुनें) -->
-        <div id="screen-home" class="screen">
-            <button class="back-btn" onclick="goBackToUserType()"><i class="fas fa-arrow-left"></i> वापस</button>
-            <h3 id="home-title">🚛 गाड़ी चुनें</h3>
-            <div class="truck-card" onclick="pickTruck('छोटा हाथी', 0)">
-                <i class="fas fa-truck-pickup fa-2x" style="color:var(--primary);"></i>
-                <div><b>छोटा हाथी</b><br><small>10km: ₹500, 20km: ₹1000, फिर ₹50/km</small></div>
-            </div>
-            <div class="truck-card" onclick="pickTruck('मझोला ट्रक', 1200)">
-                <i class="fas fa-truck fa-2x" style="color:var(--primary);"></i>
-                <div><b>मझोला ट्रक</b><br><small>₹1200 + ₹40/km</small></div>
-            </div>
-            <div class="truck-card" onclick="pickTruck('भारी ट्रक', 2500)">
-                <i class="fas fa-shipping-fast fa-2x" style="color:var(--primary);"></i>
-                <div><b>भारी ट्रक</b><br><small>₹2500 + ₹40/km</small></div>
-            </div>
-        </div>
-
-        <!-- स्क्रीन : बुकिंग -->
-        <div id="screen-booking" class="screen">
-            <button class="back-btn" onclick="goBackToHome()"><i class="fas fa-arrow-left"></i> वापस</button>
-            <h3>📋 बुकिंग जानकारी</h3>
-            <div id="selected-truck-info" style="background:#eef; padding:12px; border-radius:16px; margin-bottom:10px; font-weight:600;"></div>
-            <div id="labour-info" style="background:#f1f3f4; padding:12px; border-radius:16px; margin-bottom:15px; font-size:0.95rem;"></div>
-            <input type="number" id="distance" placeholder="कितने KM जाना है?" oninput="calcFare()">
-            <div id="fare-box" class="price-display">🚛 कुल किराया: ₹0</div>
-            <div style="background:#fff3cd; padding:12px; border-radius:12px; margin:10px 0;">
-                <span style="font-weight:bold;">🟢 15% ऐप कमीशन:</span> <span id="commission-display">₹0</span> (हमारा हिस्सा)
-            </div>
-            <button id="confirm-booking-btn" onclick="confirmBooking()">✅ कन्फर्म करें</button>
-        </div>
-
-        <!-- स्क्रीन : सक्सेस / बिल -->
-        <div id="screen-success" class="screen" style="text-align:center;">
-            <i class="fas fa-check-circle success-check"></i>
-            <h2 id="success-msg">बुकिंग सफल!</h2>
-            <div id="bill-details" style="background:#f5f5f5; padding:20px; border-radius:20px; margin:20px 0; text-align:left;"></div>
-            <button onclick="goBackToUserType()">🏠 मुख्य मेनू</button>
-        </div>
-
-        <!-- स्क्रीन : हिस्ट्री -->
-        <div id="screen-history" class="screen">
-            <button class="back-btn" onclick="goBackToUserType()"><i class="fas fa-arrow-left"></i> वापस</button>
-            <h2>📜 बुकिंग इतिहास</h2>
-            <div id="history-list"></div>
-        </div>
-
-        <footer>© 2026 TruckEase · फायरबेस प्रो</footer>
+    <!-- हेडर -->
+    <div style="display:flex; justify-content: space-between; align-items:center; margin-bottom:20px;">
+        <h1 style="font-size:28px; margin:0;">🚛 TruckEase</h1>
+        <span style="background:#0b3b5c; color:white; padding:6px 14px; border-radius:30px;">बिना OTP</span>
     </div>
 
-    <script type="module">
-        // ---------------------------------------------
-        // 1. फायरबेस कॉन्फिग (आपकी दी हुई, मैंने यह ली)
-        // ---------------------------------------------
-        import { initializeApp } from 'firebase/app';
-        import { getAuth, signInWithPhoneNumber, RecaptchaVerifier } from 'firebase/auth';
-        import { getFirestore, collection, addDoc, query, where, getDocs, orderBy, limit } from 'firebase/firestore';
+    <!-- ========== स्क्रीन : लॉगिन (सिर्फ नंबर डालो) ========= -->
+    <div id="loginScreen">
+        <h2>📱 अपना मोबाइल नंबर डालो</h2>
+        <input type="tel" id="mobileInput" placeholder="उदा: 9876543210" maxlength="10">
+        <button class="screen-btn" onclick="login()">✅ लॉगिन / शुरू करें</button>
+        <p style="margin-top:16px; color:gray; font-size:14px;">कोई OTP नहीं, बस नंबर डालो और आगे बढ़ो।</p>
+    </div>
 
-        const firebaseConfig = {
-            apiKey: "AIzaSyByh4tT4zcUpjjQ_ebaYzpSulGtsDHjbw0",
-            authDomain: "truckease-cb961.firebaseapp.com",
-            projectId: "truckease-cb961",
-            storageBucket: "truckease-cb961.firebasestorage.app",
-            messagingSenderId: "558046020925",
-            appId: "1:558046020925:web:573533af4bbf93841e3154"
-        };
+    <!-- ========== स्क्रीन : होम (यूजर टाइप) ========= -->
+    <div id="homeScreen" class="hidden">
+        <h2>👋 स्वागत है, <span id="userPhoneDisplay"></span></h2>
+        <button class="truck-btn" onclick="showCustomerPanel()">🙋‍♂️ मैं ग्राहक हूँ – गाड़ी बुक करूँ</button>
+        <button class="truck-btn" style="background:#34a853;" onclick="showDriverReg()">🚛 मैं ड्राइवर हूँ – रजिस्टर करूँ</button>
+        <button class="action-btn" onclick="showHistory()">📜 पुरानी बुकिंग देखें</button>
+    </div>
 
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
+    <!-- ========== स्क्रीन : ड्राइवर रजिस्टर ========= -->
+    <div id="driverRegScreen" class="hidden">
+        <button class="action-btn" style="background:#e0e0e0; color:black;" onclick="backToHome()">← वापस</button>
+        <h2>🚛 ड्राइवर रजिस्ट्रेशन</h2>
+        <input type="text" id="driverName" placeholder="पूरा नाम">
+        <input type="text" id="driverVehicle" placeholder="गाड़ी का नंबर">
+        <select id="driverTruckType">
+            <option value="छोटा हाथी">छोटा हाथी (छोटी गाड़ी)</option>
+            <option value="मझोला ट्रक">मझोला ट्रक (मीडियम)</option>
+            <option value="भारी ट्रक">भारी ट्रक (बड़ा)</option>
+        </select>
+        <input type="number" id="driverLabour" placeholder="कितने मजदूर? (0-5)">
+        <button class="screen-btn" onclick="registerDriver()">✅ रजिस्टर करें</button>
+    </div>
 
-        window.auth = auth;
-        window.db = db;
-        window.RecaptchaVerifier = RecaptchaVerifier;
-        window.signInWithPhoneNumber = signInWithPhoneNumber;
+    <!-- ========== स्क्रीन : ग्राहक पैनल – गाड़ी चुनो ========= -->
+    <div id="customerPanel" class="hidden">
+        <button class="action-btn" style="background:#e0e0e0;" onclick="backToHome()">← वापस</button>
+        <h2>🚛 गाड़ी चुनें</h2>
+        <div class="card" onclick="selectTruck('छोटा हाथी', 0)">
+            <b style="font-size:18px;">🛻 छोटा हाथी</b><br>
+            <span>₹500 (10km), ₹1000 (20km), फिर ₹50/km</span>
+        </div>
+        <div class="card" onclick="selectTruck('मझोला ट्रक', 1200)">
+            <b style="font-size:18px;">🚚 मझोला ट्रक</b><br>
+            <span>₹1200 बेस + ₹40/km</span>
+        </div>
+        <div class="card" onclick="selectTruck('भारी ट्रक', 2500)">
+            <b style="font-size:18px;">🚛 भारी ट्रक</b><br>
+            <span>₹2500 बेस + ₹40/km</span>
+        </div>
+    </div>
 
-        console.log("🔥 फायरबेस ready!");
-    </script>
+    <!-- ========== स्क्रीन : बुकिंग डिटेल ========= -->
+    <div id="bookingScreen" class="hidden">
+        <button class="action-btn" style="background:#e0e0e0;" onclick="backToCustomerPanel()">← वापस</button>
+        <h3>📋 बुकिंग</h3>
+        <div id="selectedTruckDisplay" style="background:#bbdefb; padding:12px; border-radius:20px; margin-bottom:12px; font-weight:bold;"></div>
+        <div id="labourDisplay" style="background:#fff3cd; padding:12px; border-radius:16px; margin-bottom:12px;">👷 मजदूर: 2</div>
+        <input type="number" id="kmInput" placeholder="कितने किलोमीटर?" oninput="calculateFare()">
+        <div class="fare-box" id="fareDisplay">कुल किराया: ₹0</div>
+        <div class="commission" id="commissionDisplay">🟢 15% ऐप कमीशन: ₹0</div>
+        <button class="screen-btn" onclick="confirmBooking()">✅ बुकिंग कन्फर्म करें</button>
+    </div>
 
-    <script>
-        // ---------------------------------------------
-        // 2. पूरा ऐप लॉजिक – ग्लोबल फंक्शन
-        // ---------------------------------------------
-        
-        // ग्लोबल वेरिएबल
-        let currentUser = null;  // लॉगिन यूजर का फोन
-        let selectedTruck = "";
-        let basePrice = 0;
-        let finalFare = 0;
-        let commission = 0;
-        let labourCount = 2; // डिफ़ॉल्ट मजदूर
+    <!-- ========== स्क्रीन : बुकिंग सक्सेस ========= -->
+    <div id="successScreen" class="hidden">
+        <div style="text-align:center;">
+            <span style="font-size:64px;">✅</span>
+            <h2>बुकिंग सफल!</h2>
+            <div id="billDetails" class="card" style="background:#e8f5e9;"></div>
+            <button class="truck-btn" onclick="backToHome()">🏠 होम जाएँ</button>
+        </div>
+    </div>
 
-        // लैंग्वेज डेटा
-        const langData = {
-            hindi: { login: "📱 लॉगिन करें", sendOtp: "OTP भेजें", ut: "👤 आप कौन हैं?", cust: "ग्राहक", dri: "ड्राइवर पंजीकरण", hist: "बुकिंग इतिहास", home: "🚛 गाड़ी चुनें", success: "बुकिंग सफल!" },
-            english: { login: "📱 Login", sendOtp: "Send OTP", ut: "👤 Who are you?", cust: "Customer", dri: "Driver Register", hist: "Booking History", home: "🚛 Choose Truck", success: "Booking Successful!" },
-            bihari: { login: "📱 लॉगिन करीं", sendOtp: "OTP भेजीं", ut: "👤 रउवा के हईं?", cust: "ग्राहक", dri: "ड्राइवर पंजीकरण", hist: "इतिहास", home: "🚛 गाड़ी चुनीं", success: "बुकिंग भइल!" },
-            bengali: { login: "📱 লগইন করুন", sendOtp: "OTP পাঠান", ut: "👤 আপনি কে?", cust: "গ্রাহক", dri: "ড্রাইভার রেজিস্টার", hist: "ইতিহাস", home: "🚛 গাড়ি বেছে নিন", success: "বুকিং সফল!" },
-            urdu: { login: "📱 لاگ ان کریں", sendOtp: "او ٹی پی بھیجیں", ut: "👤 آپ کون ہیں؟", cust: "گاہک", dri: "ڈرائیور رجسٹریشن", hist: "تاریخ", home: "🚛 گاڑی منتخب کریں", success: "بکنگ کامیاب!" }
-        };
+    <!-- ========== स्क्रीन : इतिहास ========= -->
+    <div id="historyScreen" class="hidden">
+        <button class="action-btn" style="background:#e0e0e0;" onclick="backToHome()">← वापस</button>
+        <h2>📜 आपकी बुकिंग</h2>
+        <div id="historyList"></div>
+    </div>
 
-        function changeLang() {
-            const lang = document.getElementById('lang-select').value;
-            const d = langData[lang];
-            if (d) {
-                document.getElementById('login-title').innerText = d.login;
-                document.getElementById('send-otp-text').innerText = d.sendOtp;
-                document.getElementById('ut-title').innerText = d.ut;
-                document.getElementById('btn-customer').innerHTML = `<i class="fas fa-user"></i> ${d.cust}`;
-                document.getElementById('btn-driver').innerHTML = `<i class="fas fa-id-card"></i> ${d.dri}`;
-                document.getElementById('btn-history').innerHTML = `<i class="fas fa-history"></i> ${d.hist}`;
-                document.getElementById('home-title').innerText = d.home;
-                document.getElementById('success-msg').innerText = d.success;
-            }
-            if (lang === 'urdu') document.body.classList.add('rtl');
-            else document.body.classList.remove('rtl');
+</div>
+
+<script>
+    // ---------- ग्लोबल वेरिएबल ----------
+    let currentUser = localStorage.getItem('truckUser') || '';
+    let selectedTruck = '';
+    let basePrice = 0;
+    let finalFare = 0;
+    let commission = 0;
+    let labourCount = 2;   // डिफ़ॉल्ट मजदूर
+    let drivers = [];      // फिलहाल लोकल में ड्राइवर सेव होंगे
+
+    // ---------- पेज लोड होते ही चेक करो ----------
+    window.onload = function() {
+        if (currentUser) {
+            document.getElementById('userPhoneDisplay').innerText = currentUser;
+            showScreen('homeScreen');
+        } else {
+            showScreen('loginScreen');
         }
+        loadDrivers();
+    };
 
-        // स्क्रीन नेविगेशन
-        function showScreen(id) {
-            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-            document.getElementById(id).classList.add('active');
+    // ---------- स्क्रीन दिखाने का फंक्शन ----------
+    function showScreen(screenId) {
+        document.getElementById('loginScreen').classList.add('hidden');
+        document.getElementById('homeScreen').classList.add('hidden');
+        document.getElementById('driverRegScreen').classList.add('hidden');
+        document.getElementById('customerPanel').classList.add('hidden');
+        document.getElementById('bookingScreen').classList.add('hidden');
+        document.getElementById('successScreen').classList.add('hidden');
+        document.getElementById('historyScreen').classList.add('hidden');
+        document.getElementById(screenId).classList.remove('hidden');
+    }
+
+    // ---------- लॉगिन (बिना OTP) ----------
+    window.login = function() {
+        let mobile = document.getElementById('mobileInput').value.trim();
+        if (mobile.length !== 10 || isNaN(mobile)) {
+            alert('✅ 10 अंकों का मोबाइल नंबर डालिए');
+            return;
         }
+        currentUser = mobile;
+        localStorage.setItem('truckUser', mobile);
+        document.getElementById('userPhoneDisplay').innerText = mobile;
+        showScreen('homeScreen');
+    };
 
-        // वापसी फंक्शन
-        window.goBackToUserType = function() { showScreen('screen-usertype'); };
-        window.goBackToHome = function() { showScreen('screen-home'); };
-        window.goToHome = function() { showScreen('screen-home'); };
-        window.goToDriverReg = function() { 
-            if (!currentUser) { alert("पहले लॉगिन करें!"); showScreen('screen-login'); return; }
-            document.getElementById('dri-phone').value = currentUser;
-            showScreen('screen-driverreg'); 
+    // ---------- होम से वापस ----------
+    window.backToHome = function() { showScreen('homeScreen'); };
+    window.backToCustomerPanel = function() { showScreen('customerPanel'); };
+
+    // ---------- ड्राइवर रजिस्टर स्क्रीन ----------
+    window.showDriverReg = function() {
+        showScreen('driverRegScreen');
+    };
+
+    // ---------- ड्राइवर रजिस्टर सेव (लोकल स्टोरेज) ----------
+    window.registerDriver = function() {
+        let name = document.getElementById('driverName').value;
+        let vehicle = document.getElementById('driverVehicle').value;
+        let type = document.getElementById('driverTruckType').value;
+        let labour = document.getElementById('driverLabour').value;
+        if (!name || !vehicle || !labour) {
+            alert('सारी जानकारी भरो भाई!');
+            return;
+        }
+        labourCount = parseInt(labour) || 2;
+        let driver = {
+            name, vehicle, type, labour: labourCount,
+            phone: currentUser,
+            timestamp: new Date().toLocaleString()
         };
+        let drivers = JSON.parse(localStorage.getItem('truckDrivers')) || [];
+        drivers.push(driver);
+        localStorage.setItem('truckDrivers', JSON.stringify(drivers));
+        alert(`🚛 ${name} जी, आप रजिस्टर हो गए! ${type} के साथ ${labourCount} मजदूर।`);
+        showScreen('homeScreen');
+    };
 
-        // ---------------------------------------------
-        // फोन OTP लॉगिन (असली Firebase)
-        // ---------------------------------------------
-        window.setupRecaptcha = function() {
-            window.recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
-                size: 'normal',
-                callback: () => {}
+    // ---------- ड्राइवर लोड (बाद में यूज करेंगे) ----------
+    function loadDrivers() {
+        drivers = JSON.parse(localStorage.getItem('truckDrivers')) || [];
+    }
+
+    // ---------- ग्राहक पैनल ----------
+    window.showCustomerPanel = function() {
+        showScreen('customerPanel');
+    };
+
+    // ---------- गाड़ी चुनो ----------
+    window.selectTruck = function(truck, base) {
+        selectedTruck = truck;
+        basePrice = base;
+        document.getElementById('selectedTruckDisplay').innerHTML = '🚛 गाड़ी: <b>' + truck + '</b>';
+        // मजदूर दिखाओ (डिफ़ॉल्ट या ड्राइवर के हिसाब से)
+        document.getElementById('labourDisplay').innerHTML = '👷 इस गाड़ी के साथ <b>' + labourCount + ' मजदूर</b> आएँगे।';
+        showScreen('bookingScreen');
+        document.getElementById('kmInput').value = '';
+        document.getElementById('fareDisplay').innerHTML = 'कुल किराया: ₹0';
+        document.getElementById('commissionDisplay').innerHTML = '🟢 15% ऐप कमीशन: ₹0';
+    };
+
+    // ---------- किराया कैलकुलेट + 15% कमीशन ----------
+    window.calculateFare = function() {
+        let km = parseFloat(document.getElementById('kmInput').value) || 0;
+        if (selectedTruck === 'छोटा हाथी') {
+            if (km <= 10) finalFare = 500;
+            else if (km <= 20) finalFare = 1000;
+            else finalFare = km * 50;
+        } else {
+            finalFare = basePrice + (km * 40);
+        }
+        commission = Math.round(finalFare * 0.15);
+        document.getElementById('fareDisplay').innerHTML = '💰 कुल किराया: ₹' + finalFare;
+        document.getElementById('commissionDisplay').innerHTML = '🟢 15% ऐप कमीशन: ₹' + commission + ' (हमारा हिस्सा)';
+    };
+
+    // ---------- बुकिंग कन्फर्म (लोकल स्टोरेज) ----------
+    window.confirmBooking = function() {
+        if (finalFare <= 0) {
+            alert('पहले दूरी डालो!');
+            return;
+        }
+        let km = parseFloat(document.getElementById('kmInput').value) || 0;
+        let bookingId = 'TKE' + Math.floor(1000 + Math.random() * 9000);
+        let booking = {
+            id: bookingId,
+            user: currentUser,
+            truck: selectedTruck,
+            km: km,
+            fare: finalFare,
+            commission: commission,
+            labour: labourCount,
+            time: new Date().toLocaleString()
+        };
+        let history = JSON.parse(localStorage.getItem('truckHistory')) || [];
+        history.unshift(booking);
+        localStorage.setItem('truckHistory', JSON.stringify(history));
+
+        // बिल दिखाओ
+        let bill = `
+            <b>बुकिंग ID:</b> ${bookingId}<br>
+            <b>गाड़ी:</b> ${selectedTruck}<br>
+            <b>दूरी:</b> ${km} km<br>
+            <b>किराया:</b> ₹${finalFare}<br>
+            <b>हमारा कमीशन (15%):</b> ₹${commission}<br>
+            <b>ड्राइवर को:</b> ₹${finalFare - commission}<br>
+            <b>मजदूर:</b> ${labourCount}<br>
+            <b>समय:</b> ${booking.time}
+        `;
+        document.getElementById('billDetails').innerHTML = bill;
+        showScreen('successScreen');
+    };
+
+    // ---------- इतिहास देखें ----------
+    window.showHistory = function() {
+        let history = JSON.parse(localStorage.getItem('truckHistory')) || [];
+        let listDiv = document.getElementById('historyList');
+        if (history.length === 0) {
+            listDiv.innerHTML = '<p style="color:gray;">अभी कोई बुकिंग नहीं हुई।</p>';
+        } else {
+            let html = '';
+            history.forEach(b => {
+                html += `<div class="history-item">
+                    <b>🆔 ${b.id}</b><br>
+                    🚛 ${b.truck} | ₹${b.fare}<br>
+                    📏 ${b.km} km | 👷 ${b.labour} मजदूर<br>
+                    <small>📅 ${b.time}</small>
+                </div>`;
             });
-            window.recaptchaVerifier.render();
-        };
+            listDiv.innerHTML = html;
+        }
+        showScreen('historyScreen');
+    };
 
-        document.getElementById('send-otp-btn').addEventListener('click', async function() {
-            const phone = document.getElementById('phone-number').value;
-            if (phone.length !== 10) { alert("✅ 10 अंकों का मोबाइल नंबर डालें"); return; }
-            const fullPhone = "+91" + phone;
-            try {
-                window.setupRecaptcha();
-                const confirmation = await signInWithPhoneNumber(auth, fullPhone, window.recaptchaVerifier);
-                window.confirmationResult = confirmation;
-                alert("OTP भेज दिया गया!");
-                document.getElementById('otp-input').style.display = 'block';
-                document.getElementById('verify-otp-btn').style.display = 'block';
-            } catch (e) {
-                alert("OTP भेजने में समस्या: " + e.message);
-            }
-        });
-
-        document.getElementById('verify-otp-btn').addEventListener('click', async function() {
-            const otp = document.getElementById('otp-input').value;
-            if (otp.length !== 6) { alert("✅ 6 अंकों का OTP डालें"); return; }
-            try {
-                const result = await window.confirmationResult.confirm(otp);
-                currentUser = result.user.phoneNumber;
-                alert("लॉगिन सफल! स्वागत है " + currentUser);
-                showScreen('screen-usertype');
-            } catch (e) {
-                alert("गलत OTP! " + e.message);
-            }
-        });
-
-        // ---------------------------------------------
-        // ड्राइवर रजिस्टर (Firestore)
-        // ---------------------------------------------
-        window.registerDriver = async function() {
-            const name = document.getElementById('dri-name').value;
-            const phone = document.getElementById('dri-phone').value;
-            const license = document.getElementById('dri-license').value;
-            const truck = document.getElementById('dri-truck-type').value;
-            const vehicleNo = document.getElementById('dri-vehicle-no').value;
-            const labour = document.getElementById('dri-labour').value;
-
-            if (!name || !license || !vehicleNo || !labour) {
-                alert("सभी फील्ड भरें!"); return;
-            }
-
-            try {
-                await addDoc(collection(db, "drivers"), {
-                    name, phone, license, truckType: truck, vehicleNo, labour: parseInt(labour),
-                    registeredAt: new Date().toISOString()
-                });
-                labourCount = parseInt(labour);
-                alert(`बधाई हो ${name}! आपकी ${truck} रजिस्टर हो गई।`);
-                showScreen('screen-usertype');
-            } catch (e) {
-                alert("ड्राइवर रजिस्टर फेल: " + e.message);
-            }
-        };
-
-        // ---------------------------------------------
-        // गाड़ी चुनना, किराया, 15% कमीशन
-        // ---------------------------------------------
-        window.pickTruck = function(truck, base) {
-            selectedTruck = truck;
-            basePrice = base;
-            document.getElementById('selected-truck-info').innerHTML = `<i class="fas fa-truck"></i> चुनी गई गाड़ी: <b>${truck}</b>`;
-            document.getElementById('labour-info').innerHTML = `<i class="fas fa-users"></i> इस गाड़ी के साथ <b>${labourCount} मजदूर</b> आयेंगे।`;
-            showScreen('screen-booking');
-        };
-
-        window.calcFare = function() {
-            let km = parseFloat(document.getElementById('distance').value) || 0;
-            if (selectedTruck === 'छोटा हाथी') {
-                if (km <= 10) finalFare = 500;
-                else if (km <= 20) finalFare = 1000;
-                else finalFare = km * 50;
-            } else {
-                finalFare = basePrice + (km * 40);
-            }
-            commission = Math.round(finalFare * 0.15);
-            document.getElementById('fare-box').innerHTML = `🚛 कुल किराया: ₹${finalFare}`;
-            document.getElementById('commission-display').innerHTML = `₹${commission}`;
-        };
-
-        // ---------------------------------------------
-        // बुकिंग कन्फर्म (Firestore)
-        // ---------------------------------------------
-        window.confirmBooking = async function() {
-            if (finalFare <= 0) { alert("दूरी सही डालें!"); return; }
-            if (!currentUser) { alert("पहले लॉगिन करें!"); showScreen('screen-login'); return; }
-
-            const bookingId = "TKE" + Math.floor(1000
+</script>
+</body>
+</html>
