@@ -105,38 +105,54 @@
 
     <div id="driverRegScreen" class="hidden">
     <button class="action-btn" style="background:#e0e0e0; color:black;" onclick="backToHome()">← वापस</button>
-    <h2>🚛 ड्राइवर रजिस्ट्रेशन</h2>
+    <h2 style="text-align:center; margin-bottom:15px;">🚛 प्रोफेशनल ड्राइवर रजिस्ट्रेशन</h2>
     
-    <input type="text" id="driverName" placeholder="आपका पूरा नाम">
+    <h3 style="font-size:16px; color:#1a73e8; margin-bottom:10px;">👤 आपकी जानकारी</h3>
+    <input type="text" id="driverName" placeholder="पूरा नाम (आधार के अनुसार)">
     <input type="tel" id="driverMobile" placeholder="मोबाइल नंबर (10 अंक)" maxlength="10">
-    <input type="email" id="driverEmail" placeholder="ईमेल आईडी (Optional)">
-    <input type="text" id="driverIdNumber" placeholder="आधार या लाइसेंस नंबर">
+    <input type="text" id="driverAadhaar" placeholder="आधार नंबर (12 अंक)">
+    <input type="text" id="driverLicense" placeholder="ड्राइविंग लाइसेंस नंबर">
 
-    <h3 style="font-size:16px; margin-top:10px;">गाड़ी की डिटेल:</h3>
-    <input type="text" id="driverVehicleName" placeholder="गाड़ी का नाम (जैसे: टाटा मैजिक, बोलेरो)">
-    <input type="text" id="driverVehicleNumber" placeholder="गाड़ी का नंबर (UP14-XXXX)">
+    <h3 style="font-size:16px; color:#1a73e8; margin-top:20px; margin-bottom:10px;">🚛 गाड़ी की जानकारी</h3>
+    <input type="text" id="driverVehicleName" placeholder="गाड़ी का नाम (जैसे: टाटा 407)">
+    <input type="text" id="driverVehicleNumber" placeholder="गाड़ी का नंबर (RC नंबर)">
+    <input type="text" id="driverCapacity" placeholder="कितना टन माल उठा सकती है?">
     
     <div style="display:flex; gap:10px;">
         <input type="text" id="vLength" placeholder="लंबाई (फुट)">
         <input type="text" id="vWidth" placeholder="चौड़ाई (फुट)">
     </div>
 
-    <h3 style="font-size:16px; margin-top:10px;">📸 गाड़ी की फोटो अपलोड करें:</h3>
+    <h3 style="font-size:16px; color:#1a73e8; margin-top:20px; margin-bottom:10px;">📸 जरूरी फोटो अपलोड</h3>
     <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-bottom:15px;">
-        <div style="text-align:center; border:1px dashed #ccc; padding:10px; border-radius:15px;">
-            <span style="font-size:12px;">साइड का फोटो</span>
+        <div style="text-align:center; border:1px dashed #ccc; padding:8px; border-radius:12px;">
+            <span style="font-size:11px;">ड्राइवर सेल्फी</span>
+            <input type="file" id="photoDriver" accept="image/*" style="width:100%; font-size:10px;">
+        </div>
+        <div style="text-align:center; border:1px dashed #ccc; padding:8px; border-radius:12px;">
+            <span style="font-size:11px;">गाड़ी की RC</span>
+            <input type="file" id="photoRC" accept="image/*" style="width:100%; font-size:10px;">
+        </div>
+        <div style="text-align:center; border:1px dashed #ccc; padding:8px; border-radius:12px;">
+            <span style="font-size:11px;">गाड़ी साइड फोटो</span>
             <input type="file" id="photoSide" accept="image/*" style="width:100%; font-size:10px;">
         </div>
-        <div style="text-align:center; border:1px dashed #ccc; padding:10px; border-radius:15px;">
-            <span style="font-size:12px;">ट्रॉली का फोटो</span>
+        <div style="text-align:center; border:1px dashed #ccc; padding:8px; border-radius:12px;">
+            <span style="font-size:11px;">ट्रॉली फोटो</span>
             <input type="file" id="photoBack" accept="image/*" style="width:100%; font-size:10px;">
         </div>
     </div>
 
+    <h3 style="font-size:16px; color:#1a73e8; margin-top:20px; margin-bottom:10px;">💰 बैंक डिटेल (पेमेंट के लिए)</h3>
+    <input type="text" id="bankName" placeholder="बैंक का नाम">
+    <input type="text" id="accountNumber" placeholder="अकाउंट नंबर">
+    <input type="text" id="ifscCode" placeholder="IFSC कोड">
+
     <input type="number" id="driverLabour" placeholder="कितने मजदूर साथ होंगे?">
     
-    <button class="screen-btn" onclick="registerDriver()">✅ रजिस्टर करें</button>
+    <button class="screen-btn" onclick="registerDriver()" style="background:#1a73e8; margin-top:25px;">✅ रजिस्ट्रेशन पूरा करें</button>
     </div>
+    
     
 
     <div id="customerPanel" class="hidden">
