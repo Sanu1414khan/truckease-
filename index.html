@@ -20,6 +20,7 @@
             border-radius: 32px;
             box-shadow: 0 8px 20px rgba(0,0,0,0.1);
             padding: 22px 20px;
+            display: block !important;
         }
         h1, h2, h3 { color: #0b3b5c; margin-bottom: 16px; }
         .truck-btn, .screen-btn, .action-btn {
@@ -92,7 +93,7 @@
         <h2>📱 अपना मोबाइल नंबर डालो</h2>
         <input type="tel" id="mobileInput" placeholder="9876543210" maxlength="10">
         <button id="login-btn" class="screen-btn" onclick="login()">✅ आगे बढ़ें</button>
-        <p style="margin-top:16px; color:gray; font-size:14px;">कोई OTP नहीं, बस नंबर डालो और शुरू करो।</p>
+        <p style="margin-top:16px; color:gray; font-size:14px;">बस नंबर डालो और शुरू करो।</p>
     </div>
 
     <div id="homeScreen" class="hidden">
@@ -109,36 +110,42 @@
         <input type="text" id="driverVehicle" placeholder="गाड़ी का नंबर">
         <select id="driverTruckType">
             <option value="छोटा हाथी">छोटा हाथी (छोटी गाड़ी)</option>
-            <option value="मझोला ट्रक (मीडियम)">मझोला ट्रक (मीडियम)</option>
-            <option value="भारी ट्रक (बड़ा)">भारी ट्रक (बड़ा)</option>
+            <option value="मझोला ट्रक">मझोला ट्रक (मीडियम)</option>
+            <option value="भारी ट्रक">भारी ट्रक (बड़ा)</option>
         </select>
-        <input type="number" id="driverLabour" placeholder="कितने मजदूर? (0-5)">
+        <input type="number" id="driverLabour" placeholder="कितने मजदूर?">
         <button class="screen-btn" onclick="registerDriver()">✅ रजिस्टर करें</button>
     </div>
 
     <div id="customerPanel" class="hidden">
         <button class="action-btn" style="background:#e0e0e0;" onclick="backToHome()">← वापस</button>
         <h2>🚛 गाड़ी चुनें</h2>
+        
         <div class="card" onclick="selectTruck('Total chhote truck', 0)">
             <b style="font-size:18px;">🛻 Total chhote truck</b><br>
-            <span>छोटी गाड़ी - ₹500 (10km), ₹1000 (20km), फिर ₹50/km</span>
+            <span>छोटी गाड़ी - ₹500 (10km), फिर ₹50/km</span>
         </div>
+
         <div class="card" onclick="selectTruck('Total medium truck', 1200)">
             <b style="font-size:18px;">🚚 Total medium truck</b><br>
             <span>मझोली गाड़ी - ₹1200 बेस + ₹40/km</span>
         </div>
+
         <div class="card" onclick="selectTruck('Total Bhari aur bade truck', 2500)">
-            <b style="font-size:18px;">🚛 Total Bhari aur badhiya truck</b><br>
+            <b style="font-size:18px;">🚛 Total Bhari aur bade truck</b><br>
             <span>भारी गाड़ी - ₹2500 बेस + ₹40/km</span>
         </div>
+
         <div class="card" onclick="selectTruck('Total JCB and bulldozer', 3000)">
             <b style="font-size:18px;">🟨🚜 Total JCB and bulldozer</b><br>
             <span>JCB & बुलडोज़र - ₹3000 बेस + ₹60/km</span>
         </div>
+
         <div class="card" onclick="selectTruck('Total chhoti aur Badi crane', 4000)">
             <b style="font-size:18px;">🏗️ Total chhoti aur Badi crane</b><br>
             <span>क्रेन - ₹4000 बेस + ₹80/km</span>
         </div>
+
         <div class="card" onclick="selectTruck('Total bade aur chhote tractor', 1800)">
             <b style="font-size:18px;">🚜 Total bade aur chhote tractor</b><br>
             <span>ट्रैक्टर - ₹1800 बेस + ₹35/km</span>
@@ -149,7 +156,6 @@
         <button class="action-btn" style="background:#e0e0e0;" onclick="backToCustomerPanel()">← वापस</button>
         <h3>📋 बुकिंग</h3>
         <div id="selectedTruckDisplay" style="background:#bbdefb; padding:12px; border-radius:20px; margin-bottom:12px; font-weight:bold;"></div>
-        <div id="labourDisplay" style="background:#fff3cd; padding:12px; border-radius:16px; margin-bottom:12px;">👷 मजदूर: 2</div>
         <input type="number" id="kmInput" placeholder="कितने किलोमीटर?" oninput="calculateFare()">
         <div class="fare-box" id="fareDisplay">कुल किराया: ₹0</div>
         <div class="commission" id="commissionDisplay">🟢 15% ऐप कमीशन: ₹0</div>
@@ -167,17 +173,32 @@
 
     <div id="historyScreen" class="hidden">
         <button class="action-btn" style="background:#e0e0e0;" onclick="backToHome()">← वापस</button>
-        <h2>📜 आपकी बुकिंग</h2>
+        <h2>📜 पुरानी बुकिंग</h2>
         <div id="historyList"></div>
     </div>
 
-</div> <script>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+
+<script>
+    // Firebase Config
+    const firebaseConfig = {
+        apiKey: "AIzaSyByh4tT4zcUpjjQ_ebaYzpSulGtsDHjbw0",
+        authDomain: "truckease-cb961.firebaseapp.com",
+        projectId: "truckease-cb961",
+        storageBucket: "truckease-cb961.appspot.com",
+        messagingSenderId: "558046020925",
+        appId: "1:558046020925:web:573533af4bbf93841e3154"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
     let currentUser = localStorage.getItem('truckUser') || '';
     let selectedTruck = '';
     let basePrice = 0;
     let finalFare = 0;
-    let commission = 0;
-    let labourCount = 2;
 
     window.onload = function() {
         if (currentUser) {
@@ -219,8 +240,6 @@
 
     window.calculateFare = function() {
         let km = parseFloat(document.getElementById('kmInput').value) || 0;
-        
-        // रेट का हिसाब (किराया सूत्र)
         if (selectedTruck === 'Total chhote truck') {
             if (km <= 10) finalFare = 500;
             else if (km <= 20) finalFare = 1000;
@@ -234,25 +253,18 @@
         } else if (selectedTruck === 'Total bade aur chhote tractor') {
             finalFare = basePrice + (km * 35);
         }
-
-        commission = Math.round(finalFare * 0.15);
+        let commission = Math.round(finalFare * 0.15);
         document.getElementById('fareDisplay').innerHTML = '💰 कुल किराया: ₹' + finalFare;
         document.getElementById('commissionDisplay').innerHTML = '🟢 15% ऐप कमीशन: ₹' + commission;
     };
 
     window.confirmBooking = function() {
-        if (finalFare <= 0) { alert('पहले दूरी डालो!'); return; }
+        if (finalFare <= 0) { alert('दूरी डालें'); return; }
         let bookingId = 'TKE' + Math.floor(1000 + Math.random() * 9000);
-        let booking = {
-            id: bookingId,
-            truck: selectedTruck,
-            fare: finalFare,
-            time: new Date().toLocaleString()
-        };
+        let booking = { id: bookingId, truck: selectedTruck, fare: finalFare, time: new Date().toLocaleString() };
         let history = JSON.parse(localStorage.getItem('truckHistory')) || [];
         history.unshift(booking);
         localStorage.setItem('truckHistory', JSON.stringify(history));
-
         document.getElementById('billDetails').innerHTML = `<b>ID:</b> ${bookingId}<br><b>गाड़ी:</b> ${selectedTruck}<br><b>किराया:</b> ₹${finalFare}`;
         showScreen('successScreen');
     };
@@ -267,294 +279,15 @@
         listDiv.innerHTML = html || '<p>कोई बुकिंग नहीं</p>';
         showScreen('historyScreen');
     };
-</script>
-</body>
-</html>
-    </div>
-    
-    <!-- तीसरा कार्ड - भारी ट्रक → Total Bhari aur badhiya truck -->
-    <div class="card" onclick="selectTruck('Total Bhari aur bade truck', 2500)">
-        <b style="font-size:18px;">🚛 Total Bhari aur badhiya truck</b><br>
-        <span>भारी गाड़ी - ₹2500 बेस + ₹40/km</span>
-    </div>
-    
-<!-- चौथा कार्ड - JCB & Bulldozer -->
-<div class="card" onclick="selectTruck('Total JCB and bulldozer', 3000)">
-    <b style="font-size:18px;">🟨🚜 Total JCB and bulldozer</b><br>
-    <span>JCB & बुलडोज़र - ₹3000 बेस + ₹60/km</span>
-</div>
 
-<!-- पाँचवाँ कार्ड - Crane -->
-<div class="card" onclick="selectTruck('Total chhoti aur Badi crane', 4000)">
-    <b style="font-size:18px;">🏗️ Total chhoti aur Badi crane</b><br>
-    <span>क्रेन - ₹4000 बेस + ₹80/km</span>
-</div>
-    
-</div>
-    </div>
-
-    <!-- ========== स्क्रीन : बुकिंग डिटेल ========= -->
-    <div id="bookingScreen" class="hidden">
-        <button class="action-btn" style="background:#e0e0e0;" onclick="backToCustomerPanel()">← वापस</button>
-        <h3>📋 बुकिंग</h3>
-        <div id="selectedTruckDisplay" style="background:#bbdefb; padding:12px; border-radius:20px; margin-bottom:12px; font-weight:bold;"></div>
-        <div id="labourDisplay" style="background:#fff3cd; padding:12px; border-radius:16px; margin-bottom:12px;">👷 मजदूर: 2</div>
-        <input type="number" id="kmInput" placeholder="कितने किलोमीटर?" oninput="calculateFare()">
-        <div class="fare-box" id="fareDisplay">कुल किराया: ₹0</div>
-        <div class="commission" id="commissionDisplay">🟢 15% ऐप कमीशन: ₹0</div>
-        <button class="screen-btn" onclick="confirmBooking()">✅ बुकिंग कन्फर्म करें</button>
-    </div>
-
-    <!-- ========== स्क्रीन : बुकिंग सक्सेस ========= -->
-    <div id="successScreen" class="hidden">
-        <div style="text-align:center;">
-            <span style="font-size:64px;">✅</span>
-            <h2>बुकिंग सफल!</h2>
-            <div id="billDetails" class="card" style="background:#e8f5e9;"></div>
-            <button class="truck-btn" onclick="backToHome()">🏠 होम जाएँ</button>
-        </div>
-    </div>
-
-    <!-- ========== स्क्रीन : इतिहास ========= -->
-    <div id="historyScreen" class="hidden">
-        <button class="action-btn" style="background:#e0e0e0;" onclick="backToHome()">← वापस</button>
-        <h2>📜 आपकी बुकिंग</h2>
-        <div id="historyList"></div>
-    </div>
-
-</div>
-
-<script>
-    // ---------- ग्लोबल वेरिएबल ----------
-    let currentUser = localStorage.getItem('truckUser') || '';
-    let selectedTruck = '';
-    let basePrice = 0;
-    let finalFare = 0;
-    let commission = 0;
-    let labourCount = 2;   // डिफ़ॉल्ट मजदूर
-    let drivers = [];      // फिलहाल लोकल में ड्राइवर सेव होंगे
-
-    // ---------- पेज लोड होते ही चेक करो ----------
-    window.onload = function() {
-        if (currentUser) {
-            document.getElementById('userPhoneDisplay').innerText = currentUser;
-            showScreen('homeScreen');
-        } else {
-            showScreen('loginScreen');
-        }
-        loadDrivers();
-    };
-
-    // ---------- स्क्रीन दिखाने का फंक्शन ----------
-    function showScreen(screenId) {
-        document.getElementById('loginScreen').classList.add('hidden');
-        document.getElementById('homeScreen').classList.add('hidden');
-        document.getElementById('driverRegScreen').classList.add('hidden');
-        document.getElementById('customerPanel').classList.add('hidden');
-        document.getElementById('bookingScreen').classList.add('hidden');
-        document.getElementById('successScreen').classList.add('hidden');
-        document.getElementById('historyScreen').classList.add('hidden');
-        document.getElementById(screenId).classList.remove('hidden');
-    }
-
-    // ---------- लॉगिन (बिना OTP) ----------
-    window.login = function() {
-        let mobile = document.getElementById('mobileInput').value.trim();
-        if (mobile.length !== 10 || isNaN(mobile)) {
-            alert('✅ 10 अंकों का मोबाइल नंबर डालिए');
-            return;
-        }
-        currentUser = mobile;
-        localStorage.setItem('truckUser', mobile);
-        document.getElementById('userPhoneDisplay').innerText = mobile;
+    async function registerDriver() {
+        let name = document.getElementById('driverName').value;
+        let vehicle = document.getElementById('driverVehicle').value;
+        if(!name || !vehicle) { alert('जानकारी भरें'); return; }
+        await db.collection('drivers').add({ name, vehicle, registeredAt: new Date() });
+        alert('रजिस्टर हो गया!');
         showScreen('homeScreen');
-    };
-
-    // ---------- होम से वापस ----------
-    window.backToHome = function() { showScreen('homeScreen'); };
-    window.backToCustomerPanel = function() { showScreen('customerPanel'); };
-
-    // ---------- ड्राइवर रजिस्टर स्क्रीन ----------
-    window.showDriverReg = function() {
-        showScreen('driverRegScreen');
-    };
-
-    // ---------- ड्राइवर रजिस्टर सेव (लोकल स्टोरेज) ----------
-    // ---------- ड्राइवर रजिस्टर सेव (FIREBASE) ----------
-window.registerDriver = async function() {
-    // 1. चेक करो यूजर लॉगिन है या नहीं
-    const user = firebase.auth().currentUser;
-    if (!user) {
-        alert('पहले लॉगिन करो!');
-        showScreen('loginScreen');
-        return;
     }
-    
-    // 2. फॉर्म से जानकारी लो
-    let name = document.getElementById('driverName').value;
-    let vehicle = document.getElementById('driverVehicle').value;
-    let type = document.getElementById('driverTruckType').value;
-    let labour = document.getElementById('driverLabour').value;
-    
-    // 3. चेक करो सब भरा है या नहीं
-    if (!name || !vehicle || !labour) {
-        alert('सारी जानकारी भरो भाई!');
-        return;
-    }
-    
-    labourCount = parseInt(labour) || 2;
-    
-    try {
-        // 4. ड्राइवर का डेटा तैयार करो
-        const driverData = {
-            name: name,
-            vehicle: vehicle,
-            truckType: type,
-            labour: labourCount,
-            phone: user.phoneNumber || currentUser, // फ़ोन नंबर
-            userId: user.uid,
-            registeredAt: new Date().toISOString(),
-            totalBookings: 0,
-            rating: 0,
-            isAvailable: true
-        };
-        
-        // 5. FIREBASE (Database) में सेव करो
-        const docRef = await db.collection('drivers').add(driverData);
-        
-        alert(`🚛 ${name} जी, आप रजिस्टर हो गए! ड्राइवर ID: ${docRef.id}`);
-        showScreen('homeScreen');
-        
-    } catch (error) {
-        console.error('Error:', error);
-        alert('रजिस्ट्रेशन में गड़बड़ी: ' + error.message);
-    }
-};
-    
-
-    // ---------- ड्राइवर लोड (बाद में यूज करेंगे) ----------
-    function loadDrivers() {
-        drivers = JSON.parse(localStorage.getItem('truckDrivers')) || [];
-    }
-
-    // ---------- ग्राहक पैनल ----------
-    window.showCustomerPanel = function() {
-        showScreen('customerPanel');
-    };
-
-    // ---------- गाड़ी चुनो ----------
-    window.selectTruck = function(truck, base) {
-        selectedTruck = truck;
-        basePrice = base;
-        document.getElementById('selectedTruckDisplay').innerHTML = '🚛 गाड़ी: <b>' + truck + '</b>';
-        // मजदूर दिखाओ (डिफ़ॉल्ट या ड्राइवर के हिसाब से)
-        document.getElementById('labourDisplay').innerHTML = '👷 इस गाड़ी के साथ <b>' + labourCount + ' मजदूर</b> आएँगे।';
-        showScreen('bookingScreen');
-        document.getElementById('kmInput').value = '';
-        document.getElementById('fareDisplay').innerHTML = 'कुल किराया: ₹0';
-        document.getElementById('commissionDisplay').innerHTML = '🟢 15% ऐप कमीशन: ₹0';
-    };
-
-    // ---------- किराया कैलकुलेट + 15% कमीशन ----------
-    window.calculateFare = function() {
-        let km = parseFloat(document.getElementById('kmInput').value) || 0;
-        if (selectedTruck === 'छोटा हाथी') {
-            if (km <= 10) finalFare = 500;
-            else if (km <= 20) finalFare = 1000;
-            else finalFare = km * 50;
-        } else {
-            finalFare = basePrice + (km * 40);
-        }
-        commission = Math.round(finalFare * 0.15);
-        document.getElementById('fareDisplay').innerHTML = '💰 कुल किराया: ₹' + finalFare;
-        document.getElementById('commissionDisplay').innerHTML = '🟢 15% ऐप कमीशन: ₹' + commission + ' (हमारा हिस्सा)';
-    };
-
-    // ---------- बुकिंग कन्फर्म (लोकल स्टोरेज) ----------
-    window.confirmBooking = function() {
-        if (finalFare <= 0) {
-            alert('पहले दूरी डालो!');
-            return;
-        }
-        let km = parseFloat(document.getElementById('kmInput').value) || 0;
-        let bookingId = 'TKE' + Math.floor(1000 + Math.random() * 9000);
-        let booking = {
-            id: bookingId,
-            user: currentUser,
-            truck: selectedTruck,
-            km: km,
-            fare: finalFare,
-            commission: commission,
-            labour: labourCount,
-            time: new Date().toLocaleString()
-        };
-        let history = JSON.parse(localStorage.getItem('truckHistory')) || [];
-        history.unshift(booking);
-        localStorage.setItem('truckHistory', JSON.stringify(history));
-
-        // बिल दिखाओ
-        let bill = `
-            <b>बुकिंग ID:</b> ${bookingId}<br>
-            <b>गाड़ी:</b> ${selectedTruck}<br>
-            <b>दूरी:</b> ${km} km<br>
-            <b>किराया:</b> ₹${finalFare}<br>
-            <b>हमारा कमीशन (15%):</b> ₹${commission}<br>
-            <b>ड्राइवर को:</b> ₹${finalFare - commission}<br>
-            <b>मजदूर:</b> ${labourCount}<br>
-            <b>समय:</b> ${booking.time}
-        `;
-        document.getElementById('billDetails').innerHTML = bill;
-        showScreen('successScreen');
-    };
-
-    // ---------- इतिहास देखें ----------
-    window.showHistory = function() {
-        let history = JSON.parse(localStorage.getItem('truckHistory')) || [];
-        let listDiv = document.getElementById('historyList');
-        if (history.length === 0) {
-            listDiv.innerHTML = '<p style="color:gray;">अभी कोई बुकिंग नहीं हुई।</p>';
-        } else {
-            let html = '';
-            history.forEach(b => {
-                html += `<div class="history-item">
-                    <b>🆔 ${b.id}</b><br>
-                    🚛 ${b.truck} | ₹${b.fare}<br>
-                    📏 ${b.km} km | 👷 ${b.labour} मजदूर<br>
-                    <small>📅 ${b.time}</small>
-                </div>`;
-            });
-            listDiv.innerHTML = html;
-        }
-        showScreen('historyScreen');
-    };
-
-</script>
-     <script src="https://www.gstatic.com/firebasejs/12.9.0/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/12.9.0/firebase-auth.js"></script>
-<script src="https://www.gstatic.com/firebasejs/12.9.0/firebase-firestore.js"></script>
-    
-<script>
-  // तुम्हारी Firebase Config
-  const firebaseConfig = {
-    apiKey: "AIzaSyByh4tT4zcUpjjQ_ebaYzpSulGtsDHjbw0",
-    authDomain: "truckease-cb961.firebaseapp.com",
-    projectId: "truckease-cb961",
-    storageBucket: "truckease-cb961.firebasestorage.app",
-    messagingSenderId: "558046020925",
-    appId: "1:558046020925:web:573533af4bbf93841e3154"
-  };
-
-  // Firebase शुरू करो
-  if (!firebase.apps.length) {
-      firebase.initializeApp(firebaseConfig);
-  }
-  const auth = firebase.auth();
-  const db = firebase.firestore();
-
-  // ग्लोबल बनाओ ताकि अगले स्टेप में काम आए
-  window.auth = auth;
-  window.db = db;
-  console.log("✅ Firebase अब एकदम सही जगह पर है!");
 </script>
 </body>
 </html>
