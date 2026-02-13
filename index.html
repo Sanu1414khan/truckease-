@@ -279,36 +279,47 @@
     window.showDriverReg = function() { showScreen('driverRegScreen'); };
     window.showCustomerPanel = function() { showScreen('customerPanel'); };
 
-    // ---------- 📍 GPS: यूजर की लाइव लोकेशन लेना ----------
+// ---------- 🗺️ PRO MAX: Leaflet Map के साथ लोकेशन ----------
 window.getCurrentLocation = function() {
-    const status = document.getElementById('locationStatus');
-    status.style.display = 'block';
-    status.innerHTML = "⏳ आपकी लोकेशन ढूँढ रहे हैं...";
-
+    const mapDiv = document.getElementById('map');
+    
     if (!navigator.geolocation) {
-        status.innerHTML = "❌ आपके ब्राउज़र में GPS काम नहीं करता।";
+        alert("❌ आपके ब्राउज़र में GPS काम नहीं करता।");
         return;
     }
 
-    navigator.geolocation.getCurrentPosition(
-        (position) => {
-            const lat = position.coords.latitude;
-            const lon = position.coords.longitude;
-            
-            // लोकेशन मिल गई! अब इसे स्टेटस में दिखाओ
-            status.innerHTML = `✅ लोकेशन मिल गई! (Lat: ${lat.toFixed(4)}, Lon: ${lon.toFixed(4)})`;
-            status.style.background = "#e8f5e9";
-            
-            // इसे हम बुकिंग डेटा में भी सेव करेंगे
-            window.userLocation = { lat, lon };
-            console.log("Location Saved:", window.userLocation);
-        },
-        (error) => {
-            status.innerHTML = "❌ लोकेशन नहीं मिल पाई। कृपया परमिशन दें।";
-            console.error(error);
-        }
-    );
+    navigator.geolocation.getCurrentPosition((position) => {
+        const lat = position.coords.latitude;
+        const lon = position.coords.longitude;
+        
+        // 1. नक्शे का डिब्बा दिखाओ
+        mapDiv.style.display = "block"; 
+        
+        // 2. पुराना नक्शा साफ़ करो (ताकि एरर न आए)
+        if (window.map) { window.map.remove(); }
+        
+        // 3. नया नक्शा लोड करो (Zoom Level 15)
+        window.map = L.map('map').setView([lat, lon], 15);
+        
+        // 4. नक्शे की तस्वीर (OpenStreetMap)
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap'
+        }).addTo(window.map);
+        
+        // 5. लाल पिन (Marker) लगाओ
+        L.marker([lat, lon]).addTo(window.map)
+            .bindPopup('📦 आपका सामान यहाँ से उठेगा')
+            .openPopup();
+        
+        // 6. लोकेशन डेटा सेव करो
+        window.userLocation = { lat, lon };
+        console.log("📍 मैप लोड हुआ:", lat, lon);
+
+    }, (error) => {
+        alert("❌ लोकेशन नहीं मिल पाई। कृपया GPS चालू करें।");
+    });
 };
+    
 
     
     // ---------- 🚀 PRO MAX: ट्रक सेलेक्ट + इंफो स्क्रीन अपडेट ----------
