@@ -277,6 +277,38 @@
     window.showDriverReg = function() { showScreen('driverRegScreen'); };
     window.showCustomerPanel = function() { showScreen('customerPanel'); };
 
+    // ---------- 📍 GPS: यूजर की लाइव लोकेशन लेना ----------
+window.getCurrentLocation = function() {
+    const status = document.getElementById('locationStatus');
+    status.style.display = 'block';
+    status.innerHTML = "⏳ आपकी लोकेशन ढूँढ रहे हैं...";
+
+    if (!navigator.geolocation) {
+        status.innerHTML = "❌ आपके ब्राउज़र में GPS काम नहीं करता।";
+        return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+        (position) => {
+            const lat = position.coords.latitude;
+            const lon = position.coords.longitude;
+            
+            // लोकेशन मिल गई! अब इसे स्टेटस में दिखाओ
+            status.innerHTML = `✅ लोकेशन मिल गई! (Lat: ${lat.toFixed(4)}, Lon: ${lon.toFixed(4)})`;
+            status.style.background = "#e8f5e9";
+            
+            // इसे हम बुकिंग डेटा में भी सेव करेंगे
+            window.userLocation = { lat, lon };
+            console.log("Location Saved:", window.userLocation);
+        },
+        (error) => {
+            status.innerHTML = "❌ लोकेशन नहीं मिल पाई। कृपया परमिशन दें।";
+            console.error(error);
+        }
+    );
+};
+
+    
     // ---------- 🚀 PRO MAX: ट्रक सेलेक्ट + इंफो स्क्रीन अपडेट ----------
     window.selectTruck = function(truckName) {
         const truck = truckData[truckName];
