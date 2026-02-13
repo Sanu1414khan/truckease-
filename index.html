@@ -190,6 +190,41 @@
         </div>
     </div>
 
+    <!-- ========== स्क्रीन : ट्रक इंफो (गाड़ी की डिटेल) ========= -->
+<div id="truckInfoScreen" class="hidden">
+    <button class="action-btn" style="background:#e0e0e0; color:black;" onclick="backToCustomerPanel()">← वापस</button>
+    
+    <div style="text-align:center; margin-top:10px;">
+        <div id="truckInfoIcon" style="font-size:64px; margin-bottom:10px;">🛻</div>
+        <h2 id="truckInfoName" style="color:#0b3b5c;">Total chhote truck</h2>
+    </div>
+
+    <div style="background:#f1f3f4; border-radius:24px; padding:20px; margin:20px 0;">
+        <div style="display:flex; justify-content:space-between; margin-bottom:15px;">
+            <span style="font-size:16px; color:#555;">📦 माल ढोने की क्षमता</span>
+            <span id="truckCapacity" style="font-size:18px; font-weight:bold; color:#0d47a1;">1.5 टन</span>
+        </div>
+        <div style="display:flex; justify-content:space-between; margin-bottom:15px;">
+            <span style="font-size:16px; color:#555;">📏 गाड़ी का साइज (L×W)</span>
+            <span id="truckSize" style="font-size:18px; font-weight:bold; color:#0d47a1;">8x4 फुट</span>
+        </div>
+        <div style="display:flex; justify-content:space-between; margin-bottom:15px;">
+            <span style="font-size:16px; color:#555;">💰 बेस किराया</span>
+            <span id="truckBaseFare" style="font-size:18px; font-weight:bold; color:#0d47a1;">₹500</span>
+        </div>
+        <div style="display:flex; justify-content:space-between;">
+            <span style="font-size:16px; color:#555;">⚡ प्रति किलोमीटर</span>
+            <span id="truckPerKmRate" style="font-size:18px; font-weight:bold; color:#0d47a1;">₹50/km</span>
+        </div>
+    </div>
+
+    <div style="background:#e8f5e9; border-radius:20px; padding:16px; margin-bottom:25px;">
+        <span style="font-size:15px; color:#0d652d;">✅ इस गाड़ी में <span id="truckLabourInfo">2 मजदूर</span> साथ आएँगे</span>
+    </div>
+
+    <button class="screen-btn" onclick="goToBookingScreen()" style="background:#1a73e8;">🚛 आगे बढ़ें — किराया कैलकुलेट करें</button>
+</div>
+    
     <div id="bookingScreen" class="hidden">
         <button class="action-btn" style="background:#e0e0e0;" onclick="backToCustomerPanel()">← वापस</button>
         <h3>📋 बुकिंग</h3>
