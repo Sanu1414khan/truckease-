@@ -282,11 +282,16 @@
         }
     };
 
-    function showScreen(screenId) {
-        let screens = ['loginScreen', 'homeScreen', 'driverRegScreen', 'customerPanel', 'bookingScreen', 'successScreen', 'historyScreen'];
-        screens.forEach(s => document.getElementById(s).classList.add('hidden'));
+        function showScreen(screenId) {
+        // यहाँ हमने लिस्ट में 'truckInfoScreen' का नाम जोड़ दिया है
+        let screens = ['loginScreen', 'homeScreen', 'driverRegScreen', 'customerPanel', 'truckInfoScreen', 'bookingScreen', 'successScreen', 'historyScreen'];
+        screens.forEach(s => {
+            let el = document.getElementById(s);
+            if(el) el.classList.add('hidden');
+        });
         document.getElementById(screenId).classList.remove('hidden');
-    }
+        }
+    
 
     window.login = function() {
         let mobile = document.getElementById('mobileInput').value.trim();
