@@ -318,14 +318,50 @@
         showScreen('historyScreen');
     };
 
-    async function registerDriver() {
-        let name = document.getElementById('driverName').value;
-        let vehicle = document.getElementById('driverVehicle').value;
-        if(!name || !vehicle) { alert('जानकारी भरें'); return; }
-        await db.collection('drivers').add({ name, vehicle, registeredAt: new Date() });
-        alert('रजिस्टर हो गया!');
-        showScreen('homeScreen');
+    window.registerDriver = async function() {
+    // 1. फॉर्म के सभी बॉक्स से जानकारी लेना
+    let name = document.getElementById('driverName').value;
+    let mobile = document.getElementById('driverMobile').value;
+    let aadhaar = document.getElementById('driverAadhaar').value;
+    let license = document.getElementById('driverLicense').value;
+    let vName = document.getElementById('driverVehicleName').value;
+    
+    // ✅ यहाँ DeepSi की बताई हुई सही ID डाली है
+    let vNumber = document.getElementById('driverVehicleNumber').value; 
+    
+    let vCap = document.getElementById('driverCapacity').value;
+    let vLen = document.getElementById('vLength').value;
+    let vWid = document.getElementById('vWidth').value;
+    let bName = document.getElementById('bankName').value;
+    let accNo = document.getElementById('accountNumber').value;
+    let ifsc = document.getElementById('ifscCode').value;
+    let labour = document.getElementById('driverLabour').value;
+
+    // 2. चेक करना कि जरूरी जानकारी भरी है या नहीं
+    if (!name || !mobile || !vNumber) {
+        alert("दोस्त, नाम, मोबाइल और गाड़ी नंबर भरना बहुत जरूरी है!");
+        return;
     }
+
+    try {
+        // 3. सारा डेटा Firebase में सुरक्षित सेव करना
+        await db.collection("drivers").add({
+            personalInfo: { name, mobile, aadhaar, license },
+            vehicleDetails: { vName, vNumber, vCap, size: vLen + "x" + vWid },
+            bankDetails: { bName, accNo, ifsc },
+            labourCount: labour,
+            status: "pending",
+            registeredAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        
+        alert("✅ बहुत बढ़िया! आपका प्रोफेशनल रजिस्ट्रेशन सेव हो गया है।");
+        showScreen('homeScreen'); // वापस होम स्क्रीन पर जाएँ
+    } catch (error) {
+        console.error("Error: ", error);
+        alert("❌ कुछ गड़बड़ हुई, डेटा सेव नहीं हो पाया।");
+    }
+};
+    
 </script>
 </body>
 </html>
