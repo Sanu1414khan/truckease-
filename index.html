@@ -104,131 +104,93 @@
     </div>
 
     <div id="driverRegScreen" class="hidden">
-    <button class="action-btn" style="background:#e0e0e0; color:black;" onclick="backToHome()">← वापस</button>
-    <h2 style="text-align:center; margin-bottom:15px;">🚛 प्रोफेशनल ड्राइवर रजिस्ट्रेशन</h2>
-    
-    <h3 style="font-size:16px; color:#1a73e8; margin-bottom:10px;">👤 आपकी जानकारी</h3>
-    <input type="text" id="driverName" placeholder="पूरा नाम (आधार के अनुसार)">
-    <input type="tel" id="driverMobile" placeholder="मोबाइल नंबर (10 अंक)" maxlength="10">
-    <input type="text" id="driverAadhaar" placeholder="आधार नंबर (12 अंक)">
-    <input type="text" id="driverLicense" placeholder="ड्राइविंग लाइसेंस नंबर">
-
-    <h3 style="font-size:16px; color:#1a73e8; margin-top:20px; margin-bottom:10px;">🚛 गाड़ी की जानकारी</h3>
-    <input type="text" id="driverVehicleName" placeholder="गाड़ी का नाम (जैसे: टाटा 407)">
-    <input type="text" id="driverVehicleNumber" placeholder="गाड़ी का नंबर (RC नंबर)">
-    <input type="text" id="driverCapacity" placeholder="कितना टन माल उठा सकती है?">
-    
-    <div style="display:flex; gap:10px;">
-        <input type="text" id="vLength" placeholder="लंबाई (फुट)">
-        <input type="text" id="vWidth" placeholder="चौड़ाई (फुट)">
+        <button class="action-btn" style="background:#e0e0e0; color:black;" onclick="backToHome()">← वापस</button>
+        <h2 style="text-align:center; margin-bottom:15px;">🚛 प्रोफेशनल ड्राइवर रजिस्ट्रेशन</h2>
+        <h3 style="font-size:16px; color:#1a73e8; margin-bottom:10px;">👤 आपकी जानकारी</h3>
+        <input type="text" id="driverName" placeholder="पूरा नाम (आधार के अनुसार)">
+        <input type="tel" id="driverMobile" placeholder="मोबाइल नंबर (10 अंक)" maxlength="10">
+        <input type="text" id="driverAadhaar" placeholder="आधार नंबर (12 अंक)">
+        <input type="text" id="driverLicense" placeholder="ड्राइविंग लाइसेंस नंबर">
+        <h3 style="font-size:16px; color:#1a73e8; margin-top:20px; margin-bottom:10px;">🚛 गाड़ी की जानकारी</h3>
+        <input type="text" id="driverVehicleName" placeholder="गाड़ी का नाम (जैसे: टाटा 407)">
+        <input type="text" id="driverVehicleNumber" placeholder="गाड़ी का नंबर (RC नंबर)">
+        <input type="text" id="driverCapacity" placeholder="कितना टन माल उठा सकती है?">
+        <div style="display:flex; gap:10px;">
+            <input type="text" id="vLength" placeholder="लंबाई (फुट)">
+            <input type="text" id="vWidth" placeholder="चौड़ाई (फुट)">
+        </div>
+        <h3 style="font-size:16px; color:#1a73e8; margin-top:20px; margin-bottom:10px;">💰 बैंक डिटेल</h3>
+        <input type="text" id="bankName" placeholder="बैंक का नाम">
+        <input type="text" id="accountNumber" placeholder="अकाउंट नंबर">
+        <input type="text" id="ifscCode" placeholder="IFSC कोड">
+        <input type="number" id="driverLabour" placeholder="कितने मजदूर साथ होंगे?">
+        <button class="screen-btn" onclick="registerDriver()" style="background:#1a73e8; margin-top:25px;">✅ रजिस्ट्रेशन पूरा करें</button>
     </div>
-
-    <h3 style="font-size:16px; color:#1a73e8; margin-top:20px; margin-bottom:10px;">📸 जरूरी फोटो अपलोड</h3>
-    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-bottom:15px;">
-        <div style="text-align:center; border:1px dashed #ccc; padding:8px; border-radius:12px;">
-            <span style="font-size:11px;">ड्राइवर सेल्फी</span>
-            <input type="file" id="photoDriver" accept="image/*" style="width:100%; font-size:10px;">
-        </div>
-        <div style="text-align:center; border:1px dashed #ccc; padding:8px; border-radius:12px;">
-            <span style="font-size:11px;">गाड़ी की RC</span>
-            <input type="file" id="photoRC" accept="image/*" style="width:100%; font-size:10px;">
-        </div>
-        <div style="text-align:center; border:1px dashed #ccc; padding:8px; border-radius:12px;">
-            <span style="font-size:11px;">गाड़ी साइड फोटो</span>
-            <input type="file" id="photoSide" accept="image/*" style="width:100%; font-size:10px;">
-        </div>
-        <div style="text-align:center; border:1px dashed #ccc; padding:8px; border-radius:12px;">
-            <span style="font-size:11px;">ट्रॉली फोटो</span>
-            <input type="file" id="photoBack" accept="image/*" style="width:100%; font-size:10px;">
-        </div>
-    </div>
-
-    <h3 style="font-size:16px; color:#1a73e8; margin-top:20px; margin-bottom:10px;">💰 बैंक डिटेल (पेमेंट के लिए)</h3>
-    <input type="text" id="bankName" placeholder="बैंक का नाम">
-    <input type="text" id="accountNumber" placeholder="अकाउंट नंबर">
-    <input type="text" id="ifscCode" placeholder="IFSC कोड">
-
-    <input type="number" id="driverLabour" placeholder="कितने मजदूर साथ होंगे?">
-    
-    <button class="screen-btn" onclick="registerDriver()" style="background:#1a73e8; margin-top:25px;">✅ रजिस्ट्रेशन पूरा करें</button>
-    </div>
-    
-    
 
     <div id="customerPanel" class="hidden">
         <button class="action-btn" style="background:#e0e0e0;" onclick="backToHome()">← वापस</button>
         <h2>🚛 गाड़ी चुनें</h2>
-        
-        <div class="card" onclick="selectTruck('Total chhote truck', 0)">
+        <div class="card" onclick="selectTruck('Total chhote truck')">
             <b style="font-size:18px;">🛻 Total chhote truck</b><br>
             <span>छोटी गाड़ी - ₹500 (10km), फिर ₹50/km</span>
         </div>
-
-        <div class="card" onclick="selectTruck('Total medium truck', 1200)">
+        <div class="card" onclick="selectTruck('Total medium truck')">
             <b style="font-size:18px;">🚚 Total medium truck</b><br>
             <span>मझोली गाड़ी - ₹1200 बेस + ₹40/km</span>
         </div>
-
-        <div class="card" onclick="selectTruck('Total Bhari aur bade truck', 2500)">
+        <div class="card" onclick="selectTruck('Total Bhari aur bade truck')">
             <b style="font-size:18px;">🚛 Total Bhari aur bade truck</b><br>
             <span>भारी गाड़ी - ₹2500 बेस + ₹40/km</span>
         </div>
-
-        <div class="card" onclick="selectTruck('Total JCB and bulldozer', 3000)">
+        <div class="card" onclick="selectTruck('Total JCB and bulldozer')">
             <b style="font-size:18px;">🟨🚜 Total JCB and bulldozer</b><br>
             <span>JCB & बुलडोज़र - ₹3000 बेस + ₹60/km</span>
         </div>
-
-        <div class="card" onclick="selectTruck('Total chhoti aur Badi crane', 4000)">
+        <div class="card" onclick="selectTruck('Total chhoti aur Badi crane')">
             <b style="font-size:18px;">🏗️ Total chhoti aur Badi crane</b><br>
             <span>क्रेन - ₹4000 बेस + ₹80/km</span>
         </div>
-
-        <div class="card" onclick="selectTruck('Total bade aur chhote tractor', 1800)">
+        <div class="card" onclick="selectTruck('Total bade aur chhote tractor')">
             <b style="font-size:18px;">🚜 Total bade aur chhote tractor</b><br>
             <span>ट्रैक्टर - ₹1800 बेस + ₹35/km</span>
         </div>
     </div>
 
-    <!-- ========== स्क्रीन : ट्रक इंफो (गाड़ी की डिटेल) ========= -->
-<div id="truckInfoScreen" class="hidden">
-    <button class="action-btn" style="background:#e0e0e0; color:black;" onclick="backToCustomerPanel()">← वापस</button>
-    
-    <div style="text-align:center; margin-top:10px;">
-        <div id="truckInfoIcon" style="font-size:64px; margin-bottom:10px;">🛻</div>
-        <h2 id="truckInfoName" style="color:#0b3b5c;">Total chhote truck</h2>
+    <div id="truckInfoScreen" class="hidden">
+        <button class="action-btn" style="background:#e0e0e0; color:black;" onclick="backToCustomerPanel()">← वापस</button>
+        <div style="text-align:center; margin-top:10px;">
+            <div id="truckInfoIcon" style="font-size:64px; margin-bottom:10px;">🛻</div>
+            <h2 id="truckInfoName" style="color:#0b3b5c;">गाड़ी का नाम</h2>
+        </div>
+        <div style="background:#f1f3f4; border-radius:24px; padding:20px; margin:20px 0;">
+            <div style="display:flex; justify-content:space-between; margin-bottom:15px;">
+                <span style="font-size:16px; color:#555;">📦 माल ढोने की क्षमता</span>
+                <span id="truckCapacity" style="font-size:18px; font-weight:bold; color:#0d47a1;">-</span>
+            </div>
+            <div style="display:flex; justify-content:space-between; margin-bottom:15px;">
+                <span style="font-size:16px; color:#555;">📏 गाड़ी का साइज (L×W)</span>
+                <span id="truckSize" style="font-size:18px; font-weight:bold; color:#0d47a1;">-</span>
+            </div>
+            <div style="display:flex; justify-content:space-between; margin-bottom:15px;">
+                <span style="font-size:16px; color:#555;">💰 बेस किराया</span>
+                <span id="truckBaseFare" style="font-size:18px; font-weight:bold; color:#0d47a1;">-</span>
+            </div>
+            <div style="display:flex; justify-content:space-between;">
+                <span style="font-size:16px; color:#555;">⚡ प्रति किलोमीटर</span>
+                <span id="truckPerKmRate" style="font-size:18px; font-weight:bold; color:#0d47a1;">-</span>
+            </div>
+        </div>
+        <div style="background:#e8f5e9; border-radius:20px; padding:16px; margin-bottom:25px;">
+            <span style="font-size:15px; color:#0d652d;">✅ इस गाड़ी में <span id="truckLabourInfo">-</span> साथ आएँगे</span>
+        </div>
+        <button class="screen-btn" onclick="goToBookingScreen()" style="background:#1a73e8;">🚛 आगे बढ़ें — किराया कैलकुलेट करें</button>
     </div>
 
-    <div style="background:#f1f3f4; border-radius:24px; padding:20px; margin:20px 0;">
-        <div style="display:flex; justify-content:space-between; margin-bottom:15px;">
-            <span style="font-size:16px; color:#555;">📦 माल ढोने की क्षमता</span>
-            <span id="truckCapacity" style="font-size:18px; font-weight:bold; color:#0d47a1;">1.5 टन</span>
-        </div>
-        <div style="display:flex; justify-content:space-between; margin-bottom:15px;">
-            <span style="font-size:16px; color:#555;">📏 गाड़ी का साइज (L×W)</span>
-            <span id="truckSize" style="font-size:18px; font-weight:bold; color:#0d47a1;">8x4 फुट</span>
-        </div>
-        <div style="display:flex; justify-content:space-between; margin-bottom:15px;">
-            <span style="font-size:16px; color:#555;">💰 बेस किराया</span>
-            <span id="truckBaseFare" style="font-size:18px; font-weight:bold; color:#0d47a1;">₹500</span>
-        </div>
-        <div style="display:flex; justify-content:space-between;">
-            <span style="font-size:16px; color:#555;">⚡ प्रति किलोमीटर</span>
-            <span id="truckPerKmRate" style="font-size:18px; font-weight:bold; color:#0d47a1;">₹50/km</span>
-        </div>
-    </div>
-
-    <div style="background:#e8f5e9; border-radius:20px; padding:16px; margin-bottom:25px;">
-        <span style="font-size:15px; color:#0d652d;">✅ इस गाड़ी में <span id="truckLabourInfo">2 मजदूर</span> साथ आएँगे</span>
-    </div>
-
-    <button class="screen-btn" onclick="goToBookingScreen()" style="background:#1a73e8;">🚛 आगे बढ़ें — किराया कैलकुलेट करें</button>
-</div>
-    
     <div id="bookingScreen" class="hidden">
         <button class="action-btn" style="background:#e0e0e0;" onclick="backToCustomerPanel()">← वापस</button>
         <h3>📋 बुकिंग</h3>
         <div id="selectedTruckDisplay" style="background:#bbdefb; padding:12px; border-radius:20px; margin-bottom:12px; font-weight:bold;"></div>
+        <div id="labourDisplay" style="background:#fff3cd; padding:12px; border-radius:16px; margin-bottom:12px;"></div>
         <input type="number" id="kmInput" placeholder="कितने किलोमीटर?" oninput="calculateFare()">
         <div class="fare-box" id="fareDisplay">कुल किराया: ₹0</div>
         <div class="commission" id="commissionDisplay">🟢 15% ऐप कमीशन: ₹0</div>
@@ -273,6 +235,16 @@
     let basePrice = 0;
     let finalFare = 0;
 
+    // ---------- 🚛 TRUCK DATA MASTER OBJECT (PRO MAX) ----------
+    const truckData = {
+        'Total chhote truck': { icon: '🛻', name: 'Total chhote truck', capacity: '1.5 टन', size: '8x4 फुट', baseFare: '₹500', perKm: '₹50/km', labour: '2 मजदूर', basePrice: 0, perKmRate: 50 },
+        'Total medium truck': { icon: '🚚', name: 'Total medium truck', capacity: '5 टन', size: '12x6 फुट', baseFare: '₹1200', perKm: '₹40/km', labour: '3 मजदूर', basePrice: 1200, perKmRate: 40 },
+        'Total Bhari aur bade truck': { icon: '🚛', name: 'Total Bhari aur bade truck', capacity: '12 टन', size: '18x7 फुट', baseFare: '₹2500', perKm: '₹40/km', labour: '4 मजदूर', basePrice: 2500, perKmRate: 40 },
+        'Total JCB and bulldozer': { icon: '🟨🚜', name: 'Total JCB and bulldozer', capacity: '2.5 टन', size: '10x5 फुट', baseFare: '₹3000', perKm: '₹60/km', labour: '2 मजदूर', basePrice: 3000, perKmRate: 60 },
+        'Total chhoti aur Badi crane': { icon: '🏗️', name: 'Total chhoti aur Badi crane', capacity: '20 टन', size: '20x8 फुट', baseFare: '₹4000', perKm: '₹80/km', labour: '3 मजदूर', basePrice: 4000, perKmRate: 80 },
+        'Total bade aur chhote tractor': { icon: '🚜', name: 'Total bade aur chhote tractor', capacity: '3.5 टन', size: '14x5 फुट', baseFare: '₹1800', perKm: '₹35/km', labour: '1 मजदूर', basePrice: 1800, perKmRate: 35 }
+    };
+
     window.onload = function() {
         if (currentUser) {
             document.getElementById('userPhoneDisplay').innerText = currentUser;
@@ -282,16 +254,14 @@
         }
     };
 
-        function showScreen(screenId) {
-        // यहाँ हमने लिस्ट में 'truckInfoScreen' का नाम जोड़ दिया है
+    function showScreen(screenId) {
         let screens = ['loginScreen', 'homeScreen', 'driverRegScreen', 'customerPanel', 'truckInfoScreen', 'bookingScreen', 'successScreen', 'historyScreen'];
         screens.forEach(s => {
             let el = document.getElementById(s);
             if(el) el.classList.add('hidden');
         });
         document.getElementById(screenId).classList.remove('hidden');
-        }
-    
+    }
 
     window.login = function() {
         let mobile = document.getElementById('mobileInput').value.trim();
@@ -307,33 +277,47 @@
     window.showDriverReg = function() { showScreen('driverRegScreen'); };
     window.showCustomerPanel = function() { showScreen('customerPanel'); };
 
-    window.selectTruck = function(truck, base) {
-        selectedTruck = truck;
-        basePrice = base;
-        document.getElementById('selectedTruckDisplay').innerHTML = '🚛 गाड़ी: <b>' + truck + '</b>';
+    // ---------- 🚀 PRO MAX: ट्रक सेलेक्ट + इंफो स्क्रीन अपडेट ----------
+    window.selectTruck = function(truckName) {
+        const truck = truckData[truckName];
+        if (!truck) return;
+        selectedTruck = truckName;
+        basePrice = truck.basePrice;
+        document.getElementById('truckInfoIcon').innerHTML = truck.icon;
+        document.getElementById('truckInfoName').innerHTML = truck.name;
+        document.getElementById('truckCapacity').innerHTML = truck.capacity;
+        document.getElementById('truckSize').innerHTML = truck.size;
+        document.getElementById('truckBaseFare').innerHTML = truck.baseFare;
+        document.getElementById('truckPerKmRate').innerHTML = truck.perKm;
+        document.getElementById('truckLabourInfo').innerHTML = truck.labour;
+        showScreen('truckInfoScreen');
+    };
+
+    window.goToBookingScreen = function() {
+        const truck = truckData[selectedTruck];
+        document.getElementById('selectedTruckDisplay').innerHTML = '🚛 गाड़ी: <b>' + selectedTruck + '</b>';
+        document.getElementById('labourDisplay').innerHTML = '👷 इस गाड़ी के साथ <b>' + truck.labour + '</b> आएँगे।';
         showScreen('bookingScreen');
         document.getElementById('kmInput').value = '';
-        calculateFare();
+        document.getElementById('fareDisplay').innerHTML = 'कुल किराया: ₹0';
+        document.getElementById('commissionDisplay').innerHTML = '🟢 15% ऐप कमीशन: ₹0';
     };
 
     window.calculateFare = function() {
         let km = parseFloat(document.getElementById('kmInput').value) || 0;
+        const truck = truckData[selectedTruck];
+        if (!truck) return;
         if (selectedTruck === 'Total chhote truck') {
             if (km <= 10) finalFare = 500;
             else if (km <= 20) finalFare = 1000;
             else finalFare = km * 50;
-        } else if (selectedTruck === 'Total medium truck' || selectedTruck === 'Total Bhari aur bade truck') {
-            finalFare = basePrice + (km * 40);
-        } else if (selectedTruck === 'Total JCB and bulldozer') {
-            finalFare = basePrice + (km * 60);
-        } else if (selectedTruck === 'Total chhoti aur Badi crane') {
-            finalFare = basePrice + (km * 80);
-        } else if (selectedTruck === 'Total bade aur chhote tractor') {
-            finalFare = basePrice + (km * 35);
+        } else {
+            finalFare = truck.basePrice + (km * truck.perKmRate);
         }
         let commission = Math.round(finalFare * 0.15);
-        document.getElementById('fareDisplay').innerHTML = '💰 कुल किराया: ₹' + finalFare;
-        document.getElementById('commissionDisplay').innerHTML = '🟢 15% ऐप कमीशन: ₹' + commission;
+        let driverEarning = finalFare - commission;
+        document.getElementById('fareDisplay').innerHTML = `💰 कुल किराया: <span style="font-size:28px;">₹${finalFare}</span>`;
+        document.getElementById('commissionDisplay').innerHTML = `🟢 15% ऐप कमीशन: ₹${commission}<br><span style="font-size:14px; color:#0d652d;">🚛 ड्राइवर को मिलेंगे: ₹${driverEarning}</span>`;
     };
 
     window.confirmBooking = function() {
@@ -359,49 +343,19 @@
     };
 
     window.registerDriver = async function() {
-    // 1. फॉर्म के सभी बॉक्स से जानकारी लेना
-    let name = document.getElementById('driverName').value;
-    let mobile = document.getElementById('driverMobile').value;
-    let aadhaar = document.getElementById('driverAadhaar').value;
-    let license = document.getElementById('driverLicense').value;
-    let vName = document.getElementById('driverVehicleName').value;
-    
-    // ✅ यहाँ DeepSi की बताई हुई सही ID डाली है
-    let vNumber = document.getElementById('driverVehicleNumber').value; 
-    
-    let vCap = document.getElementById('driverCapacity').value;
-    let vLen = document.getElementById('vLength').value;
-    let vWid = document.getElementById('vWidth').value;
-    let bName = document.getElementById('bankName').value;
-    let accNo = document.getElementById('accountNumber').value;
-    let ifsc = document.getElementById('ifscCode').value;
-    let labour = document.getElementById('driverLabour').value;
-
-    // 2. चेक करना कि जरूरी जानकारी भरी है या नहीं
-    if (!name || !mobile || !vNumber) {
-        alert("दोस्त, नाम, मोबाइल और गाड़ी नंबर भरना बहुत जरूरी है!");
-        return;
-    }
-
-    try {
-        // 3. सारा डेटा Firebase में सुरक्षित सेव करना
-        await db.collection("drivers").add({
-            personalInfo: { name, mobile, aadhaar, license },
-            vehicleDetails: { vName, vNumber, vCap, size: vLen + "x" + vWid },
-            bankDetails: { bName, accNo, ifsc },
-            labourCount: labour,
-            status: "pending",
-            registeredAt: firebase.firestore.FieldValue.serverTimestamp()
-        });
-        
-        alert("✅ बहुत बढ़िया! आपका प्रोफेशनल रजिस्ट्रेशन सेव हो गया है।");
-        showScreen('homeScreen'); // वापस होम स्क्रीन पर जाएँ
-    } catch (error) {
-        console.error("Error: ", error);
-        alert("❌ कुछ गड़बड़ हुई, डेटा सेव नहीं हो पाया।");
-    }
-};
-    
+        let name = document.getElementById('driverName').value;
+        let mobile = document.getElementById('driverMobile').value;
+        let vNumber = document.getElementById('driverVehicleNumber').value;
+        if (!name || !mobile || !vNumber) { alert("नाम, मोबाइल और गाड़ी नंबर भरना जरूरी है!"); return; }
+        try {
+            await db.collection("drivers").add({
+                name, mobile, vNumber, status: "pending",
+                registeredAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+            alert("✅ रजिस्ट्रेशन पूरा हुआ!");
+            showScreen('homeScreen');
+        } catch (error) { alert("❌ डेटा सेव नहीं हुआ।"); }
+    };
 </script>
 </body>
 </html>
