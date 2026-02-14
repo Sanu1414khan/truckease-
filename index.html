@@ -74,7 +74,6 @@
             font-weight: 600;
         }
         .hidden { display: none; }
-        /* 📍 पते के लिए नया स्टाइल */
         #addressDisplay {
             background: #fffde7;
             padding: 10px;
@@ -120,22 +119,22 @@
     <div id="driverRegScreen" class="hidden">
         <button class="action-btn" style="background:#e0e0e0; color:black;" onclick="backToHome()">← वापस</button>
         <h2 style="text-align:center; margin-bottom:15px;">🚛 प्रोफेशनल ड्राइवर रजिस्ट्रेशन</h2>
-        <input type="text" id="driverName" placeholder="पूरा नाम (आधार के अनुसार)">
-        <input type="tel" id="driverMobile" placeholder="मोबाइल नंबर (10 अंक)" maxlength="10">
-        <input type="text" id="driverAadhaar" placeholder="आधार नंबर (12 अंक)">
-        <input type="text" id="driverLicense" placeholder="ड्राइविंग लाइसेंस नंबर">
-        <input type="text" id="driverVehicleName" placeholder="गाड़ी का नाम (जैसे: टाटा 407)">
-        <input type="text" id="driverVehicleNumber" placeholder="गाड़ी का नंबर (RC नंबर)">
-        <input type="text" id="driverCapacity" placeholder="कितना टन माल उठा सकती है?">
+        <input type="text" id="driverName" placeholder="पूरा नाम">
+        <input type="tel" id="driverMobile" placeholder="मोबाइल नंबर" maxlength="10">
+        <input type="text" id="driverAadhaar" placeholder="आधार नंबर">
+        <input type="text" id="driverLicense" placeholder="लाइसेंस नंबर">
+        <input type="text" id="driverVehicleName" placeholder="गाड़ी का नाम">
+        <input type="text" id="driverVehicleNumber" placeholder="गाड़ी का नंबर">
+        <input type="text" id="driverCapacity" placeholder="कितना टन?">
         <div style="display:flex; gap:10px;">
-            <input type="text" id="vLength" placeholder="लंबाई (फुट)">
-            <input type="text" id="vWidth" placeholder="चौड़ाई (फुट)">
+            <input type="text" id="vLength" placeholder="लंबाई">
+            <input type="text" id="vWidth" placeholder="चौड़ाई">
         </div>
-        <input type="text" id="bankName" placeholder="बैंक का नाम">
+        <input type="text" id="bankName" placeholder="बैंक">
         <input type="text" id="accountNumber" placeholder="अकाउंट नंबर">
         <input type="text" id="ifscCode" placeholder="IFSC कोड">
-        <input type="number" id="driverLabour" placeholder="कितने मजदूर साथ होंगे?">
-        <button class="screen-btn" onclick="registerDriver()" style="background:#1a73e8; margin-top:25px;">✅ रजिस्ट्रेशन पूरा करें</button>
+        <input type="number" id="driverLabour" placeholder="कितने मजदूर?">
+        <button class="screen-btn" onclick="alert('रजिस्ट्रेशन सेव हो गया (Demo)')" style="background:#1a73e8; margin-top:25px;">✅ रजिस्ट्रेशन पूरा करें</button>
     </div>
 
     <div id="customerPanel" class="hidden">
@@ -214,17 +213,16 @@
 
     let currentUser = localStorage.getItem('truckUser') || '';
     let selectedTruck = '';
-    let basePrice = 0;
     let finalFare = 0;
     let userLocationData = null;
 
     const truckData = {
-        'Total chhote truck': { icon: '🛻', name: 'Total chhote truck', capacity: '1.5 टन', size: '8x4 फुट', baseFare: '₹500', perKm: '₹50/km', labour: '2 मजदूर', basePrice: 0, perKmRate: 50 },
-        'Total medium truck': { icon: '🚚', name: 'Total medium truck', capacity: '5 टन', size: '12x6 फुट', baseFare: '₹1200', perKm: '₹40/km', labour: '3 मजदूर', basePrice: 1200, perKmRate: 40 },
-        'Total Bhari aur bade truck': { icon: '🚛', name: 'Total Bhari aur bade truck', capacity: '12 टन', size: '18x7 फुट', baseFare: '₹2500', perKm: '₹40/km', labour: '4 मजदूर', basePrice: 2500, perKmRate: 40 },
-        'Total JCB and bulldozer': { icon: '🟨🚜', name: 'Total JCB and bulldozer', capacity: '2.5 टन', size: '10x5 फुट', baseFare: '₹3000', perKm: '₹60/km', labour: '2 मजदूर', basePrice: 3000, perKmRate: 60 },
-        'Total chhoti aur Badi crane': { icon: '🏗️', name: 'Total chhoti aur Badi crane', capacity: '20 टन', size: '20x8 फुट', baseFare: '₹4000', perKm: '₹80/km', labour: '3 मजदूर', basePrice: 4000, perKmRate: 80 },
-        'Total bade aur chhote tractor': { icon: '🚜', name: 'Total bade aur chhote tractor', capacity: '3.5 टन', size: '14x5 फुट', baseFare: '₹1800', perKm: '₹35/km', labour: '1 मजदूर', basePrice: 1800, perKmRate: 35 }
+        'Total chhote truck': { icon: '🛻', capacity: '1.5 टन', size: '8x4 फुट', baseFare: '₹500', perKm: '₹50/km', basePrice: 0, perKmRate: 50 },
+        'Total medium truck': { icon: '🚚', capacity: '5 टन', size: '12x6 फुट', baseFare: '₹1200', perKm: '₹40/km', basePrice: 1200, perKmRate: 40 },
+        'Total Bhari aur bade truck': { icon: '🚛', capacity: '12 टन', size: '18x7 फुट', baseFare: '₹2500', perKm: '₹40/km', basePrice: 2500, perKmRate: 40 },
+        'Total JCB and bulldozer': { icon: '🟨🚜', capacity: '2.5 टन', size: '10x5 फुट', baseFare: '₹3000', perKm: '₹60/km', basePrice: 3000, perKmRate: 60 },
+        'Total chhoti aur Badi crane': { icon: '🏗️', capacity: '20 टन', size: '20x8 फुट', baseFare: '₹4000', perKm: '₹80/km', basePrice: 4000, perKmRate: 80 },
+        'Total bade aur chhote tractor': { icon: '🚜', capacity: '3.5 टन', size: '14x5 फुट', baseFare: '₹1800', perKm: '₹35/km', basePrice: 1800, perKmRate: 35 }
     };
 
     window.onload = function() {
@@ -254,39 +252,63 @@
         showScreen('homeScreen');
     };
 
+    // ✅ DPI का असली GPS फिक्स यहाँ है
     window.getCurrentLocation = function() {
         const mapDiv = document.getElementById('map');
         const addrDiv = document.getElementById('addressDisplay');
-        if (!navigator.geolocation) { alert("❌ GPS नहीं मिला"); return; }
+        
+        if (!navigator.geolocation) { 
+            alert("❌ आपके ब्राउज़र में GPS काम नहीं करता।"); 
+            return; 
+        }
+
+        addrDiv.style.display = "block";
+        addrDiv.innerText = "⏳ लोकेशन ढूँढ रहे हैं...";
 
         navigator.geolocation.getCurrentPosition(async (position) => {
             const lat = position.coords.latitude;
             const lon = position.coords.longitude;
             
             mapDiv.style.display = "block"; 
-            addrDiv.style.display = "block";
             if (window.map) { window.map.remove(); }
+            
             window.map = L.map('map').setView([lat, lon], 15);
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(window.map);
-            L.marker([lat, lon]).addTo(window.map).bindPopup('📦 पिकअप यहाँ से होगा').openPopup();
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap'
+            }).addTo(window.map);
+            
+            L.marker([lat, lon]).addTo(window.map)
+                .bindPopup('📦 आपका सामान यहाँ से उठेगा')
+                .openPopup();
             
             userLocationData = { lat, lon };
-
-            // 🌍 यहाँ से असली पता मिलता है
+            
             try {
-                const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`);
+                // 🌍 DPI PRO MAX फिक्स (User-Agent के साथ)
+                const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&zoom=18&addressdetails=1`, {
+                    headers: {
+                        'User-Agent': 'TruckEaseApp/1.0 (truckease@gmail.com)'
+                    }
+                });
                 const data = await res.json();
-                addrDiv.innerText = "📍 उठाना है: " + (data.display_name || "लोकेशन मिल गई");
+                addrDiv.innerText = "📍 पिकअप: " + (data.display_name || "आपकी लोकेशन");
                 userLocationData.address = data.display_name;
-            } catch(e) { addrDiv.innerText = "📍 लोकेशन सेट हो गई है।"; }
+            } catch(e) {
+                addrDiv.innerText = "📍 लोकेशन मिल गई (पता नहीं मिला)";
+                userLocationData.address = "लोकेशन मिल गई";
+            }
 
-        }, (error) => { alert("❌ GPS चालू करें।"); });
+        }, (error) => { 
+            addrDiv.innerText = "❌ लोकेशन नहीं मिल पाई। GPS चालू करें।";
+            alert("❌ GPS चालू करें या परमिशन दें।"); 
+        });
     };
 
     window.selectTruck = function(truckName) {
         const truck = truckData[truckName];
         selectedTruck = truckName;
-        document.getElementById('truckInfoName').innerText = truck.name;
+        document.getElementById('truckInfoIcon').innerText = truck.icon;
+        document.getElementById('truckInfoName').innerText = truckName;
         document.getElementById('truckCapacity').innerText = truck.capacity;
         document.getElementById('truckSize').innerText = truck.size;
         document.getElementById('truckBaseFare').innerText = truck.baseFare;
@@ -319,7 +341,7 @@
             user: currentUser,
             truck: selectedTruck, 
             fare: finalFare, 
-            location: userLocationData || "लोकेशन नहीं दी",
+            address: userLocationData ? userLocationData.address : "लोकेशन नहीं दी",
             time: new Date().toLocaleString() 
         };
 
@@ -335,9 +357,8 @@
     window.showDriverReg = () => showScreen('driverRegScreen');
     window.showCustomerPanel = () => showScreen('customerPanel');
     window.showHistory = function() {
-        let listDiv = document.getElementById('historyList');
-        listDiv.innerHTML = '<p>अभी कोई बुकिंग नहीं है</p>';
         showScreen('historyScreen');
+        document.getElementById('historyList').innerHTML = '<p>अभी कोई पुरानी बुकिंग नहीं है।</p>';
     };
 </script>
 </body>
