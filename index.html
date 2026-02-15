@@ -2,364 +2,665 @@
 <html lang="hi">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5, user-scalable=yes">
-    <title>TruckEase • सुपर सिंपल</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>TruckEase - Porter Style</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    
     <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body {
-            font-family: 'Segoe UI', Roboto, sans-serif;
-            background: #e9ecef;
-            padding: 16px;
-            display: flex;
-            justify-content: center;
-        }
-        .app {
-            max-width: 450px;
-            width: 100%;
-            background: white;
-            border-radius: 32px;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
-            padding: 22px 20px;
-            display: block !important;
-        }
-        h1, h2, h3 { color: #0b3b5c; margin-bottom: 16px; }
-        .truck-btn, .screen-btn, .action-btn {
-            background: #1a73e8;
-            color: white;
-            border: none;
-            padding: 14px 20px;
-            border-radius: 40px;
-            font-size: 18px;
-            font-weight: 600;
-            width: 100%;
-            margin: 10px 0;
-            cursor: pointer;
-            transition: 0.2s;
-        }
-        .truck-btn { background: #0d47a1; }
-        .screen-btn { background: #34a853; }
-        .action-btn { background: #f9a825; color: black; }
-        input, select {
-            width: 100%;
-            padding: 14px 18px;
-            margin: 8px 0 18px;
-            border: 2px solid #dadce0;
-            border-radius: 30px;
-            font-size: 16px;
-        }
-        .card {
-            background: #f1f3f4;
-            border-radius: 24px;
-            padding: 18px;
-            margin: 16px 0;
-            border-left: 8px solid #1a73e8;
-        }
-        .fare-box {
-            background: #e6f4ea;
-            padding: 18px;
-            border-radius: 20px;
-            font-size: 22px;
-            font-weight: bold;
-            color: #0d652d;
-            margin: 15px 0;
-        }
-        .commission {
-            background: #fef7e0;
-            padding: 12px;
-            border-radius: 16px;
-            margin-top: 5px;
-            font-weight: 600;
-        }
+        :root { --porter-blue: #2854ff; --porter-light-blue: #eef2ff; --text-dark: #1a1a1a; --text-gray: #666; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
+        body { background-color: #f8f9fd; color: var(--text-dark); padding-bottom: 70px; }
+
+        /* Header */
+        .header { background: white; padding: 15px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .location-bar { background: var(--porter-light-blue); padding: 8px 12px; border-radius: 8px; flex: 1; margin-right: 15px; font-size: 13px; color: var(--porter-blue); font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; cursor: pointer; }
+
+        /* Tabs */
+        .tabs-container { background: white; display: flex; padding: 10px; gap: 10px; overflow-x: auto; }
+        .tab { padding: 10px 20px; border-radius: 20px; background: #f0f0f0; font-size: 14px; font-weight: 600; white-space: nowrap; cursor: pointer; border: none; }
+        .tab.active { background: var(--porter-blue); color: white; }
+
+        /* Cards */
+        .section-title { padding: 15px; font-size: 18px; font-weight: 700; }
+        .card-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; padding: 0 15px; }
+        .service-card { background: white; padding: 15px; border-radius: 12px; border: 1px solid #eee; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.02); cursor: pointer; transition: 0.2s; }
+        .service-card:hover { box-shadow: 0 4px 8px rgba(0,0,0,0.05); border-color: var(--porter-blue); }
+        .service-card h4 { font-size: 14px; margin-top: 5px; }
+        .service-card p { font-size: 11px; color: gray; }
+
+        /* Rewards Card */
+        .rewards-card { margin: 15px; background: #fff5e6; padding: 15px; border-radius: 12px; border: 1px dashed #ff9f00; display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
+        .rewards-card h4 { color: #c47b00; margin-bottom: 4px; }
+        .rewards-card p { font-size: 12px; }
+
+        /* Bottom Nav */
+        .bottom-nav { position: fixed; bottom: 0; width: 100%; max-width: 450px; background: white; display: flex; justify-content: space-around; padding: 10px 0; border-top: 1px solid #eee; z-index: 1000; left: 50%; transform: translateX(-50%); }
+        .nav-item { text-align: center; color: var(--text-gray); font-size: 11px; cursor: pointer; flex: 1; }
+        .nav-item.active { color: var(--porter-blue); font-weight: 700; }
+        .nav-icon { font-size: 20px; display: block; margin-bottom: 2px; }
+
+        /* Screens */
+        .screen { display: none; padding: 0 0 20px 0; }
+        .screen.active { display: block; }
+
+        /* Buttons */
+        .btn-main { background: var(--porter-blue); color: white; width: 100%; padding: 15px; border-radius: 10px; border: none; font-size: 16px; font-weight: 600; margin-top: 20px; cursor: pointer; }
+        .btn-secondary { background: #f0f0f0; color: var(--text-dark); width: 100%; padding: 15px; border-radius: 10px; border: none; font-size: 16px; font-weight: 500; margin-top: 10px; cursor: pointer; }
+        input, textarea, select { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ddd; border-radius: 8px; font-size: 15px; }
         .hidden { display: none; }
-        #addressDisplay {
-            background: #fffde7;
-            padding: 10px;
-            border-radius: 15px;
-            margin: 10px 0;
-            font-size: 14px;
-            color: #555;
-            border: 1px dashed #fbc02d;
-            display: none;
-        }
-        .history-item {
-            background: white;
-            border-radius: 16px;
-            padding: 14px;
-            margin-bottom: 10px;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.05);
-            border: 1px solid #e0e0e0;
-        }
+        #map { height: 200px; border-radius: 12px; margin: 10px 0; display: none; }
+        .fare-box { background: #e8f0fe; padding: 15px; border-radius: 12px; text-align: center; margin: 15px 0; }
+        .fare-box span { font-size: 28px; font-weight: 800; color: var(--porter-blue); }
+        .commission-note { background: #fef5e7; padding: 8px; border-radius: 8px; font-size: 13px; color: #b95b0d; text-align: center; margin-top: 10px; }
+        #addressDisplay { background: #fffde7; padding: 10px; border-radius: 8px; margin: 10px 0; display: none; }
     </style>
 </head>
 <body>
-<div class="app" id="app">
 
-    <div style="display:flex; justify-content: space-between; align-items:center; margin-bottom:20px;">
-        <h1 style="font-size:28px; margin:0;">🚛 TruckEase</h1>
-        <span style="background:#0b3b5c; color:white; padding:6px 14px; border-radius:30px;">बिना OTP</span>
+    <!-- Header (common) -->
+    <div class="header">
+        <div class="location-bar" id="currentLocText" onclick="getCurrentLocation()">📍 लोकेशन सेट करें...</div>
+        <div style="font-size: 22px;">👤</div>
     </div>
 
-    <div id="loginScreen">
-        <h2>📱 अपना मोबाइल नंबर डालो</h2>
-        <input type="tel" id="mobileInput" placeholder="9876543210" maxlength="10">
-        <button id="login-btn" class="screen-btn" onclick="login()">✅ आगे बढ़ें</button>
-        <p style="margin-top:16px; color:gray; font-size:14px;">बस नंबर डालो और शुरू करो।</p>
-    </div>
-
-    <div id="homeScreen" class="hidden">
-        <h2>👋 स्वागत है, <span id="userPhoneDisplay"></span></h2>
-        <button class="truck-btn" onclick="showCustomerPanel()">🙋‍♂️ मैं ग्राहक हूँ – गाड़ी बुक करूँ</button>
-        <button class="truck-btn" style="background:#34a853;" onclick="showDriverReg()">🚛 मैं ड्राइवर हूँ – रजिस्टर करूँ</button>
-        <button class="action-btn" onclick="showHistory()">📜 पुरानी बुकिंग देखें</button>
-    </div>
-
-    <div id="driverRegScreen" class="hidden">
-        <button class="action-btn" style="background:#e0e0e0; color:black;" onclick="backToHome()">← वापस</button>
-        <h2 style="text-align:center; margin-bottom:15px;">🚛 प्रोफेशनल ड्राइवर रजिस्ट्रेशन</h2>
-        <input type="text" id="driverName" placeholder="पूरा नाम">
-        <input type="tel" id="driverMobile" placeholder="मोबाइल नंबर" maxlength="10">
-        <input type="text" id="driverAadhaar" placeholder="आधार नंबर">
-        <input type="text" id="driverLicense" placeholder="लाइसेंस नंबर">
-        <input type="text" id="driverVehicleName" placeholder="गाड़ी का नाम">
-        <input type="text" id="driverVehicleNumber" placeholder="गाड़ी का नंबर">
-        <input type="text" id="driverCapacity" placeholder="कितना टन?">
-        <div style="display:flex; gap:10px;">
-            <input type="text" id="vLength" placeholder="लंबाई">
-            <input type="text" id="vWidth" placeholder="चौड़ाई">
+    <!-- ========== HOME SCREEN ========== -->
+    <div id="homeScreen" class="screen active">
+        <div class="tabs-container">
+            <button class="tab active" data-tab="trucks">Trucks</button>
+            <button class="tab" data-tab="2wheeler">2 Wheeler</button>
+            <button class="tab" data-tab="packers">Packers & Movers</button>
         </div>
-        <input type="text" id="bankName" placeholder="बैंक">
-        <input type="text" id="accountNumber" placeholder="अकाउंट नंबर">
-        <input type="text" id="ifscCode" placeholder="IFSC कोड">
-        <input type="number" id="driverLabour" placeholder="कितने मजदूर?">
-        <button class="screen-btn" onclick="alert('रजिस्ट्रेशन सेव हो गया (Demo)')" style="background:#1a73e8; margin-top:25px;">✅ रजिस्ट्रेशन पूरा करें</button>
-    </div>
 
-    <div id="customerPanel" class="hidden">
-        <button class="action-btn" style="background:#e0e0e0;" onclick="backToHome()">← वापस</button>
-        <h2>🚛 गाड़ी चुनें</h2>
-        <div class="card" onclick="selectTruck('Total chhote truck')"><b>🛻 Total chhote truck</b><br><span>₹500 (10km), फिर ₹50/km</span></div>
-        <div class="card" onclick="selectTruck('Total medium truck')"><b>🚚 Total medium truck</b><br><span>₹1200 बेस + ₹40/km</span></div>
-        <div class="card" onclick="selectTruck('Total Bhari aur bade truck')"><b>🚛 Total Bhari aur bade truck</b><br><span>₹2500 बेस + ₹40/km</span></div>
-        <div class="card" onclick="selectTruck('Total JCB and bulldozer')"><b>🟨🚜 Total JCB and bulldozer</b><br><span>₹3000 बेस + ₹60/km</span></div>
-        <div class="card" onclick="selectTruck('Total chhoti aur Badi crane')"><b>🏗️ Total chhoti aur Badi crane</b><br><span>₹4000 बेस + ₹80/km</span></div>
-        <div class="card" onclick="selectTruck('Total bade aur chhote tractor')"><b>🚜 Total bade aur chhote tractor</b><br><span>₹1800 बेस + ₹35/km</span></div>
-    </div>
-
-    <div id="truckInfoScreen" class="hidden">
-        <button class="action-btn" style="background:#e0e0e0; color:black;" onclick="backToCustomerPanel()">← वापस</button>
-        <div style="text-align:center; margin-top:10px;">
-            <div id="truckInfoIcon" style="font-size:64px; margin-bottom:10px;">🛻</div>
-            <h2 id="truckInfoName">गाड़ी का नाम</h2>
+        <h3 class="section-title" id="vehicleSectionTitle">छोटे ट्रक</h3>
+        <div class="card-grid" id="vehicleGrid">
+            <!-- Trucks (default) -->
+            <div class="service-card" data-vehicle="Tata Ace" data-baseprice="500" data-perkm="50">
+                <div style="font-size: 40px;">🛻</div>
+                <h4>Tata Ace</h4>
+                <p>₹500 (10km), फिर ₹50/km</p>
+            </div>
+            <div class="service-card" data-vehicle="Pickup 8ft" data-baseprice="1200" data-perkm="40">
+                <div style="font-size: 40px;">🚚</div>
+                <h4>Pickup 8ft</h4>
+                <p>₹1200 बेस + ₹40/km</p>
+            </div>
+            <div class="service-card" data-vehicle="14ft Truck" data-baseprice="2500" data-perkm="40">
+                <div style="font-size: 40px;">🚛</div>
+                <h4>14ft Truck</h4>
+                <p>₹2500 बेस + ₹40/km</p>
+            </div>
+            <div class="service-card" data-vehicle="JCB" data-baseprice="3000" data-perkm="60">
+                <div style="font-size: 40px;">🟨🚜</div>
+                <h4>JCB</h4>
+                <p>₹3000 बेस + ₹60/km</p>
+            </div>
+            <div class="service-card" data-vehicle="Crane" data-baseprice="4000" data-perkm="80">
+                <div style="font-size: 40px;">🏗️</div>
+                <h4>Crane</h4>
+                <p>₹4000 बेस + ₹80/km</p>
+            </div>
+            <div class="service-card" data-vehicle="Tractor" data-baseprice="1800" data-perkm="35">
+                <div style="font-size: 40px;">🚜</div>
+                <h4>Tractor</h4>
+                <p>₹1800 बेस + ₹35/km</p>
+            </div>
         </div>
-        <div class="card">
-            <p>📦 क्षमता: <span id="truckCapacity"></span></p>
-            <p>📏 साइज: <span id="truckSize"></span></p>
-            <p>💰 बेस किराया: <span id="truckBaseFare"></span></p>
-            <p>⚡ रेट: <span id="truckPerKmRate"></span></p>
+
+        <!-- Rewards Card -->
+        <div class="rewards-card" onclick="alert('रिवॉर्ड्स सेक्शन जल्द आ रहा है!')">
+            <div>
+                <h4>Porter Rewards 🏆</h4>
+                <p>हर बुकिंग पर सिक्के जीतें!</p>
+            </div>
+            <span style="color:#ff9f00;">→</span>
         </div>
-        <button class="screen-btn" onclick="goToBookingScreen()" style="background:#1a73e8;">🚛 आगे बढ़ें</button>
+
+        <!-- Driver Registration Card -->
+        <div style="margin: 15px;">
+            <button class="btn-secondary" onclick="changeScreen('driverRegScreen')">🚛 ड्राइवर बनें / रजिस्टर करें</button>
+        </div>
     </div>
 
-    <div id="bookingScreen" class="hidden">
-        <button class="action-btn" style="background:#e0e0e0;" onclick="backToCustomerPanel()">← वापस</button>
-        <h3>📋 बुकिंग</h3>
-        <div id="selectedTruckDisplay" class="card"></div>
-        <input type="number" id="kmInput" placeholder="कितने किलोमीटर?" oninput="calculateFare()">
-        <div class="fare-box" id="fareDisplay">कुल किराया: ₹0</div>
-        <div class="commission" id="commissionDisplay">🟢 15% ऐप कमीशन: ₹0</div>
-        
-        <button type="button" class="screen-btn" style="background:#1a73e8;" onclick="getCurrentLocation()">📍 मेरी लोकेशन से उठाओ (GPS)</button>
-        
-        <div id="addressDisplay">⏳ पता ढूँढ रहे हैं...</div>
-        <div id="map" style="width: 100%; height: 250px; border-radius: 15px; margin-top: 10px; display: none; border: 2px solid #ddd;"></div>
-        
-        <button class="screen-btn" onclick="confirmBooking()">✅ बुकिंग कन्फर्म करें</button>
+    <!-- ========== BOOKING SCREEN ========== -->
+    <div id="bookingScreen" class="screen">
+        <h3 style="padding: 15px 15px 0;">बुकिंग डिटेल्स</h3>
+        <div style="padding: 15px;">
+            <p id="selectedVehicleDisplay" style="font-weight: 600; margin-bottom: 15px;"></p>
+            <input type="text" id="pickupAddr" placeholder="कहाँ से उठाना है?" value="Jalpura, Greater Noida">
+            <input type="text" id="dropAddr" placeholder="कहाँ छोड़ना है?">
+            <input type="number" id="kmInput" placeholder="किलोमीटर (KM)" oninput="calculateFare()">
+            
+            <div class="fare-box">
+                <span id="fareAmount">₹0</span>
+                <div class="commission-note" id="commissionNote">15% ऐप कमीशन: ₹0</div>
+            </div>
+
+            <button class="btn-main" onclick="getCurrentLocation()">📍 GPS से लोकेशन लें</button>
+            <div id="addressDisplay"></div>
+            <div id="map"></div>
+
+            <button class="btn-main" onclick="confirmBooking()">✅ बुकिंग कन्फर्म करें</button>
+            <button class="btn-secondary" onclick="changeScreen('homeScreen')">← वापस</button>
+        </div>
     </div>
 
-    <div id="successScreen" class="hidden">
-        <div style="text-align:center;">
-            <span style="font-size:64px;">✅</span>
+    <!-- ========== DRIVER REGISTRATION SCREEN ========== -->
+    <div id="driverRegScreen" class="screen">
+        <h3 style="padding: 15px 15px 0;">🚛 ड्राइवर रजिस्ट्रेशन</h3>
+        <div style="padding: 15px;">
+            <input type="text" id="driverName" placeholder="पूरा नाम">
+            <input type="tel" id="driverMobile" placeholder="मोबाइल नंबर" maxlength="10">
+            <input type="text" id="driverVehicleNum" placeholder="गाड़ी का नंबर">
+            <select id="driverVehicleType">
+                <option value="Tata Ace">Tata Ace</option>
+                <option value="Pickup">Pickup</option>
+                <option value="Truck">Truck</option>
+                <option value="JCB">JCB</option>
+                <option value="Crane">Crane</option>
+                <option value="Tractor">Tractor</option>
+            </select>
+            <input type="text" id="driverAadhaar" placeholder="आधार नंबर (12 अंक)" maxlength="12">
+            <button class="btn-main" onclick="registerDriver()">✅ रजिस्टर करें</button>
+            <button class="btn-secondary" onclick="changeScreen('homeScreen')">← वापस</button>
+        </div>
+    </div>
+
+    <!-- ========== HISTORY SCREEN ========== -->
+    <div id="historyScreen" class="screen">
+        <h3 style="padding: 15px 15px 0;">📜 आपकी पुरानी बुकिंग</h3>
+        <div id="historyList" style="padding: 15px;"></div>
+        <button class="btn-secondary" onclick="changeScreen('homeScreen')">← वापस</button>
+    </div>
+
+    <!-- ========== SUCCESS SCREEN ========== -->
+    <div id="successScreen" class="screen">
+        <div style="text-align: center; padding: 40px 15px;">
+            <span style="font-size: 60px;">✅</span>
             <h2>बुकिंग सफल!</h2>
-            <div id="billDetails" class="card" style="background:#e8f5e9;"></div>
-            <button class="truck-btn" onclick="backToHome()">🏠 होम जाएँ</button>
+            <div id="successDetails" style="background: #e8f5e9; padding: 15px; border-radius: 12px; margin: 20px 0;"></div>
+            <button class="btn-main" onclick="changeScreen('homeScreen')">🏠 होम जाएँ</button>
         </div>
     </div>
 
-    <div id="historyScreen" class="hidden">
-        <button class="action-btn" style="background:#e0e0e0;" onclick="backToHome()">← वापस</button>
-        <h2>📜 पुरानी बुकिंग</h2>
-        <div id="historyList"></div>
+    <!-- Bottom Navigation -->
+    <div class="bottom-nav">
+        <div class="nav-item active" onclick="changeScreen('homeScreen')"><span class="nav-icon">🏠</span>Home</div>
+        <div class="nav-item" onclick="showHistory()"><span class="nav-icon">📦</span>Orders</div>
+        <div class="nav-item" onclick="alert('जल्द आ रहा है')"><span class="nav-icon">💰</span>Coins</div>
+        <div class="nav-item" onclick="alert('जल्द आ रहा है')"><span class="nav-icon">💳</span>Payment</div>
     </div>
 
-</div>
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 
+    <!-- Main App Script -->
+    <script>
+        // ---------- FIREBASE CONFIG (तुम्हारी दी हुई) ----------
+        const firebaseConfig = {
+            apiKey: "AIzaSyByh4tT4zcUpjjQ_ebaYzpSulGtsDHjbw0",
+            authDomain: "truckease-cb961.firebaseapp.com",
+            projectId: "truckease-cb961",
+            storageBucket: "truckease-cb961.firebasestorage.app",
+            messagingSenderId: "558046020925",
+            appId: "1:558046020925:web:573533af4bbf93841e3154"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        // ---------- GLOBAL VARIABLES ----------
+        let currentUser = localStorage.getItem('truckUser') || '';
+        let selectedVehicle = '';
+        let basePrice = 0;
+        let perKmRate = 0;
+        let finalFare = 0;
+        let userLocation = null;
+        let map = null;
+
+        // ---------- SCREEN MANAGEMENT ----------
+        window.changeScreen = function(screenId) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(screenId).classList.add('active');
+
+            // Update bottom nav active state
+            document.querySelectorAll('.nav-item').forEach((item, index) => {
+                if (screenId === 'homeScreen' && index === 0) item.classList.add('active');
+                else if (screenId === 'historyScreen' && index === 1) item.classList.add('active');
+                else item.classList.remove('active');
+            });
+
+            // Load history if history screen
+            if (screenId === 'historyScreen') loadHistory();
+        };
+
+        // ---------- TAB SWITCHING ----------
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', function() {
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                this.classList.add('active');
+                const tabType = this.getAttribute('data-tab');
+                updateVehicleGrid(tabType);
+            });
+        });
+
+        function updateVehicleGrid(tab) {
+            const grid = document.getElementById('vehicleGrid');
+            const title = document.getElementById('vehicleSectionTitle');
+            if (tab === 'trucks') {
+                title.innerText = 'छोटे ट्रक';
+                grid.innerHTML = `
+                    <div class="service-card" data-vehicle="Tata Ace" data-baseprice="500" data-perkm="50"><div style="font-size:40px;">🛻</div><h4>Tata Ace</h4><p>₹500 (10km), फिर ₹50/km</p></div>
+                    <div class="service-card" data-vehicle="Pickup 8ft" data-baseprice="1200" data-perkm="40"><div style="font-size:40px;">🚚</div><h4>Pickup 8ft</h4><p>₹1200 बेस + ₹40/km</p></div>
+                    <div class="service-card" data-vehicle="14ft Truck" data-baseprice="2500" data-perkm="40"><div style="font-size:40px;">🚛</div><h4>14ft Truck</h4><p>₹2500 बेस + ₹40/km</p></div>
+                    <div class="service-card" data-vehicle="JCB" data-baseprice="3000" data-perkm="60"><div style="font-size:40px;">🟨🚜</div><h4>JCB</h4><p>₹3000 बेस + ₹60/km</p></div>
+                    <div class="service-card" data-vehicle="Crane" data-baseprice="4000" data-perkm="80"><div style="font-size:40px;">🏗️</div><h4>Crane</h4><p>₹4000 बेस + ₹80/km</p></div>
+                    <div class="service-card" data-vehicle="Tractor" data-baseprice="1800" data-perkm="35"><div style="font-size:40px;">🚜</div><h4>Tractor</h4><p>₹1800 बेस + ₹35/km</p></div>
+                `;
+            } else if (tab === '2wheeler') {
+                title.innerText = 'दो पहिया';
+                grid.innerHTML = `
+                    <div class="service-card" data-vehicle="Bike" data-baseprice="50" data-perkm="10"><div style="font-size:40px;">🛵</div><h4>Bike</h4><p>₹50 बेस + ₹10/km</p></div>
+                    <div class="service-card" data-vehicle="Scooty" data-baseprice="40" data-perkm="8"><div style="font-size:40px;">🛴</div><h4>Scooty</h4><p>₹40 बेस + ₹8/km</p></div>
+                `;
+            } else if (tab === 'packers') {
+                title.innerText = 'पैकर्स एंड मूवर्स';
+                grid.innerHTML = `
+                    <div class="service-card" data-vehicle="Mini Truck with Labour" data-baseprice="1500" data-perkm="30"><div style="font-size:40px;">🚚</div><h4>Mini Truck + Labour</h4><p>₹1500 बेस + ₹30/km</p></div>
+                    <div class="service-card" data-vehicle="House Shifting" data-baseprice="3000" data-perkm="40"><div style="font-size:40px;">🏠</div><h4>House Shifting</h4><p>₹3000 बेस + ₹40/km</p></div>
+                `;
+            }
+            attachVehicleCardEvents();
+        }
+
+        function attachVehicleCardEvents() {
+            document.querySelectorAll('.service-card').forEach(card => {
+                card.addEventListener('click', function() {
+                    selectedVehicle = this.getAttribute('data-vehicle');
+                    basePrice = parseInt(this.getAttribute('data-baseprice'));
+                    perKmRate = parseInt(this.getAttribute('data-perkm'));
+                    document.getElementById('selectedVehicleDisplay').innerText = 'गाड़ी: ' + selectedVehicle;
+                    changeScreen('bookingScreen');
+                    document.getElementById('kmInput').value = '';
+                    document.getElementById('fareAmount').innerText = '₹0';
+                    document.getElementById('commissionNote').innerText = '15% ऐप कमीशन: ₹0';
+                });
+            });
+        }
+        attachVehicleCardEvents();
+
+        // ---------- FARE CALCULATION ----------
+        window.calculateFare = function() {
+            let km = parseFloat(document.getElementById('kmInput').value) || 0;
+            if (selectedVehicle.includes('Tata Ace')) {
+                if (km <= 10) finalFare = 500;
+                else if (km <= 20) finalFare = 1000;
+                else finalFare = km * 50;
+            } else {
+                finalFare = basePrice + (km * perKmRate);
+            }
+            let commission = Math.round(finalFare * 0.15);
+            document.getElementById('fareAmount').innerText = '₹' + finalFare;
+            document.getElementById('commissionNote').innerHTML = `15% ऐप कमीशन: ₹${commission}<br>ड्राइवर को मिलेंगे: ₹${finalFare - commission}`;
+        };
+
+        // ---------- GPS LOCATION ----------
+        window.getCurrentLocation = function() {
+            const addrDiv = document.getElementById('addressDisplay');
+            const mapDiv = document.getElementById('map');
+            if (!navigator.geolocation) {
+                alert('GPS सपोर्ट नहीं है');
+                return;
+            }
+            addrDiv.style.display = 'block';
+            addrDiv.innerText = '⏳ लोकेशन ढूँढ रहे हैं...';
+            navigator.geolocation.getCurrentPosition(async (pos) => {
+                const lat = pos.coords.latitude;
+                const lon = pos.coords.longitude;
+                userLocation = { lat, lon };
+                mapDiv.style.display = 'block';
+                if (map) map.remove();
+                map = L.map('map').setView([lat, lon], 15);
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+                L.marker([lat, lon]).addTo(map).bindPopup('आप यहाँ हैं').openPopup();
+
+                try {
+                    const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`, {
+                        headers: { 'User-Agent': 'TruckEase/1.0' }
+                    });
+                    const data = await res.json();
+                    addrDiv.innerText = '📍 ' + (data.display_name || 'लोकेशन मिली');
+                    document.getElementById('pickupAddr').value = data.display_name || 'Jalpura, Greater Noida';
+                } catch(e) {
+                    addrDiv.innerText = '📍 लोकेशन मिल गई (पता नहीं मिला)';
+                }
+            }, () => {
+                addrDiv.innerText = '❌ लोकेशन नहीं मिली';
+            });
+        };
+
+        // ---------- CONFIRM BOOKING ----------
+        window.confirmBooking = async function() {
+            if (finalFare <= 0) { alert('पहले दूरी डालें'); return; }
+            if (!currentUser) {
+                let mobile = prompt('अपना मोबाइल नंबर डालें (10 अंक):');
+                if (!mobile || mobile.length !== 10) { alert('सही नंबर डालें'); return; }
+                currentUser = mobile;
+                localStorage.setItem('truckUser', mobile);
+            }
+            let pickup = document.getElementById('pickupAddr').value || 'ज्ञात नहीं';
+            let drop = document.getElementById('dropAddr').value || 'ज्ञात नहीं';
+            let bookingId = 'TKE' + Math.floor(1000 + Math.random() * 9000);
+            let booking = {
+                id: bookingId,
+                user: currentUs
+
+                <!-- Firebase SDK -->
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 
+<!-- Main App Script -->
 <script>
+    // ---------- FIREBASE CONFIG (तुम्हारी दी हुई) ----------
     const firebaseConfig = {
         apiKey: "AIzaSyByh4tT4zcUpjjQ_ebaYzpSulGtsDHjbw0",
         authDomain: "truckease-cb961.firebaseapp.com",
         projectId: "truckease-cb961",
-        storageBucket: "truckease-cb961.appspot.com",
+        storageBucket: "truckease-cb961.firebasestorage.app",
         messagingSenderId: "558046020925",
         appId: "1:558046020925:web:573533af4bbf93841e3154"
     };
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
+    // ---------- GLOBAL VARIABLES ----------
     let currentUser = localStorage.getItem('truckUser') || '';
-    let selectedTruck = '';
+    let selectedVehicle = '';
+    let basePrice = 0;
+    let perKmRate = 0;
     let finalFare = 0;
-    let userLocationData = null;
+    let userLocation = null;
+    let map = null;
 
-    const truckData = {
-        'Total chhote truck': { icon: '🛻', capacity: '1.5 टन', size: '8x4 फुट', baseFare: '₹500', perKm: '₹50/km', basePrice: 0, perKmRate: 50 },
-        'Total medium truck': { icon: '🚚', capacity: '5 टन', size: '12x6 फुट', baseFare: '₹1200', perKm: '₹40/km', basePrice: 1200, perKmRate: 40 },
-        'Total Bhari aur bade truck': { icon: '🚛', capacity: '12 टन', size: '18x7 फुट', baseFare: '₹2500', perKm: '₹40/km', basePrice: 2500, perKmRate: 40 },
-        'Total JCB and bulldozer': { icon: '🟨🚜', capacity: '2.5 टन', size: '10x5 फुट', baseFare: '₹3000', perKm: '₹60/km', basePrice: 3000, perKmRate: 60 },
-        'Total chhoti aur Badi crane': { icon: '🏗️', capacity: '20 टन', size: '20x8 फुट', baseFare: '₹4000', perKm: '₹80/km', basePrice: 4000, perKmRate: 80 },
-        'Total bade aur chhote tractor': { icon: '🚜', capacity: '3.5 टन', size: '14x5 फुट', baseFare: '₹1800', perKm: '₹35/km', basePrice: 1800, perKmRate: 35 }
-    };
+    // ---------- SCREEN MANAGEMENT ----------
+    window.changeScreen = function(screenId) {
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        document.getElementById(screenId).classList.add('active');
 
-    window.onload = function() {
-        if (currentUser) {
-            document.getElementById('userPhoneDisplay').innerText = currentUser;
-            showScreen('homeScreen');
-        } else {
-            showScreen('loginScreen');
-        }
-    };
-
-    function showScreen(screenId) {
-        let screens = ['loginScreen', 'homeScreen', 'driverRegScreen', 'customerPanel', 'truckInfoScreen', 'bookingScreen', 'successScreen', 'historyScreen'];
-        screens.forEach(s => {
-            let el = document.getElementById(s);
-            if(el) el.classList.add('hidden');
+        // Update bottom nav active state
+        document.querySelectorAll('.nav-item').forEach((item, index) => {
+            if (screenId === 'homeScreen' && index === 0) item.classList.add('active');
+            else if (screenId === 'historyScreen' && index === 1) item.classList.add('active');
+            else item.classList.remove('active');
         });
-        document.getElementById(screenId).classList.remove('hidden');
+
+        // Load history if history screen
+        if (screenId === 'historyScreen') loadHistory();
+    };
+
+    // ---------- TAB SWITCHING ----------
+    document.querySelectorAll('.tab').forEach(tab => {
+        tab.addEventListener('click', function() {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            this.classList.add('active');
+            const tabType = this.getAttribute('data-tab');
+            updateVehicleGrid(tabType);
+        });
+    });
+
+    function updateVehicleGrid(tab) {
+        const grid = document.getElementById('vehicleGrid');
+        const title = document.getElementById('vehicleSectionTitle');
+        if (tab === 'trucks') {
+            title.innerText = 'छोटे ट्रक';
+            grid.innerHTML = `
+                <div class="service-card" data-vehicle="Tata Ace" data-baseprice="500" data-perkm="50"><div style="font-size:40px;">🛻</div><h4>Tata Ace</h4><p>₹500 (10km), फिर ₹50/km</p></div>
+                <div class="service-card" data-vehicle="Pickup 8ft" data-baseprice="1200" data-perkm="40"><div style="font-size:40px;">🚚</div><h4>Pickup 8ft</h4><p>₹1200 बेस + ₹40/km</p></div>
+                <div class="service-card" data-vehicle="14ft Truck" data-baseprice="2500" data-perkm="40"><div style="font-size:40px;">🚛</div><h4>14ft Truck</h4><p>₹2500 बेस + ₹40/km</p></div>
+                <div class="service-card" data-vehicle="JCB" data-baseprice="3000" data-perkm="60"><div style="font-size:40px;">🟨🚜</div><h4>JCB</h4><p>₹3000 बेस + ₹60/km</p></div>
+                <div class="service-card" data-vehicle="Crane" data-baseprice="4000" data-perkm="80"><div style="font-size:40px;">🏗️</div><h4>Crane</h4><p>₹4000 बेस + ₹80/km</p></div>
+                <div class="service-card" data-vehicle="Tractor" data-baseprice="1800" data-perkm="35"><div style="font-size:40px;">🚜</div><h4>Tractor</h4><p>₹1800 बेस + ₹35/km</p></div>
+            `;
+        } else if (tab === '2wheeler') {
+            title.innerText = 'दो पहिया';
+            grid.innerHTML = `
+                <div class="service-card" data-vehicle="Bike" data-baseprice="50" data-perkm="10"><div style="font-size:40px;">🛵</div><h4>Bike</h4><p>₹50 बेस + ₹10/km</p></div>
+                <div class="service-card" data-vehicle="Scooty" data-baseprice="40" data-perkm="8"><div style="font-size:40px;">🛴</div><h4>Scooty</h4><p>₹40 बेस + ₹8/km</p></div>
+            `;
+        } else if (tab === 'packers') {
+            title.innerText = 'पैकर्स एंड मूवर्स';
+            grid.innerHTML = `
+                <div class="service-card" data-vehicle="Mini Truck with Labour" data-baseprice="1500" data-perkm="30"><div style="font-size:40px;">🚚</div><h4>Mini Truck + Labour</h4><p>₹1500 बेस + ₹30/km</p></div>
+                <div class="service-card" data-vehicle="House Shifting" data-baseprice="3000" data-perkm="40"><div style="font-size:40px;">🏠</div><h4>House Shifting</h4><p>₹3000 बेस + ₹40/km</p></div>
+            `;
+        }
+        attachVehicleCardEvents();
     }
 
-    window.login = function() {
-        let mobile = document.getElementById('mobileInput').value.trim();
-        if (mobile.length !== 10) { alert('10 अंकों का नंबर डालें'); return; }
-        currentUser = mobile;
-        localStorage.setItem('truckUser', mobile);
-        document.getElementById('userPhoneDisplay').innerText = mobile;
-        showScreen('homeScreen');
+    function attachVehicleCardEvents() {
+        document.querySelectorAll('.service-card').forEach(card => {
+            card.addEventListener('click', function() {
+                selectedVehicle = this.getAttribute('data-vehicle');
+                basePrice = parseInt(this.getAttribute('data-baseprice'));
+                perKmRate = parseInt(this.getAttribute('data-perkm'));
+                document.getElementById('selectedVehicleDisplay').innerText = 'गाड़ी: ' + selectedVehicle;
+                changeScreen('bookingScreen');
+                document.getElementById('kmInput').value = '';
+                document.getElementById('fareAmount').innerText = '₹0';
+                document.getElementById('commissionNote').innerText = '15% ऐप कमीशन: ₹0';
+            });
+        });
+    }
+    attachVehicleCardEvents();
+
+    // ---------- FARE CALCULATION ----------
+    window.calculateFare = function() {
+        let km = parseFloat(document.getElementById('kmInput').value) || 0;
+        if (selectedVehicle.includes('Tata Ace')) {
+            if (km <= 10) finalFare = 500;
+            else if (km <= 20) finalFare = 1000;
+            else finalFare = km * 50;
+        } else {
+            finalFare = basePrice + (km * perKmRate);
+        }
+        let commission = Math.round(finalFare * 0.15);
+        document.getElementById('fareAmount').innerText = '₹' + finalFare;
+        document.getElementById('commissionNote').innerHTML = `15% ऐप कमीशन: ₹${commission}<br>ड्राइवर को मिलेंगे: ₹${finalFare - commission}`;
     };
 
-    // ✅ DPI का असली GPS फिक्स यहाँ है
+    // ---------- GPS LOCATION ----------
     window.getCurrentLocation = function() {
-        const mapDiv = document.getElementById('map');
         const addrDiv = document.getElementById('addressDisplay');
-        
-        if (!navigator.geolocation) { 
-            alert("❌ आपके ब्राउज़र में GPS काम नहीं करता।"); 
-            return; 
+        const mapDiv = document.getElementById('map');
+        if (!navigator.geolocation) {
+            alert('GPS सपोर्ट नहीं है');
+            return;
         }
+        addrDiv.style.display = 'block';
+        addrDiv.innerText = '⏳ लोकेशन ढूँढ रहे हैं...';
+        navigator.geolocation.getCurrentPosition(async (pos) => {
+            const lat = pos.coords.latitude;
+            const lon = pos.coords.longitude;
+            userLocation = { lat, lon };
+            mapDiv.style.display = 'block';
+            if (map) map.remove();
+            map = L.map('map').setView([lat, lon], 15);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+            L.marker([lat, lon]).addTo(map).bindPopup('आप यहाँ हैं').openPopup();
 
-        addrDiv.style.display = "block";
-        addrDiv.innerText = "⏳ लोकेशन ढूँढ रहे हैं...";
-
-        navigator.geolocation.getCurrentPosition(async (position) => {
-            const lat = position.coords.latitude;
-            const lon = position.coords.longitude;
-            
-            mapDiv.style.display = "block"; 
-            if (window.map) { window.map.remove(); }
-            
-            window.map = L.map('map').setView([lat, lon], 15);
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '© OpenStreetMap'
-            }).addTo(window.map);
-            
-            L.marker([lat, lon]).addTo(window.map)
-                .bindPopup('📦 आपका सामान यहाँ से उठेगा')
-                .openPopup();
-            
-            userLocationData = { lat, lon };
-            
             try {
-                // 🌍 DPI PRO MAX फिक्स (User-Agent के साथ)
-                const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&zoom=18&addressdetails=1`, {
-                    headers: {
-                        'User-Agent': 'TruckEaseApp/1.0 (truckease@gmail.com)'
-                    }
+                const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`, {
+                    headers: { 'User-Agent': 'TruckEase/1.0' }
                 });
                 const data = await res.json();
-                addrDiv.innerText = "📍 पिकअप: " + (data.display_name || "आपकी लोकेशन");
-                userLocationData.address = data.display_name;
+                addrDiv.innerText = '📍 ' + (data.display_name || 'लोकेशन मिली');
+                document.getElementById('pickupAddr').value = data.display_name || 'Jalpura, Greater Noida';
             } catch(e) {
-                addrDiv.innerText = "📍 लोकेशन मिल गई (पता नहीं मिला)";
-                userLocationData.address = "लोकेशन मिल गई";
+                addrDiv.innerText = '📍 लोकेशन मिल गई (पता नहीं मिला)';
             }
-
-        }, (error) => { 
-            addrDiv.innerText = "❌ लोकेशन नहीं मिल पाई। GPS चालू करें।";
-            alert("❌ GPS चालू करें या परमिशन दें।"); 
+        }, () => {
+            addrDiv.innerText = '❌ लोकेशन नहीं मिली';
         });
     };
 
-    window.selectTruck = function(truckName) {
-        const truck = truckData[truckName];
-        selectedTruck = truckName;
-        document.getElementById('truckInfoIcon').innerText = truck.icon;
-        document.getElementById('truckInfoName').innerText = truckName;
-        document.getElementById('truckCapacity').innerText = truck.capacity;
-        document.getElementById('truckSize').innerText = truck.size;
-        document.getElementById('truckBaseFare').innerText = truck.baseFare;
-        document.getElementById('truckPerKmRate').innerText = truck.perKm;
-        showScreen('truckInfoScreen');
-    };
-
-    window.goToBookingScreen = function() {
-        document.getElementById('selectedTruckDisplay').innerHTML = '🚛 गाड़ी: <b>' + selectedTruck + '</b>';
-        showScreen('bookingScreen');
-    };
-
-    window.calculateFare = function() {
-        let km = parseFloat(document.getElementById('kmInput').value) || 0;
-        const truck = truckData[selectedTruck];
-        if (selectedTruck === 'Total chhote truck') {
-            finalFare = km <= 10 ? 500 : (km <= 20 ? 1000 : km * 50);
-        } else {
-            finalFare = truck.basePrice + (km * truck.perKmRate);
-        }
-        document.getElementById('fareDisplay').innerText = "कुल किराया: ₹" + finalFare;
-        document.getElementById('commissionDisplay').innerText = "🟢 15% ऐप कमीशन: ₹" + Math.round(finalFare * 0.15);
-    };
-
+        // ---------- CONFIRM BOOKING (पूरा फंक्शन) ----------
     window.confirmBooking = async function() {
-        if (finalFare <= 0) { alert('दूरी डालें'); return; }
+        if (finalFare <= 0) { 
+            alert('पहले दूरी डालें'); 
+            return; 
+        }
+        
+        // अगर यूजर लॉगिन नहीं है तो नंबर मांगो
+        if (!currentUser) {
+            let mobile = prompt('अपना मोबाइल नंबर डालें (10 अंक):');
+            if (!mobile || mobile.length !== 10) { 
+                alert('सही 10 अंकों का नंबर डालें'); 
+                return; 
+            }
+            currentUser = mobile;
+            localStorage.setItem('truckUser', mobile);
+            document.getElementById('currentLocText').innerHTML = '📍 ' + mobile;
+        }
+        
+        let pickup = document.getElementById('pickupAddr').value || 'ज्ञात नहीं';
+        let drop = document.getElementById('dropAddr').value || 'ज्ञात नहीं';
         let bookingId = 'TKE' + Math.floor(1000 + Math.random() * 9000);
-        let booking = { 
-            id: bookingId, 
+        let km = parseFloat(document.getElementById('kmInput').value) || 0;
+        
+        let booking = {
+            id: bookingId,
             user: currentUser,
-            truck: selectedTruck, 
-            fare: finalFare, 
-            address: userLocationData ? userLocationData.address : "लोकेशन नहीं दी",
-            time: new Date().toLocaleString() 
+            vehicle: selectedVehicle,
+            pickup: pickup,
+            drop: drop,
+            km: km,
+            fare: finalFare,
+            commission: Math.round(finalFare * 0.15),
+            location: userLocation,
+            time: new Date().toLocaleString()
         };
-
+        
         try {
-            await db.collection("bookings").add(booking);
-            document.getElementById('billDetails').innerHTML = `<b>ID:</b> ${bookingId}<br><b>किराया:</b> ₹${finalFare}`;
-            showScreen('successScreen');
-        } catch (e) { alert("Error: " + e.message); }
+            await db.collection('bookings').add(booking);
+            document.getElementById('successDetails').innerHTML = `
+                <b>बुकिंग ID:</b> ${bookingId}<br>
+                <b>गाड़ी:</b> ${selectedVehicle}<br>
+                <b>किराया:</b> ₹${finalFare}<br>
+                <b>पिकअप:</b> ${pickup}<br>
+                <b>ड्रॉप:</b> ${drop}<br>
+                <b>दूरी:</b> ${km} km<br>
+                <small>⏱️ ${new Date().toLocaleString()}</small>
+            `;
+            changeScreen('successScreen');
+        } catch(e) {
+            alert('Error: ' + e.message);
+            console.error(e);
+        }
     };
 
-    window.backToHome = () => showScreen('homeScreen');
-    window.backToCustomerPanel = () => showScreen('customerPanel');
-    window.showDriverReg = () => showScreen('driverRegScreen');
-    window.showCustomerPanel = () => showScreen('customerPanel');
+    // ---------- DRIVER REGISTRATION ----------
+    window.registerDriver = async function() {
+        let name = document.getElementById('driverName').value;
+        let mobile = document.getElementById('driverMobile').value;
+        let vehicleNum = document.getElementById('driverVehicleNum').value;
+        let vehicleType = document.getElementById('driverVehicleType').value;
+        let aadhaar = document.getElementById('driverAadhaar').value;
+
+        if (!name || !mobile || !vehicleNum) {
+            alert('नाम, मोबाइल और गाड़ी नंबर भरें');
+            return;
+        }
+        if (mobile.length !== 10) {
+            alert('मोबाइल नंबर 10 अंकों का होना चाहिए');
+            return;
+        }
+        
+        try {
+            await db.collection('drivers').add({
+                name: name,
+                mobile: mobile,
+                vehicleNum: vehicleNum,
+                vehicleType: vehicleType,
+                aadhaar: aadhaar || "नहीं दिया",
+                status: 'pending',
+                registeredAt: new Date().toISOString()
+            });
+            alert('✅ रजिस्ट्रेशन सफल! जल्द संपर्क किया जाएगा।');
+            changeScreen('homeScreen');
+            
+            // फॉर्म खाली करो
+            document.getElementById('driverName').value = '';
+            document.getElementById('driverMobile').value = '';
+            document.getElementById('driverVehicleNum').value = '';
+            document.getElementById('driverAadhaar').value = '';
+        } catch(e) {
+            alert('Error: ' + e.message);
+            console.error(e);
+        }
+    };
+
+    // ---------- HISTORY ----------
     window.showHistory = function() {
-        showScreen('historyScreen');
-        document.getElementById('historyList').innerHTML = '<p>अभी कोई पुरानी बुकिंग नहीं है।</p>';
+        changeScreen('historyScreen');
+        loadHistory();
+    };
+
+    async function loadHistory() {
+        let listDiv = document.getElementById('historyList');
+        listDiv.innerHTML = '<p>लोड हो रहा है...</p>';
+        
+        if (!currentUser) {
+            listDiv.innerHTML = '<p style="color:gray;">पहले कोई बुकिंग करें</p>';
+            return;
+        }
+        
+        try {
+            const snapshot = await db.collection('bookings')
+                .where('user', '==', currentUser)
+                .orderBy('time', 'desc')
+                .get();
+                
+            if (snapshot.empty) {
+                listDiv.innerHTML = '<p style="color:gray;">कोई पुरानी बुकिंग नहीं है</p>';
+            } else {
+                let html = '';
+                snapshot.forEach(doc => {
+                    let b = doc.data();
+                    html += `<div style="background:white; padding:15px; border-radius:12px; margin-bottom:12px; border-left:4px solid #2854ff; box-shadow:0 2px 4px rgba(0,0,0,0.05);">
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                            <span style="font-weight:700;">${b.vehicle}</span>
+                            <span style="background:#e8f0fe; padding:4px 8px; border-radius:20px; font-size:12px;">₹${b.fare}</span>
+                        </div>
+                        <p style="font-size:13px; color:gray; margin-top:8px;">📍 ${b.pickup || ''} → ${b.drop || ''}</p>
+                        <p style="font-size:11px; color:#999;">📅 ${b.time || ''}</p>
+                    </div>`;
+                });
+                listDiv.innerHTML = html;
+            }
+        } catch(e) {
+            console.error(e);
+            listDiv.innerHTML = '<p style="color:red;">डेटा लोड करने में गड़बड़ी</p>';
+        }
+    }
+
+    // ---------- ON LOAD ----------
+    window.onload = function() {
+        if (currentUser) {
+            document.getElementById('currentLocText').innerHTML = '📍 ' + currentUser;
+        }
+        // होम स्क्रीन एक्टिव करो
+        changeScreen('homeScreen');
+        
+        // ड्राइवर रजिस्टर स्क्रीन में कैटेगरी के अप्शन अपडेट करो
+        let select = document.getElementById('driverVehicleType');
+        if (select) {
+            select.innerHTML = `
+                <option value="Tata Ace">Tata Ace</option>
+                <option value="Pickup 8ft">Pickup 8ft</option>
+                <option value="14ft Truck">14ft Truck</option>
+                <option value="JCB">JCB</option>
+                <option value="Crane">Crane</option>
+                <option value="Tractor">Tractor</option>
+            `;
+        }
     };
 </script>
-</body>
-</html>
