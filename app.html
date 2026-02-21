@@ -1,13 +1,13 @@
 <!DOCTYPE html>
-<html lang="hi">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>TruckEase - Customer App</title>
+    <title>TruckEase - Ride with Ease</title>
     <!-- Fonts & Icons -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <!-- Leaflet for map -->
+    <!-- Leaflet for map (free) -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
@@ -16,6 +16,7 @@
         /* Header */
         .header { background: white; padding: 15px; display: flex; align-items: center; gap: 10px; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
         .location-bar { background: #eef2ff; padding: 10px 15px; border-radius: 30px; flex: 1; font-size: 14px; color: #2854ff; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; cursor: pointer; }
+        .lang-switch { background: #eef2ff; border: none; border-radius: 30px; padding: 8px 15px; font-weight: 600; cursor: pointer; font-size: 14px; color: #2854ff; }
         .user-icon { font-size: 24px; color: #2854ff; background: #eef2ff; width: 45px; height: 45px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; }
 
         /* Tabs */
@@ -55,6 +56,7 @@
         .status-badge { padding: 4px 10px; border-radius: 30px; font-size: 12px; font-weight: 600; }
         .status-completed { background: #d4edda; color: #155724; }
         .status-pending { background: #fff3cd; color: #856404; }
+        .status-accepted { background: #cce5ff; color: #004085; }
 
         /* Login Modal */
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center; }
@@ -80,7 +82,7 @@
 <!-- Login Modal -->
 <div id="loginModal" class="modal">
     <div class="modal-content">
-        <h3>📱 Log in / Sign up</h3>
+        <h3 id="modalTitle">📱 Log in / Sign up</h3>
         <div id="phoneSection">
             <input type="tel" id="phoneNumber" placeholder="Mobile number (10 digits)" maxlength="10">
             <div id="recaptcha-container"></div>
@@ -97,8 +99,9 @@
 <!-- Header -->
 <div class="header">
     <div class="location-bar" id="currentLocText" onclick="getCurrentLocation()">
-        <i class="fas fa-map-marker-alt"></i> Set location...
+        <i class="fas fa-map-marker-alt"></i> <span id="locationPlaceholder">Set location...</span>
     </div>
+    <button class="lang-switch" id="langToggle" onclick="toggleLanguage()">🇺🇸 EN</button>
     <div class="user-icon" id="userIcon" onclick="showLoginModal()">
         <i class="fas fa-user"></i>
     </div>
@@ -107,9 +110,9 @@
 <!-- Main content: different screens -->
 <div id="homeScreen" class="screen active">
     <div class="tabs" id="tabContainer">
-        <div class="tab active" data-category="trucks">Trucks</div>
-        <div class="tab" data-category="2wheeler">2 Wheeler</div>
-        <div class="tab" data-category="packers">Packers & Movers</div>
+        <div class="tab active" data-category="trucks" id="tabTrucks">Trucks</div>
+        <div class="tab" data-category="2wheeler" id="tab2Wheeler">2 Wheeler</div>
+        <div class="tab" data-category="packers" id="tabPackers">Packers & Movers</div>
     </div>
     <h3 class="section-title" id="vehicleCategoryTitle">Mini Trucks</h3>
     <div class="vehicle-grid" id="vehicleGrid"></div>
@@ -118,34 +121,34 @@
 <div id="bookingScreen" class="screen">
     <div class="booking-header">
         <i class="fas fa-arrow-left back-btn" onclick="goBack()"></i>
-        <h3>Booking Details</h3>
+        <h3 id="bookingTitle">Booking Details</h3>
     </div>
     <div id="selectedVehicleInfo" style="margin-bottom:15px; font-weight:600;"></div>
     <div class="input-group">
-        <label>Pickup location</label>
+        <label id="pickupLabel">Pickup location</label>
         <input type="text" id="pickupAddr" placeholder="Enter pickup address" value="Jalpura, Greater Noida">
     </div>
     <div class="input-group">
-        <label>Drop location</label>
+        <label id="dropLabel">Drop location</label>
         <input type="text" id="dropAddr" placeholder="Enter drop address">
     </div>
     <div class="input-group">
-        <label>Distance (km) - or use GPS</label>
-        <input type="number" id="kmInput" placeholder="Distance in km" oninput="calculateFare()">
+        <label id="distanceLabel">Distance (miles) - or use GPS</label>
+        <input type="number" id="kmInput" placeholder="Distance in miles" oninput="calculateFare()">
     </div>
     <div id="map"></div>
-    <button class="btn btn-secondary" onclick="getCurrentLocation()"><i class="fas fa-location-dot"></i> Use my location</button>
+    <button class="btn btn-secondary" onclick="getCurrentLocation()"><i class="fas fa-location-dot"></i> <span id="useLocationBtn">Use my location</span></button>
     <div class="fare-box">
-        <span class="fare" id="fareAmount">₹0</span>
-        <div style="font-size:13px; color:#666;">Estimated fare</div>
+        <span class="fare" id="fareAmount">$0</span>
+        <div style="font-size:13px; color:#666;" id="estimatedFare">Estimated fare</div>
     </div>
-    <button class="btn btn-primary" onclick="confirmBooking()">Confirm Booking</button>
+    <button class="btn btn-primary" onclick="confirmBooking()" id="confirmBtn">Confirm Booking</button>
 </div>
 
 <div id="historyScreen" class="screen">
     <div class="booking-header">
         <i class="fas fa-arrow-left back-btn" onclick="goBack()"></i>
-        <h3>Your Trips</h3>
+        <h3 id="historyTitle">Your Trips</h3>
     </div>
     <div id="historyList"></div>
 </div>
@@ -153,32 +156,32 @@
 <div id="trackingScreen" class="screen">
     <div class="booking-header">
         <i class="fas fa-arrow-left back-btn" onclick="goBack()"></i>
-        <h3>Tracking</h3>
+        <h3 id="trackingTitle">Tracking</h3>
     </div>
     <div id="trackingMap" style="height:300px; border-radius:16px; margin-bottom:15px;"></div>
     <div id="trackingDetails"></div>
-    <button class="btn btn-secondary" onclick="cancelBooking()">Cancel Trip</button>
+    <button class="btn btn-secondary" onclick="cancelBooking()" id="cancelBtn">Cancel Trip</button>
 </div>
 
 <div id="successScreen" class="screen">
     <div style="text-align:center; padding:40px;">
         <i class="fas fa-check-circle" style="font-size:60px; color:#28a745;"></i>
-        <h2>Booking Confirmed!</h2>
+        <h2 id="successTitle">Booking Confirmed!</h2>
         <div id="successDetails" style="background:#e8f5e9; padding:15px; border-radius:16px; margin:20px;"></div>
-        <button class="btn btn-primary" onclick="goHome()">Back to Home</button>
+        <button class="btn btn-primary" onclick="goHome()" id="backHomeBtn">Back to Home</button>
     </div>
 </div>
 
 <!-- Bottom Navigation -->
 <div class="bottom-nav">
-    <div class="nav-item active" onclick="showScreen('homeScreen')"><i class="fas fa-home"></i>Home</div>
-    <div class="nav-item" onclick="showScreen('historyScreen')"><i class="fas fa-history"></i>Trips</div>
-    <div class="nav-item" onclick="alert('Coming soon')"><i class="fas fa-wallet"></i>Payment</div>
-    <div class="nav-item" onclick="alert('Coming soon')"><i class="fas fa-user"></i>Profile</div>
+    <div class="nav-item active" onclick="showScreen('homeScreen')"><i class="fas fa-home"></i><span id="navHome">Home</span></div>
+    <div class="nav-item" onclick="showScreen('historyScreen')"><i class="fas fa-history"></i><span id="navTrips">Trips</span></div>
+    <div class="nav-item" onclick="alert('Coming soon')"><i class="fas fa-wallet"></i><span id="navPayment">Payment</span></div>
+    <div class="nav-item" onclick="alert('Coming soon')"><i class="fas fa-user"></i><span id="navProfile">Profile</span></div>
 </div>
 
 <!-- Loading spinner -->
-<div id="loading" class="loading"><div class="spinner"></div><p>Loading...</p></div>
+<div id="loading" class="loading"><div class="spinner"></div><p id="loadingText">Loading...</p></div>
 
 <!-- Firebase SDK -->
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
@@ -206,10 +209,147 @@
     let currentVehicle = null;
     let basePrice = 0, perKmRate = 0;
     let finalFare = 0;
-    let map = null, trackingMap = null;
+    let map = null;
     let recaptchaVerifier;
-    let currentBookingId = null;
-    let unsubscribeTracking = null;
+    let currentLanguage = 'en'; // 'en' or 'hi'
+
+    // ---------- LANGUAGE DICTIONARY ----------
+    const translations = {
+        en: {
+            modalTitle: "📱 Log in / Sign up",
+            phonePlaceholder: "Mobile number (10 digits)",
+            sendOtp: "Send OTP",
+            otpPlaceholder: "Enter OTP",
+            verifyOtp: "Verify OTP",
+            locationPlaceholder: "Set location...",
+            tabTrucks: "Trucks",
+            tab2Wheeler: "2 Wheeler",
+            tabPackers: "Packers & Movers",
+            vehicleCategoryTitle: "Mini Trucks",
+            bookingTitle: "Booking Details",
+            pickupLabel: "Pickup location",
+            pickupPlaceholder: "Enter pickup address",
+            dropLabel: "Drop location",
+            dropPlaceholder: "Enter drop address",
+            distanceLabel: "Distance (miles) - or use GPS",
+            distancePlaceholder: "Distance in miles",
+            useLocationBtn: "Use my location",
+            estimatedFare: "Estimated fare",
+            confirmBtn: "Confirm Booking",
+            historyTitle: "Your Trips",
+            trackingTitle: "Tracking",
+            cancelBtn: "Cancel Trip",
+            successTitle: "Booking Confirmed!",
+            backHomeBtn: "Back to Home",
+            navHome: "Home",
+            navTrips: "Trips",
+            navPayment: "Payment",
+            navProfile: "Profile",
+            loadingText: "Loading...",
+            currencySymbol: "$",
+            unit: "mi",
+        },
+        hi: {
+            modalTitle: "📱 लॉगिन / साइन अप",
+            phonePlaceholder: "मोबाइल नंबर (10 अंक)",
+            sendOtp: "OTP भेजें",
+            otpPlaceholder: "OTP डालें",
+            verifyOtp: "OTP वेरिफाई करें",
+            locationPlaceholder: "लोकेशन सेट करें...",
+            tabTrucks: "ट्रक",
+            tab2Wheeler: "दो पहिया",
+            tabPackers: "पैकर्स एंड मूवर्स",
+            vehicleCategoryTitle: "छोटे ट्रक",
+            bookingTitle: "बुकिंग डिटेल्स",
+            pickupLabel: "पिकअप लोकेशन",
+            pickupPlaceholder: "पिकअप पता दर्ज करें",
+            dropLabel: "ड्रॉप लोकेशन",
+            dropPlaceholder: "ड्रॉप पता दर्ज करें",
+            distanceLabel: "दूरी (किमी) - या GPS इस्तेमाल करें",
+            distancePlaceholder: "किलोमीटर में दूरी",
+            useLocationBtn: "मेरी लोकेशन इस्तेमाल करें",
+            estimatedFare: "अनुमानित किराया",
+            confirmBtn: "बुकिंग कन्फर्म करें",
+            historyTitle: "आपकी यात्राएँ",
+            trackingTitle: "ट्रैकिंग",
+            cancelBtn: "ट्रिप रद्द करें",
+            successTitle: "बुकिंग सफल!",
+            backHomeBtn: "होम जाएँ",
+            navHome: "होम",
+            navTrips: "यात्राएँ",
+            navPayment: "भुगतान",
+            navProfile: "प्रोफाइल",
+            loadingText: "लोड हो रहा है...",
+            currencySymbol: "₹",
+            unit: "किमी",
+        }
+    };
+
+    // ---------- VEHICLE DATA (prices stored in USD/INR numerically same, but symbol changes) ----------
+    const vehicleData = {
+        trucks: [
+            { icon: '🛻', nameEn: 'Tata Ace', nameHi: 'टाटा ऐस', descEn: '$5 base (10mi), then $0.5/mi', descHi: '₹5 बेस (10किमी), फिर ₹0.5/किमी', base: 5, perKm: 0.5 },
+            { icon: '🚚', nameEn: 'Pickup 8ft', nameHi: 'पिकअप 8फीट', descEn: '$12 base + $0.4/mi', descHi: '₹12 बेस + ₹0.4/किमी', base: 12, perKm: 0.4 },
+            { icon: '🚛', nameEn: '14ft Truck', nameHi: '14फीट ट्रक', descEn: '$25 base + $0.4/mi', descHi: '₹25 बेस + ₹0.4/किमी', base: 25, perKm: 0.4 },
+            { icon: '🟨🚜', nameEn: 'JCB', nameHi: 'जेसीबी', descEn: '$30 base + $0.6/mi', descHi: '₹30 बेस + ₹0.6/किमी', base: 30, perKm: 0.6 },
+            { icon: '🏗️', nameEn: 'Crane', nameHi: 'क्रेन', descEn: '$40 base + $0.8/mi', descHi: '₹40 बेस + ₹0.8/किमी', base: 40, perKm: 0.8 },
+            { icon: '🚜', nameEn: 'Tractor', nameHi: 'ट्रैक्टर', descEn: '$18 base + $0.35/mi', descHi: '₹18 बेस + ₹0.35/किमी', base: 18, perKm: 0.35 }
+        ],
+        '2wheeler': [
+            { icon: '🛵', nameEn: 'Bike', nameHi: 'बाइक', descEn: '$0.5 base + $0.1/mi', descHi: '₹0.5 बेस + ₹0.1/किमी', base: 0.5, perKm: 0.1 },
+            { icon: '🛴', nameEn: 'Scooty', nameHi: 'स्कूटी', descEn: '$0.4 base + $0.08/mi', descHi: '₹0.4 बेस + ₹0.08/किमी', base: 0.4, perKm: 0.08 }
+        ],
+        packers: [
+            { icon: '🚚', nameEn: 'Mini Truck + Labour', nameHi: 'मिनी ट्रक + लेबर', descEn: '$15 base + $0.3/mi', descHi: '₹15 बेस + ₹0.3/किमी', base: 15, perKm: 0.3 },
+            { icon: '🏠', nameEn: 'House Shifting', nameHi: 'हाउस शिफ्टिंग', descEn: '$30 base + $0.4/mi', descHi: '₹30 बेस + ₹0.4/किमी', base: 30, perKm: 0.4 }
+        ]
+    };
+
+    // ---------- LANGUAGE TOGGLE ----------
+    window.toggleLanguage = function() {
+        currentLanguage = currentLanguage === 'en' ? 'hi' : 'en';
+        document.getElementById('langToggle').innerText = currentLanguage === 'en' ? '🇺🇸 EN' : '🇮🇳 HI';
+        updateUILanguage();
+        // Reload vehicle grid to update descriptions
+        const activeTab = document.querySelector('.tab.active').dataset.category;
+        loadVehicleGrid(activeTab);
+    };
+
+    function updateUILanguage() {
+        const t = translations[currentLanguage];
+        document.getElementById('modalTitle').innerText = t.modalTitle;
+        document.getElementById('phoneNumber').placeholder = t.phonePlaceholder;
+        document.getElementById('sendOtpBtn').innerText = t.sendOtp;
+        document.getElementById('otpCode').placeholder = t.otpPlaceholder;
+        document.getElementById('verifyOtpBtn').innerText = t.verifyOtp;
+        document.getElementById('locationPlaceholder').innerText = t.locationPlaceholder;
+        document.getElementById('tabTrucks').innerText = t.tabTrucks;
+        document.getElementById('tab2Wheeler').innerText = t.tab2Wheeler;
+        document.getElementById('tabPackers').innerText = t.tabPackers;
+        document.getElementById('vehicleCategoryTitle').innerText = t.vehicleCategoryTitle;
+        document.getElementById('bookingTitle').innerText = t.bookingTitle;
+        document.getElementById('pickupLabel').innerText = t.pickupLabel;
+        document.getElementById('pickupAddr').placeholder = t.pickupPlaceholder;
+        document.getElementById('dropLabel').innerText = t.dropLabel;
+        document.getElementById('dropAddr').placeholder = t.dropPlaceholder;
+        document.getElementById('distanceLabel').innerText = t.distanceLabel;
+        document.getElementById('kmInput').placeholder = t.distancePlaceholder;
+        document.getElementById('useLocationBtn').innerText = t.useLocationBtn;
+        document.getElementById('estimatedFare').innerText = t.estimatedFare;
+        document.getElementById('confirmBtn').innerText = t.confirmBtn;
+        document.getElementById('historyTitle').innerText = t.historyTitle;
+        document.getElementById('trackingTitle').innerText = t.trackingTitle;
+        document.getElementById('cancelBtn').innerText = t.cancelBtn;
+        document.getElementById('successTitle').innerText = t.successTitle;
+        document.getElementById('backHomeBtn').innerText = t.backHomeBtn;
+        document.getElementById('navHome').innerText = t.navHome;
+        document.getElementById('navTrips').innerText = t.navTrips;
+        document.getElementById('navPayment').innerText = t.navPayment;
+        document.getElementById('navProfile').innerText = t.navProfile;
+        document.getElementById('loadingText').innerText = t.loadingText;
+        // Update fare display if visible
+        calculateFare();
+    }
 
     // ---------- AUTH STATE ----------
     auth.onAuthStateChanged(user => {
@@ -226,184 +366,85 @@
     window.showLoginModal = function() {
         if (currentUser) {
             auth.signOut();
-            return;
-        }
-        document.getElementById('loginModal').classList.add('active');
-        if (!recaptchaVerifier) {
-            recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha-container', { size: 'invisible' });
-        }
-    };
+    <script>
+    // ... (आपका पुराना config और variables यहाँ रहेंगे)
 
-    document.getElementById('sendOtpBtn').addEventListener('click', async () => {
-        const phone = document.getElementById('phoneNumber').value;
-        if (!phone || phone.length !== 10) {
-            document.getElementById('loginError').innerText = 'Enter 10-digit mobile number';
-            return;
-        }
-        try {
-            const confirmation = await auth.signInWithPhoneNumber('+91' + phone, recaptchaVerifier);
-            window.confirmationResult = confirmation;
-            document.getElementById('phoneSection').style.display = 'none';
-            document.getElementById('otpSection').style.display = 'block';
-            document.getElementById('loginError').innerText = '';
-        } catch (e) {
-            document.getElementById('loginError').innerText = 'Error: ' + e.message;
-        }
-    });
-
-    document.getElementById('verifyOtpBtn').addEventListener('click', async () => {
-        const otp = document.getElementById('otpCode').value;
-        if (!otp) return;
-        try {
-            await window.confirmationResult.confirm(otp);
-            document.getElementById('loginModal').classList.remove('active');
-            document.getElementById('phoneSection').style.display = 'block';
-            document.getElementById('otpSection').style.display = 'none';
-        } catch (e) {
-            document.getElementById('loginError').innerText = 'Invalid OTP';
-        }
-    });
-
-    // ---------- SCREEN MANAGEMENT ----------
-    window.showScreen = function(screenId) {
-        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-        document.getElementById(screenId).classList.add('active');
-        // update bottom nav
-        document.querySelectorAll('.nav-item').forEach((item, idx) => {
-            if (screenId === 'homeScreen' && idx === 0) item.classList.add('active');
-            else if (screenId === 'historyScreen' && idx === 1) item.classList.add('active');
-            else item.classList.remove('active');
-        });
-        if (screenId === 'historyScreen') loadHistory();
-        if (screenId === 'homeScreen') loadVehicleGrid('trucks');
-    };
-
-    window.goBack = function() { showScreen('homeScreen'); };
-    window.goHome = function() { showScreen('homeScreen'); };
-
-    // ---------- VEHICLE GRID ----------
-    const vehicleData = {
-        trucks: [
-            { icon: '🛻', name: 'Tata Ace', desc: '₹500 (10km), then ₹50/km', base: 500, perKm: 50 },
-            { icon: '🚚', name: 'Pickup 8ft', desc: '₹1200 base + ₹40/km', base: 1200, perKm: 40 },
-            { icon: '🚛', name: '14ft Truck', desc: '₹2500 base + ₹40/km', base: 2500, perKm: 40 },
-            { icon: '🟨🚜', name: 'JCB', desc: '₹3000 base + ₹60/km', base: 3000, perKm: 60 },
-            { icon: '🏗️', name: 'Crane', desc: '₹4000 base + ₹80/km', base: 4000, perKm: 80 },
-            { icon: '🚜', name: 'Tractor', desc: '₹1800 base + ₹35/km', base: 1800, perKm: 35 }
-        ],
-        '2wheeler': [
-            { icon: '🛵', name: 'Bike', desc: '₹50 base + ₹10/km', base: 50, perKm: 10 },
-            { icon: '🛴', name: 'Scooty', desc: '₹40 base + ₹8/km', base: 40, perKm: 8 }
-        ],
-        packers: [
-            { icon: '🚚', name: 'Mini Truck + Labour', desc: '₹1500 base + ₹30/km', base: 1500, perKm: 30 },
-            { icon: '🏠', name: 'House Shifting', desc: '₹3000 base + ₹40/km', base: 3000, perKm: 40 }
-        ]
+    // सुधार: पेज लोड होते ही गाड़ियाँ दिखाएं और भाषा सेट करें
+    window.onload = function() {
+        updateUILanguage(); // डिफ़ॉल्ट भाषा सेट करें
+        loadVehicleGrid('trucks'); // गाड़ियाँ लोड करें
     };
 
     function loadVehicleGrid(category) {
         const grid = document.getElementById('vehicleGrid');
-        const title = document.getElementById('vehicleCategoryTitle');
-        if (category === 'trucks') title.innerText = 'Mini Trucks';
-        else if (category === '2wheeler') title.innerText = '2 Wheeler';
-        else title.innerText = 'Packers & Movers';
-
+        const t = translations[currentLanguage];
         let html = '';
+        
         vehicleData[category].forEach(v => {
-            html += `<div class="vehicle-card" data-name="${v.name}" data-base="${v.base}" data-perkm="${v.perKm}">
+            const name = currentLanguage === 'en' ? v.nameEn : v.nameHi;
+            const desc = currentLanguage === 'en' ? v.descEn : v.descHi;
+            
+            html += `<div class="vehicle-card" onclick="selectVehicle('${name}', ${v.base}, ${v.perKm})">
                 <div class="icon">${v.icon}</div>
-                <h4>${v.name}</h4>
-                <p>${v.desc}</p>
+                <h4>${name}</h4>
+                <p>${desc}</p>
             </div>`;
         });
         grid.innerHTML = html;
-
-        // attach click
-        document.querySelectorAll('.vehicle-card').forEach(card => {
-            card.addEventListener('click', () => {
-                currentVehicle = card.dataset.name;
-                basePrice = parseInt(card.dataset.base);
-                perKmRate = parseInt(card.dataset.perkm);
-                document.getElementById('selectedVehicleInfo').innerHTML = `<strong>Selected:</strong> ${currentVehicle}`;
-                showScreen('bookingScreen');
-                document.getElementById('kmInput').value = '';
-                document.getElementById('fareAmount').innerText = '₹0';
-            });
+        
+        // टैब को सक्रिय (Active) दिखाएँ
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.classList.remove('active');
+            if(tab.dataset.category === category) tab.classList.add('active');
         });
     }
 
-    // tab switching
-    document.querySelectorAll('.tab').forEach(tab => {
-        tab.addEventListener('click', function() {
-            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-            this.classList.add('active');
-            loadVehicleGrid(this.dataset.category);
-        });
-    });
+    // गाड़ी चुनने पर बुकिंग स्क्रीन खोलें
+    window.selectVehicle = function(name, base, rate) {
+        currentVehicle = name;
+        basePrice = base;
+        perKmRate = rate;
+        document.getElementById('selectedVehicleInfo').innerHTML = `<strong>${translations[currentLanguage].navProfile}:</strong> ${name}`;
+        showScreen('bookingScreen');
+    };
 
-    // initial load
-    loadVehicleGrid('trucks');
-
-    // ---------- FARE CALCULATION ----------
+    // किराया गिनने का फंक्शन
     window.calculateFare = function() {
         let km = parseFloat(document.getElementById('kmInput').value) || 0;
-        if (currentVehicle && currentVehicle.includes('Tata Ace')) {
-            if (km <= 10) finalFare = 500;
-            else if (km <= 20) finalFare = 1000;
-            else finalFare = km * 50;
-        } else {
-            finalFare = basePrice + (km * perKmRate);
-        }
-        document.getElementById('fareAmount').innerText = '₹' + finalFare;
+        let fare = basePrice + (km * perKmRate);
+        const symbol = translations[currentLanguage].currencySymbol;
+        document.getElementById('fareAmount').innerText = symbol + fare.toFixed(2);
     };
 
-    // ---------- GPS LOCATION (free Nominatim) ----------
-    window.getCurrentLocation = function() {
-        if (!navigator.geolocation) { alert('Geolocation not supported'); return; }
-        document.getElementById('loading').classList.add('active');
-        navigator.geolocation.getCurrentPosition(async pos => {
-            const lat = pos.coords.latitude;
-            const lng = pos.coords.longitude;
-            // show map
-            const mapDiv = document.getElementById('map');
-            mapDiv.style.display = 'block';
-            if (map) map.remove();
-            map = L.map('map').setView([lat, lng], 15);
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
-            L.marker([lat, lng]).addTo(map).bindPopup('You are here').openPopup();
-
-            // reverse geocode
-            try {
-                const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`);
-                const data = await res.json();
-                document.getElementById('pickupAddr').value = data.display_name || 'Location found';
-            } catch(e) { /* ignore */ }
-            document.getElementById('loading').classList.remove('active');
-        }, err => {
-            alert('Unable to get location');
-            document.getElementById('loading').classList.remove('active');
-        });
+    // स्क्रीन बदलने का फंक्शन
+    window.showScreen = function(id) {
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
     };
 
-    // ---------- CONFIRM BOOKING ----------
+    function goBack() { showScreen('homeScreen'); }
+    function goHome() { showScreen('homeScreen'); }
+
+    // बुकिंग कन्फर्म करें और फायरबेस में सेव करें
     window.confirmBooking = async function() {
-        if (!currentUser) { alert('Please login first'); showLoginModal(); return; }
-        if (finalFare <= 0) { alert('Enter distance or wait for fare calculation'); return; }
-        const pickup = document.getElementById('pickupAddr').value || 'Unknown';
-        const drop = document.getElementById('dropAddr').value || 'Unknown';
-        const km = parseFloat(document.getElementById('kmInput').value) || 0;
-
-        const commission = Math.round(finalFare * 0.15);
-        const driverAmount = finalFare - commission;
-
+        if (!auth.currentUser) { alert("कृपया लॉगिन करें!"); showLoginModal(); return; }
+        
         const booking = {
-            userId: currentUser.uid,
-            userPhone: currentUser.phoneNumber,
             vehicle: currentVehicle,
-            pickup,
-            drop,
-            km,
-            fare: finalFare,
-            commission,
-            driverAmount,
-   
+            pickup: document.getElementById('pickupAddr').value,
+            drop: document.getElementById('dropAddr').value,
+            fare: document.getElementById('fareAmount').innerText,
+            status: 'pending',
+            timestamp: firebase.firestore.FieldValue.serverTimestamp()
+        };
+
+        try {
+            await db.collection('bookings').add(booking);
+            showScreen('successScreen');
+        } catch (e) {
+            alert("Error: " + e.message);
+        }
+    };
+</script>
+</body>
+</html>
