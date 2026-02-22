@@ -238,6 +238,94 @@
     let basePrice = 0, perKmRate = 0;
     let finalFare = 0;
     let map = null;
+        // ---------- ROUTE CALCULATION (Leaflet Routing Machine) ----------
+let routingControl = null;
+
+// Geocode address to coordinates using Nominatim
+async function geocodeAddress(address) {
+    const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}`;
+    try {
+        const res = await fetch(url);
+        const data = await res.json();
+        if (data && data.length > 0) {
+            return { lat: parseFloat(data[0].lat), lng: parseFloat(data[0].lon) };
+        } else {
+            throw new Error('Address not found');
+        }
+    } catch (e) {
+        alert('Geocoding failed: ' + e.message);
+        return null;
+    }
+}
+
+// Main route calculation function
+window.calculateRoute = async function() {
+    const pickup = document.getElementById('pickupAddr').value;
+    const drop = document.getElementById('dropAddr').value;
+    
+    if (!pickup || !drop) {
+        alert('Please enter both pickup and drop addresses');
+        return;
+    }
+
+    document.getElementById('loading').classList.add('active');
+
+    const pickupCoords = await geocodeAddress(pickup);
+    const dropCoords = await geocodeAddress(drop);
+
+    if (!pickupCoords || !dropCoords) {
+        document.getElementById('loading').classList.remove('active');
+        return;
+    }
+
+    // Show map if not already visible
+    const mapDiv = document.getElementById('map');
+    mapDiv.style.display = 'block';
+
+    // Initialize map if not exists
+    if (!map) {
+        map = L.map('map').setView([pickupCoords.lat, pickupCoords.lng], 10);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+    } else {
+        map.setView([pickupCoords.lat, pickupCoords.lng], 10);
+    }
+
+    // Remove existing routing control
+    if (routingControl) {
+        map.removeControl(routingControl);
+    }
+
+    // Create new route
+    routingControl = L.Routing.control({
+        waypoints: [
+            L.latLng(pickupCoords.lat, pickupCoords.lng),
+            L.latLng(dropCoords.lat, dropCoords.lng)
+        ],
+        routeWhileDragging: false,
+        showAlternatives: false,
+        lineOptions: {
+            styles: [{ color: '#2854ff', opacity: 0.8, weight: 6 }]
+        },
+        createMarker: function() { return null; } // no default markers
+    }).addTo(map);
+
+    // When route is found, update distance and fare
+    routingControl.on('routesfound', function(e) {
+        const routes = e.routes;
+        const summary = routes[0].summary;
+        // Distance in meters, convert to miles
+        const distanceMiles = summary.totalDistance * 0.000621371;
+        document.getElementById('kmInput').value = distanceMiles.toFixed(1);
+        // Trigger fare calculation
+        calculateFare();
+        document.getElementById('loading').classList.remove('active');
+    });
+
+    routingControl.on('routingerror', function(e) {
+        alert('Could not find route: ' + e.error.message);
+        document.getElementById('loading').classList.remove('active');
+    });
+};
 
     // ---------- VEHICLE DATA (USA style) ----------
     const vehicleData = {
