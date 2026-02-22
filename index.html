@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <!-- Leaflet for map -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.css" />
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
         body { background: #f4f7fc; padding-bottom: 70px; }
@@ -149,7 +150,9 @@
         </div>
         <div id="map"></div>
         <button class="btn btn-secondary" onclick="getCurrentLocation()"><i class="fas fa-location-dot"></i> Use my current location</button>
-        
+
+        <button class="btn btn-primary" onclick="calculateRoute()" style="margin-top:10px;">🛣️ Get Route & Calculate Fare</button>
+
         <!-- Fare Breakdown Box -->
         <div class="fare-box">
             <div class="fare" id="fareAmount">$0</div>
@@ -215,6 +218,7 @@
 <!-- Leaflet -->
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
+    <script src="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.js"></script>
     <script>
     // ---------- FIREBASE CONFIG ----------
     const firebaseConfig = {
