@@ -138,11 +138,13 @@
         <div id="selectedVehicleInfo" style="margin-bottom:20px; font-weight:600; font-size:18px;"></div>
         <div class="input-group">
             <label>📍 Pickup</label>
-            <input type="text" id="pickupAddr" placeholder="Enter pickup address" value="123 Main St, New York, NY">
+            <input type="text" id="pickupAddr" placeholder="Enter pickup address" list="pickupSuggestions" oninput="fetchSuggestions(this.value, 'pickup')">
+            
         </div>
         <div class="input-group">
             <label>🏁 Drop</label>
-            <input type="text" id="dropAddr" placeholder="Enter drop address">
+            <input type="text" id="dropAddr" placeholder="Enter drop address" list="dropSuggestions" oninput="fetchSuggestions(this.value, 'drop')">
+            
         </div>
         <div class="input-group">
             <label>📏 Distance (miles) or use GPS</label>
@@ -153,6 +155,9 @@
 
         <button class="btn btn-primary" onclick="calculateRoute()" style="margin-top:10px;">🛣️ Get Route & Calculate Fare</button>
 
+        <datalist id="pickupSuggestions"></datalist>
+<datalist id="dropSuggestions"></datalist>
+        
         <!-- Fare Breakdown Box -->
         <div class="fare-box">
             <div class="fare" id="fareAmount">$0</div>
@@ -534,6 +539,31 @@ window.calculateRoute = async function() {
     });
 
     // Initialize with trucks
+        // ---------- ADDRESS AUTOCOMPLETE (Nominatim) ----------
+let suggestionTimeout;
+async function fetchSuggestions(query, type) {
+    clearTimeout(suggestionTimeout);
+    if (query.length < 3) return; // कम से कम 3 अक्षर
+
+    suggestionTimeout = setTimeout(async () => {
+        try {
+            const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&addressdetails=1&limit=5`;
+            const res = await fetch(url);
+            const data = await res.json();
+            
+            const datalist = document.getElementById(type === 'pickup' ? 'pickupSuggestions' : 'dropSuggestions');
+            datalist.innerHTML = ''; // पुराने सुझाव हटाएँ
+            
+            data.forEach(item => {
+                const option = document.createElement('option');
+                option.value = item.display_name;
+                datalist.appendChild(option);
+            });
+        } catch (e) {
+            console.error('Autocomplete error:', e);
+        }
+    }, 300); // 300ms की देरी
+}
     loadVehicleGrid('trucks');
 </script>
 </body>
