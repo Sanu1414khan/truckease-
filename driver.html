@@ -145,6 +145,82 @@
     <div class="nav-item" onclick="showScreen('profileScreen')"><i class="fas fa-user"></i><span>Profile</span></div>
 </div>
 
+
+    </div> <!-- dashboardScreen ends -->
+
+<!-- Earnings Screen -->
+<div id="earningsScreen" class="screen">
+    <div class="booking-header">
+        <i class="fas fa-arrow-left back-btn" onclick="goBack()"></i>
+        <h3>Your Earnings</h3>
+    </div>
+    <div class="booking-content">
+        <div class="earnings-card" style="margin:0 0 20px 0;">
+            <div>
+                <div class="label">Total Earnings</div>
+                <div class="amount" id="totalEarningsAmount">$4,280.50</div>
+            </div>
+            <i class="fas fa-dollar-sign" style="font-size: 48px; opacity: 0.5;"></i>
+        </div>
+
+        <div style="background:white; border-radius:24px; padding:20px; margin-bottom:20px;">
+            <h4>Weekly Breakdown</h4>
+            <canvas id="earningsDetailChart" style="height:200px;"></canvas>
+        </div>
+
+        <div style="background:white; border-radius:24px; padding:20px;">
+            <h4>Recent Transactions</h4>
+            <div id="recentTransactions"></div>
+        </div>
+    </div>
+</div>
+
+<!-- Vehicles Screen -->
+<div id="vehiclesScreen" class="screen">
+    <div class="booking-header">
+        <i class="fas fa-arrow-left back-btn" onclick="goBack()"></i>
+        <h3>My Vehicles</h3>
+    </div>
+    <div class="booking-content">
+        <div class="vehicle-grid" id="myVehiclesList">
+            <!-- Demo vehicles will be inserted here by JavaScript -->
+        </div>
+        <button class="btn-primary" onclick="alert('Add vehicle feature coming soon!')">+ Add New Vehicle</button>
+    </div>
+</div>
+
+<!-- Profile Screen -->
+<div id="profileScreen" class="screen">
+    <div class="booking-header">
+        <i class="fas fa-arrow-left back-btn" onclick="goBack()"></i>
+        <h3>My Profile</h3>
+    </div>
+    <div class="booking-content">
+        <div style="text-align:center; margin-bottom:20px;">
+            <div style="font-size:80px; color:#2854ff;">👤</div>
+            <h2 id="profileName">Demo Driver</h2>
+            <p id="profilePhone">+1 212-555-1234</p>
+        </div>
+
+        <div style="background:white; border-radius:24px; padding:20px; margin-bottom:20px;">
+            <h4>Account Status</h4>
+            <p><strong>Status:</strong> <span style="color:#28a745;" id="profileStatus">Active</span></p>
+            <p><strong>Member Since:</strong> <span id="profileMemberSince">Feb 2024</span></p>
+            <p><strong>Total Trips:</strong> <span id="profileTotalTrips">47</span></p>
+            <p><strong>Rating:</strong> <span id="profileRating">4.92 ⭐</span></p>
+        </div>
+
+        <div style="background:white; border-radius:24px; padding:20px;">
+            <h4>Documents</h4>
+            <p><strong>DOT Number:</strong> <span id="profileDOT">1234567</span></p>
+            <p><strong>CDL Number:</strong> <span id="profileCDL">CDL-987654</span></p>
+            <p><strong>Insurance:</strong> <span id="profileInsurance">INS-12345</span></p>
+        </div>
+
+        <!-- We'll add logout button later, keeping it simple for now -->
+    </div>
+</div>
+
 <!-- Loading -->
 <div id="loading" class="loading"><div class="spinner"></div><p>Loading...</p></div>
 
@@ -187,10 +263,147 @@
         loadAvailableLoads();
     });
 
-    window.showScreen = function(screenId) {
-        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-        document.getElementById(screenId).classList.add('active');
-    };
+    // ---------- HELPER FUNCTION TO GO BACK ----------
+window.goBack = function() {
+    showScreen('dashboardScreen');
+};
+
+// ---------- LOAD EARNINGS DATA ----------
+function loadEarningsData() {
+    // For demo, we'll show static data
+    document.getElementById('totalEarningsAmount').innerText = '$4,280.50';
+    
+    // Create earnings chart
+    const ctx = document.getElementById('earningsDetailChart')?.getContext('2d');
+    if (ctx) {
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
+                datasets: [{
+                    label: 'Earnings',
+                    data: [850, 1100, 1230, 1100.50],
+                    backgroundColor: '#2854ff',
+                    borderRadius: 8
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } }
+            }
+        });
+    }
+
+    // Recent transactions
+    const transactions = [
+        { date: '2024-02-24', amount: 124.50, load: 'NYC → Boston' },
+        { date: '2024-02-23', amount: 210.00, load: 'Brooklyn → Queens' },
+        { date: '2024-02-22', amount: 95.00, load: 'Manhattan → JFK' },
+        { date: '2024-02-21', amount: 320.75, load: 'Albany → NYC' },
+    ];
+
+    let html = '';
+    transactions.forEach(t => {
+        html += `
+            <div style="display:flex; justify-content:space-between; padding:12px 0; border-bottom:1px solid #eee;">
+                <div>
+                    <div><strong>${t.load}</strong></div>
+                    <div style="font-size:12px; color:#666;">${t.date}</div>
+                </div>
+                <div style="font-weight:700; color:#2854ff;">$${t.amount.toFixed(2)}</div>
+            </div>
+        `;
+    });
+    document.getElementById('recentTransactions').innerHTML = html;
+}
+
+// ---------- LOAD VEHICLES DATA ----------
+function loadVehiclesData() {
+    const container = document.getElementById('myVehiclesList');
+    if (!container) return;
+
+    // Demo vehicles
+    const vehicles = [
+        { icon: '🚛', name: 'Box Truck 16ft', plate: 'ABC-1234', type: 'Box Truck', status: 'Active' },
+        { icon: '🚚', name: 'Semi-Truck 53ft', plate: 'XYZ-5678', type: 'Semi', status: 'Active' },
+        { icon: '🚐', name: 'Cargo Van', plate: 'VAN-9012', type: 'Van', status: 'Inactive' },
+    ];
+
+    let html = '';
+    vehicles.forEach(v => {
+        html += `
+            <div class="vehicle-card">
+                <div class="icon">${v.icon}</div>
+                <div class="vehicle-info">
+                    <h4>${v.name}</h4>
+                    <p>${v.plate} • ${v.type}</p>
+                </div>
+                <div class="vehicle-status" style="background:${v.status === 'Active' ? '#d4edda' : '#f8d7da'}; color:${v.status === 'Active' ? '#155724' : '#721c24'};">${v.status}</div>
+            </div>
+        `;
+    });
+    container.innerHTML = html;
+}
+
+// ---------- LOAD PROFILE DATA ----------
+function loadProfileData() {
+    if (!currentDriver) return;
+
+    document.getElementById('profileName').innerText = currentDriver.name || 'Demo Driver';
+    document.getElementById('profilePhone').innerText = currentDriver.phoneNumber || '+1 212-555-1234';
+    document.getElementById('profileTotalTrips').innerText = '47';
+    document.getElementById('profileRating').innerText = '4.92 ⭐';
+    document.getElementById('profileDOT').innerText = '1234567';
+    document.getElementById('profileCDL').innerText = 'CDL-987654';
+    document.getElementById('profileInsurance').innerText = 'INS-12345';
+}
+
+// ---------- UPDATE SCREEN MANAGEMENT ----------
+// Replace the existing showScreen function with this improved version
+window.showScreen = function(screenId) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById(screenId).classList.add('active');
+    
+    // Update bottom nav
+    document.querySelectorAll('.nav-item').forEach((item, idx) => {
+        if (screenId === 'dashboardScreen' && idx === 0) item.classList.add('active');
+        else if (screenId === 'earningsScreen' && idx === 1) item.classList.add('active');
+        else if (screenId === 'vehiclesScreen' && idx === 2) item.classList.add('active');
+        else if (screenId === 'profileScreen' && idx === 3) item.classList.add('active');
+        else item.classList.remove('active');
+    });
+
+    // Load data based on screen
+    if (screenId === 'earningsScreen') {
+        loadEarningsData();
+    } else if (screenId === 'vehiclesScreen') {
+        loadVehiclesData();
+    } else if (screenId === 'profileScreen') {
+        loadProfileData();
+    }
+};
+
+// ---------- UPDATE TAB SWITCHING ----------
+// Replace the existing tab switching code with this
+document.querySelectorAll('.tab').forEach(tab => {
+    tab.addEventListener('click', function() {
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        this.classList.add('active');
+        
+        const tabName = this.dataset.tab;
+        document.querySelectorAll('.tab-content').forEach(c => c.style.display = 'none');
+        if (tabName === 'available') {
+            document.getElementById('availableTab').style.display = 'block';
+        } else if (tabName === 'myvehicles') {
+            document.getElementById('vehiclesTab').style.display = 'block';
+            loadVehiclesData(); // Load vehicles when tab is clicked
+        } else if (tabName === 'earnings') {
+            document.getElementById('earningsTab').style.display = 'block';
+            loadEarningsData(); // Load earnings when tab is clicked
+        }
+    });
+});
 
     // ---------- REAL-TIME LOADS UPDATES (onSnapshot) ----------
 function loadAvailableLoads() {
