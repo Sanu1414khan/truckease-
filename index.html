@@ -566,6 +566,100 @@ async function fetchSuggestions(query, type) {
     }, 300); // 300ms की देरी
 }
     loadVehicleGrid('trucks');
+        // ---------- TRACKING SIMULATION ----------
+let trackingInterval = null;
+let driverMarker = null;
+let routeCoordinates = [];
+let currentStep = 0;
+let trackingMap = null;
+
+window.startTracking = function() {
+    if (trackingInterval) {
+        clearInterval(trackingInterval);
+        trackingInterval = null;
+    }
+    
+    showScreen('trackingScreen');
+    
+    const pickup = document.getElementById('pickupAddr').value || '123 Main St, New York, NY';
+    const drop = document.getElementById('dropAddr').value || '456 Broadway, New York, NY';
+    
+    // Demo coordinates (New York)
+    const pickupCoords = { lat: 40.7128, lng: -74.0060 };
+    const dropCoords = { lat: 40.7580, lng: -73.9855 };
+    
+    const mapDiv = document.getElementById('trackingMap');
+    if (!trackingMap) {
+        trackingMap = L.map('trackingMap').setView([pickupCoords.lat, pickupCoords.lng], 13);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(trackingMap);
+    } else {
+        trackingMap.setView([pickupCoords.lat, pickupCoords.lng], 13);
+    }
+    
+    L.marker([pickupCoords.lat, pickupCoords.lng]).addTo(trackingMap).bindPopup('Pickup').openPopup();
+    L.marker([dropCoords.lat, dropCoords.lng]).addTo(trackingMap).bindPopup('Drop').openPopup();
+    
+    driverMarker = L.marker([pickupCoords.lat + 0.01, pickupCoords.lng + 0.01]).addTo(trackingMap).bindPopup('Driver').openPopup();
+    
+    routeCoordinates = [];
+    const steps = 20;
+    for (let i = 0; i <= steps; i++) {
+        const lat = pickupCoords.lat + (dropCoords.lat - pickupCoords.lat) * i / steps;
+        const lng = pickupCoords.lng + (dropCoords.lng - pickupCoords.lng) * i / steps;
+        routeCoordinates.push({ lat, lng });
+    }
+    
+    currentStep = 0;
+    
+    document.getElementById('trackingDetails').innerHTML = `
+        <p><i class="fas fa-circle-notch fa-spin"></i> Driver is heading to pickup location...</p>
+        <p><strong>Pickup:</strong> ${pickup.substring(0,30)}</p>
+        <p><strong>Drop:</strong> ${drop.substring(0,30)}</p>
+    `;
+    
+    trackingInterval = setInterval(() => {
+        if (currentStep < routeCoordinates.length - 1) {
+            currentStep++;
+            const pos = routeCoordinates[currentStep];
+            driverMarker.setLatLng([pos.lat, pos.lng]);
+            trackingMap.panTo([pos.lat, pos.lng]);
+            
+            if (currentStep < routeCoordinates.length / 2) {
+                document.getElementById('trackingDetails').innerHTML = `
+                    <p><i class="fas fa-circle-notch fa-spin"></i> Driver is on the way to pickup...</p>
+                    <p><strong>Pickup:</strong> ${pickup.substring(0,30)}</p>
+                    <p><strong>Drop:</strong> ${drop.substring(0,30)}</p>
+                `;
+            } else {
+                document.getElementById('trackingDetails').innerHTML = `
+                    <p><i class="fas fa-circle-notch fa-spin"></i> Driver has picked up and heading to drop...</p>
+                    <p><strong>Pickup:</strong> ${pickup.substring(0,30)}</p>
+                    <p><strong>Drop:</strong> ${drop.substring(0,30)}</p>
+                `;
+            }
+        } else {
+            clearInterval(trackingInterval);
+            trackingInterval = null;
+            document.getElementById('trackingDetails').innerHTML = `
+                <p><i class="fas fa-check-circle" style="color:#28a745;"></i> Trip completed!</p>
+                <p><strong>Pickup:</strong> ${pickup.substring(0,30)}</p>
+                <p><strong>Drop:</strong> ${drop.substring(0,30)}</p>
+            `;
+        }
+    }, 2000);
+};
+
+window.cancelBooking = function() {
+    if (trackingInterval) {
+        clearInterval(trackingInterval);
+        trackingInterval = null;
+    }
+    if (trackingMap) {
+        trackingMap.remove();
+        trackingMap = null;
+    }
+    goHome();
+};
 </script>
 </body>
 </html>
