@@ -146,14 +146,10 @@
             <input type="text" id="dropAddr" placeholder="Enter drop address" list="dropSuggestions" oninput="fetchSuggestions(this.value, 'drop')">
             
         </div>
-        <div class="input-group">
-            <label>📏 Distance (miles) or use GPS</label>
-            <input type="number" id="kmInput" placeholder="Distance in miles" oninput="calculateFare()">
-        </div>
+        
         <div id="map"></div>
         <button class="btn btn-secondary" onclick="getCurrentLocation()"><i class="fas fa-location-dot"></i> Use my current location</button>
-
-        <button class="btn btn-primary" onclick="calculateRoute()" style="margin-top:10px;">🛣️ Get Route & Calculate Fare</button>
+        
 
         <datalist id="pickupSuggestions"></datalist>
 <datalist id="dropSuggestions"></datalist>
