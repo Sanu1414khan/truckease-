@@ -832,7 +832,7 @@
                 snapshot.forEach(doc => {
                     const b = doc.data();
                     const time = b.timestamp ? new Date(b.timestamp.toDate()).toLocaleString('en-US') : '';
-                    html += `<div class="history-item" onclick="viewTripDetails('${doc.id}')">
+                    html += '<div class="history-item">';
                         <div class="row"><span>${b.vehicle}</span><span class="status-badge status-${b.status}">${b.status}</span></div>
                         <div class="row"><small>${b.pickup.substring(0,20)} → ${b.drop.substring(0,20)}</small></div>
                         <div class="row"><span>$${b.fare?.toFixed(2)}</span><small>${time}</small></div>
