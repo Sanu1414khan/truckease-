@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>TruckEase USA - Freight on Demand</title>
+    <title>TRUCKEASE • Quantum Freight</title>
     <!-- Fonts & Icons -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -12,651 +12,1032 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.css" />
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
-        body { background: #f4f7fc; padding-bottom: 70px; }
-
-        /* Premium Header with glass effect */
-        .header { background: rgba(255,255,255,0.95); backdrop-filter: blur(10px); padding: 15px; display: flex; align-items: center; gap: 10px; position: sticky; top: 0; z-index: 100; box-shadow: 0 4px 20px rgba(0,0,0,0.05); }
-        .location-bar { background: #eef2ff; padding: 12px 18px; border-radius: 40px; flex: 1; font-size: 14px; color: #2854ff; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; cursor: pointer; box-shadow: 0 2px 8px rgba(40,84,255,0.1); transition: all 0.2s; }
-        .location-bar:hover { background: #e0e7ff; transform: scale(1.02); }
-        .user-icon { font-size: 24px; color: #2854ff; background: white; width: 48px; height: 48px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 4px 12px rgba(40,84,255,0.15); border: 1px solid rgba(40,84,255,0.1); }
-
-        /* Tabs with underline effect */
-        .tabs { display: flex; gap: 20px; padding: 15px 20px; overflow-x: auto; background: white; border-bottom: 1px solid #f0f0f0; }
-        .tab { padding: 8px 0; font-weight: 600; font-size: 16px; color: #999; white-space: nowrap; cursor: pointer; border-bottom: 3px solid transparent; transition: 0.2s; }
-        .tab.active { color: #2854ff; border-bottom-color: #2854ff; }
-
-        /* Vehicle Cards - Uber Freight style */
-        .section-title { padding: 20px 20px 10px; font-size: 20px; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+        body {
+            background: #0a0c14;
+            color: #fff;
+            padding-bottom: 80px;
+            position: relative;
+            overflow-x: hidden;
+        }
+        /* Starfield / Grid Background */
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-image: 
+                linear-gradient(rgba(0, 243, 255, 0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 243, 255, 0.05) 1px, transparent 1px);
+            background-size: 50px 50px;
+            pointer-events: none;
+            z-index: 0;
+        }
+        /* Glassmorphism base */
+        .glass, .service-item, .vehicle-card, .rewards-card, .quantum-grid, .booking-header, .fare-box, .history-item, .modal-content {
+            background: rgba(20, 30, 50, 0.4);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(0, 243, 255, 0.2);
+            border-radius: 24px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+        }
+        /* Header */
+        .header { padding: 20px 20px 10px; display: flex; flex-direction: column; gap: 15px; z-index: 10; background: transparent; }
+        .logo-area { display: flex; justify-content: space-between; align-items: center; }
+        .logo { font-size: 28px; font-weight: 800; color: #00f3ff; text-shadow: 0 0 15px #00f3ff; letter-spacing: 2px; }
+        .user-icon { width: 48px; height: 48px; border-radius: 50%; background: rgba(255,255,255,0.05); border: 1px solid rgba(0,243,255,0.3); display: flex; align-items: center; justify-content: center; cursor: pointer; color: #00f3ff; font-size: 24px; }
+        .location-bar { background: rgba(0, 243, 255, 0.05); backdrop-filter: blur(5px); padding: 16px 20px; border-radius: 40px; font-size: 16px; color: #aaa; border: 1px solid rgba(0,243,255,0.3); cursor: pointer; display: flex; align-items: center; gap: 10px; }
+        .location-bar i { color: #00f3ff; }
+        .location-bar span { color: #fff; font-weight: 500; }
+        /* SOS Button */
+        .sos-btn {
+            position: fixed; bottom: 100px; right: 20px; width: 60px; height: 60px;
+            background: #ff4444; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            color: white; font-size: 30px; box-shadow: 0 0 30px #ff4444; cursor: pointer; z-index: 1000;
+            border: 2px solid #fff; transition: 0.2s;
+        }
+        .sos-btn:hover { transform: scale(1.1); }
+        /* Section Titles */
+        .section-title { padding: 20px 20px 10px; font-size: 18px; font-weight: 600; color: #00f3ff; text-transform: uppercase; letter-spacing: 2px; }
+        /* Service Grid */
+        .service-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; padding: 0 20px 20px; }
+        .service-item { padding: 12px 0; text-align: center; color: #fff; font-weight: 500; font-size: 14px; cursor: pointer; transition: 0.2s; }
+        .service-item.active { background: rgba(0, 243, 255, 0.2); border-color: #00f3ff; box-shadow: 0 0 20px #00f3ff; }
+        .service-item i { color: #00f3ff; margin-right: 5px; }
+        /* Rewards Card */
+        .rewards-card { margin: 10px 20px 20px; padding: 20px; display: flex; justify-content: space-between; align-items: center; border-color: #00f3ff; }
+        .rewards-left h4 { color: #00f3ff; font-size: 20px; font-weight: 700; margin-bottom: 5px; }
+        .rewards-left p { color: #ccc; font-size: 14px; }
+        .get-started-btn { background: #00f3ff; color: #0a0c14; padding: 12px 24px; border-radius: 40px; font-weight: 700; border: none; cursor: pointer; box-shadow: 0 0 30px #00f3ff; }
+        /* Quantum Grid */
+        .quantum-grid { margin: 20px; padding: 20px; }
+        .grid-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        .grid-header h3 { color: #00f3ff; font-size: 18px; }
+        .latest-updates { margin: 15px 0; }
+        .update-item { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.05); color: #ddd; font-size: 14px; }
+        .anomaly-detected { background: rgba(255, 0, 0, 0.1); border: 1px solid #ff4444; border-radius: 20px; padding: 15px; margin: 15px 0; display: flex; justify-content: space-between; color: #ff8888; }
+        .cosmic-manifests { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 20px 0; }
+        .manifest-item { background: rgba(0,243,255,0.05); border: 1px solid rgba(0,243,255,0.2); border-radius: 20px; padding: 15px 5px; text-align: center; font-size: 12px; color: #00f3ff; cursor: pointer; }
+        .wormhole-section { display: flex; justify-content: space-between; align-items: center; margin: 15px 0; padding: 15px; background: rgba(0,243,255,0.02); border-radius: 30px; }
+        .wormhole-btn { background: #00f3ff; color: #0a0c14; padding: 10px 20px; border-radius: 40px; font-weight: 700; border: none; cursor: pointer; }
+        .view-all { text-align: center; margin: 20px 0; color: #00f3ff; font-weight: 600; cursor: pointer; }
+        /* Vehicle Grid */
         .vehicle-grid { display: flex; flex-direction: column; gap: 12px; padding: 0 20px 20px; }
-        .vehicle-card { background: white; border-radius: 24px; padding: 16px; display: flex; align-items: center; gap: 16px; box-shadow: 0 4px 16px rgba(0,0,0,0.02); border: 1px solid #f0f0f0; cursor: pointer; transition: 0.2s; }
-        .vehicle-card:hover { border-color: #2854ff; box-shadow: 0 8px 24px rgba(40,84,255,0.1); transform: translateY(-2px); }
-        .vehicle-card .icon { font-size: 48px; width: 60px; text-align: center; }
+        .vehicle-card { padding: 16px; display: flex; align-items: center; gap: 16px; cursor: pointer; }
+        .vehicle-card:hover { border-color: #00f3ff; box-shadow: 0 0 20px #00f3ff; }
+        .vehicle-card .icon { font-size: 40px; width: 60px; text-align: center; }
         .vehicle-info { flex: 1; }
-        .vehicle-info h4 { font-size: 18px; font-weight: 700; margin-bottom: 4px; }
-        .vehicle-info p { font-size: 14px; color: #666; }
+        .vehicle-info h4 { font-size: 18px; font-weight: 700; color: #fff; }
+        .vehicle-info p { font-size: 14px; color: #aaa; }
         .vehicle-price { text-align: right; }
-        .vehicle-price .price { font-size: 20px; font-weight: 800; color: #2854ff; }
-        .vehicle-price .eta { font-size: 13px; color: #10b981; margin-top: 4px; }
-
+        .vehicle-price .price { font-size: 20px; font-weight: 800; color: #00f3ff; }
+        .vehicle-price .eta { font-size: 13px; color: #4caf50; }
         /* Booking Screen */
         .screen { display: none; padding: 0; }
         .screen.active { display: block; }
-        .booking-header { display: flex; align-items: center; gap: 20px; padding: 20px; background: white; border-bottom: 1px solid #f0f0f0; }
-        .booking-header .back-btn { font-size: 24px; cursor: pointer; color: #2854ff; }
-        .booking-header h3 { font-size: 20px; font-weight: 700; }
+        .booking-header { display: flex; align-items: center; gap: 20px; padding: 20px; border-bottom: 1px solid rgba(0,243,255,0.3); }
+        .back-btn { font-size: 24px; cursor: pointer; color: #00f3ff; }
         .booking-content { padding: 20px; }
-
         .input-group { margin-bottom: 20px; }
-        .input-group label { display: block; margin-bottom: 8px; font-weight: 600; font-size: 14px; color: #444; }
-        .input-group input { width: 100%; padding: 16px; border: 1px solid #e0e0e0; border-radius: 20px; font-size: 16px; transition: 0.2s; background: #fafafa; }
-        .input-group input:focus { border-color: #2854ff; outline: none; background: white; box-shadow: 0 0 0 3px rgba(40,84,255,0.1); }
-
-        .fare-box { background: linear-gradient(135deg, #eef2ff, #ffffff); padding: 20px; border-radius: 24px; text-align: center; margin: 20px 0; border: 1px solid rgba(40,84,255,0.2); }
-        .fare-box .fare { font-size: 48px; font-weight: 800; color: #2854ff; line-height: 1.2; }
-        .fare-box .breakdown { font-size: 14px; color: #666; margin-top: 8px; display: flex; justify-content: center; gap: 20px; }
-        .btn { width: 100%; padding: 18px; border: none; border-radius: 30px; font-weight: 700; font-size: 18px; cursor: pointer; transition: 0.2s; margin-top: 10px; }
-        .btn-primary { background: #2854ff; color: white; box-shadow: 0 10px 20px rgba(40,84,255,0.3); }
-        .btn-primary:hover { background: #1a3ebb; transform: scale(1.02); }
-        .btn-secondary { background: #e0e0e0; color: #333; }
-        .btn-secondary:hover { background: #ccc; }
-
-        #map { height: 240px; border-radius: 24px; margin: 20px 0; display: none; box-shadow: 0 8px 20px rgba(0,0,0,0.05); }
-
+        .input-group label { color: #00f3ff; font-weight: 600; font-size: 14px; display: block; margin-bottom: 8px; }
+        .input-group input, .input-group textarea, .input-group select { width: 100%; padding: 16px; background: rgba(255,255,255,0.05); border: 1px solid rgba(0,243,255,0.3); border-radius: 20px; color: #fff; }
+        .input-group input:focus { border-color: #00f3ff; outline: none; box-shadow: 0 0 20px #00f3ff; }
+        .row { display: flex; gap: 10px; }
+        .fare-box { padding: 20px; border-radius: 24px; text-align: center; margin: 20px 0; border-color: #00f3ff; }
+        .fare-box .fare { font-size: 48px; font-weight: 800; color: #00f3ff; }
+        .fare-breakdown { font-size: 14px; color: #ccc; margin-top: 8px; display: flex; flex-direction: column; align-items: center; gap: 5px; }
+        .btn { width: 100%; padding: 18px; border-radius: 40px; font-weight: 700; cursor: pointer; margin-top: 10px; border: none; }
+        .btn-primary { background: #00f3ff; color: #0a0c14; box-shadow: 0 0 30px #00f3ff; }
+        .btn-secondary { background: rgba(255,255,255,0.05); border: 1px solid rgba(0,243,255,0.3); color: #00f3ff; }
+        #map { height: 240px; border-radius: 24px; margin: 20px 0; display: none; border: 2px solid #00f3ff; box-shadow: 0 0 30px #00f3ff; }
         /* History Items */
-        .history-item { background: white; border-radius: 20px; padding: 16px; margin-bottom: 12px; border: 1px solid #f0f0f0; box-shadow: 0 2px 8px rgba(0,0,0,0.02); }
+        .history-item { padding: 16px; margin-bottom: 12px; }
         .history-item .row { display: flex; justify-content: space-between; margin-bottom: 8px; }
-        .status-badge { padding: 6px 14px; border-radius: 40px; font-size: 12px; font-weight: 700; text-transform: uppercase; }
-        .status-completed { background: #d4edda; color: #155724; }
-        .status-pending { background: #fff3cd; color: #856404; }
-        .status-accepted { background: #cce5ff; color: #004085; }
-
-        /* Login Modal - Premium */
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); backdrop-filter: blur(5px); z-index: 1000; justify-content: center; align-items: center; }
+        .status-badge { padding: 6px 14px; border-radius: 40px; font-size: 12px; font-weight: 700; }
+        .status-completed { background: rgba(40,167,69,0.2); color: #4caf50; border: 1px solid #4caf50; }
+        .status-pending { background: rgba(255,193,7,0.2); color: #ffc107; border: 1px solid #ffc107; }
+        .status-accepted { background: rgba(0,123,255,0.2); color: #00f3ff; border: 1px solid #00f3ff; }
+        /* Rating Stars */
+        .rating-stars { display: flex; gap: 5px; font-size: 30px; color: #ffc107; cursor: pointer; }
+        .rating-stars i { transition: 0.2s; }
+        .rating-stars i:hover, .rating-stars i.selected { color: #ffc107; text-shadow: 0 0 10px #ffc107; }
+        /* Chat */
+        .chat-box { height: 300px; overflow-y: auto; background: rgba(0,0,0,0.3); border-radius: 20px; padding: 10px; margin-bottom: 10px; }
+        .chat-message { margin-bottom: 10px; padding: 8px 12px; border-radius: 18px; max-width: 80%; }
+        .chat-message.sent { background: #00f3ff; color: #000; align-self: flex-end; margin-left: auto; }
+        .chat-message.received { background: rgba(255,255,255,0.1); color: #fff; }
+        /* Modal */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); backdrop-filter: blur(10px); z-index: 2000; justify-content: center; align-items: center; }
         .modal.active { display: flex; }
-        .modal-content { background: white; padding: 30px; border-radius: 40px; width: 90%; max-width: 380px; text-align: center; box-shadow: 0 30px 60px rgba(0,0,0,0.3); }
-        .modal-content h3 { font-size: 28px; font-weight: 800; margin-bottom: 20px; color: #2854ff; }
-        .modal-content input { width: 100%; padding: 18px; margin: 10px 0; border: 1px solid #ddd; border-radius: 30px; font-size: 16px; }
-        .demo-hint { background: #fef9e7; color: #b45f06; padding: 15px; border-radius: 20px; font-size: 14px; margin: 15px 0; border: 1px solid #f9e79f; }
-
+        .modal-content { padding: 30px; width: 90%; max-width: 400px; text-align: center; }
+        .modal-content h3 { color: #00f3ff; margin-bottom: 20px; }
+        .modal-content input { width: 100%; padding: 16px; margin: 10px 0; background: rgba(255,255,255,0.05); border: 1px solid rgba(0,243,255,0.3); border-radius: 30px; color: #fff; }
+        .demo-hint { background: rgba(255,193,7,0.1); color: #ffc107; padding: 15px; border-radius: 20px; margin-bottom: 20px; border: 1px solid #ffc107; }
         /* Bottom Navigation */
-        .bottom-nav { position: fixed; bottom: 0; width: 100%; max-width: 450px; background: white; display: flex; justify-content: space-around; padding: 12px 0; border-top: 1px solid #eee; left: 50%; transform: translateX(-50%); z-index: 100; box-shadow: 0 -4px 20px rgba(0,0,0,0.05); border-radius: 30px 30px 0 0; }
-        .nav-item { text-align: center; color: #999; font-size: 12px; cursor: pointer; transition: 0.2s; }
-        .nav-item.active { color: #2854ff; font-weight: 700; }
-        .nav-item i { font-size: 24px; display: block; margin-bottom: 4px; }
-
+        .bottom-nav { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); width: calc(100% - 40px); max-width: 450px; background: rgba(10,12,20,0.8); backdrop-filter: blur(20px); display: flex; justify-content: space-around; padding: 12px 0; border: 1px solid rgba(0,243,255,0.3); border-radius: 50px; z-index: 1000; }
+        .nav-item { text-align: center; color: #aaa; font-size: 12px; cursor: pointer; }
+        .nav-item.active { color: #00f3ff; text-shadow: 0 0 10px #00f3ff; }
+        .nav-item i { font-size: 22px; display: block; margin-bottom: 4px; }
+        /* Loading */
         .loading { display: none; text-align: center; padding: 50px; }
         .loading.active { display: block; }
-        .spinner { border: 4px solid #f3f3f3; border-top: 4px solid #2854ff; border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite; margin: 0 auto; }
+        .spinner { border: 4px solid rgba(0,243,255,0.1); border-top: 4px solid #00f3ff; border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite; margin: 0 auto; }
         @keyframes spin { 0% { transform: rotate(0); } 100% { transform: rotate(360deg); } }
+        /* Onboarding */
+        .onboarding-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 3000; display: none; flex-direction: column; justify-content: center; align-items: center; text-align: center; }
+        .onboarding-overlay.active { display: flex; }
+        .onboarding-card { background: rgba(0,243,255,0.1); padding: 30px; border-radius: 40px; border: 1px solid #00f3ff; max-width: 300px; }
+        .onboarding-card h2 { color: #00f3ff; margin-bottom: 20px; }
+        .onboarding-card p { color: #ccc; margin-bottom: 20px; }
     </style>
 </head>
 <body>
+    <!-- SOS Button -->
+    <div class="sos-btn" onclick="sosAlert()">
+        <i class="fas fa-exclamation-triangle"></i>
+    </div>
 
-    <!-- Login Modal - Demo Mode (USA) -->
-<div id="loginModal" class="modal">
-    <div class="modal-content">
-        <h3>🔐 Demo Login</h3>
-        <div class="demo-hint">
-            <i class="fas fa-info-circle"></i> Enter any 10-digit US number to continue
+    <!-- Onboarding Overlay -->
+    <div id="onboarding" class="onboarding-overlay">
+        <div class="onboarding-card">
+            <h2>🚀 Welcome to TruckEase</h2>
+            <p>Your quantum freight command center</p>
+            <p>✅ Real-time tracking<br>✅ Instant booking<br>✅ Secure payments<br>✅ 24/7 support</p>
+            <button class="btn btn-primary" onclick="closeOnboarding()">Get Started</button>
         </div>
-        <div id="phoneSection">
-            <input type="tel" id="phoneNumber" placeholder="e.g. 2125551234" maxlength="10" value="2125551234">
-            <button class="btn btn-primary" id="demoLoginBtn" style="margin-top: 10px;">🚀 Start Riding</button>
+    </div>
+
+    <!-- Login Modal -->
+    <div id="loginModal" class="modal">
+        <div class="modal-content">
+            <h3>🔐 Quantum Login</h3>
+            <div class="demo-hint">
+                <i class="fas fa-info-circle"></i> Demo: Enter any 10-digit US number
+            </div>
+            <div id="phoneSection">
+                <input type="tel" id="phoneNumber" placeholder="e.g. 2125551234" maxlength="10" value="2125551234">
+                <button class="btn btn-primary" id="demoLoginBtn" style="margin-top: 10px;">🚀 Enter</button>
+            </div>
+            <p id="loginError" style="color:red; font-size:12px; margin-top:10px;"></p>
         </div>
-        <p id="loginError" style="color:red; font-size:12px; margin-top:10px;"></p>
     </div>
-</div>
 
-<!-- Header (no language toggle) -->
-<div class="header">
-    <div class="location-bar" id="currentLocText" onclick="getCurrentLocation()">
-        <i class="fas fa-map-marker-alt"></i> <span id="locationPlaceholder">Set pickup location</span>
-    </div>
-    <div class="user-icon" id="userIcon" onclick="showLoginModal()">
-        <i class="fas fa-user"></i>
-    </div>
-</div>
-
-<!-- Home Screen -->
-<div id="homeScreen" class="screen active">
-    <div class="tabs" id="tabContainer">
-        <div class="tab active" data-category="trucks">🚚 Trucks</div>
-        <div class="tab" data-category="vans">🚐 Vans</div>
-        <div class="tab" data-category="special">⚙️ Specialized</div>
-    </div>
-    <h3 class="section-title" id="vehicleCategoryTitle"><i class="fas fa-truck"></i> Available Trucks</h3>
-    <div class="vehicle-grid" id="vehicleGrid"></div>
-</div>
-
-<!-- Booking Screen -->
-<div id="bookingScreen" class="screen">
-    <div class="booking-header">
-        <i class="fas fa-arrow-left back-btn" onclick="goBack()"></i>
-        <h3 id="bookingTitle">Confirm Your Shipment</h3>
-    </div>
-    <div class="booking-content">
-        <div id="selectedVehicleInfo" style="margin-bottom:20px; font-weight:600; font-size:18px;"></div>
-        <div class="input-group">
-            <label>📍 Pickup</label>
-            <input type="text" id="pickupAddr" placeholder="Enter pickup address" list="pickupSuggestions" oninput="fetchSuggestions(this.value, 'pickup')">
-            
+    <!-- Header -->
+    <div class="header">
+        <div class="logo-area">
+            <div class="logo">TRUCKEASE</div>
+            <div class="user-icon" id="userIcon" onclick="showLoginModal()">
+                <i class="fas fa-user"></i>
+            </div>
         </div>
-        <div class="input-group">
-            <label>🏁 Drop</label>
-            <input type="text" id="dropAddr" placeholder="Enter drop address" list="dropSuggestions" oninput="fetchSuggestions(this.value, 'drop')">
-            
+        <div class="location-bar" id="currentLocText" onclick="getCurrentLocation()">
+            <i class="fas fa-map-marker-alt"></i> Where to? <span id="locationPlaceholder"></span>
         </div>
-        
-        <div id="map"></div>
-        <button class="btn btn-secondary" onclick="getCurrentLocation()"><i class="fas fa-location-dot"></i> Use my current location</button>
-        
+    </div>
 
-        <datalist id="pickupSuggestions"></datalist>
-<datalist id="dropSuggestions"></datalist>
-        
-        <!-- Fare Breakdown Box -->
-        <div class="fare-box">
-            <div class="fare" id="fareAmount">$0</div>
-            <div class="breakdown">
-                <span id="baseFare">Base: $0</span>
-                <span id="distanceFare">Distance: $0</span>
-                <span id="totalFare">Total: $0</span>
+    <!-- HOME SCREEN -->
+    <div id="homeScreen" class="screen active">
+        <div class="section-title">OUR SERVICES</div>
+        <div class="service-grid" id="tabContainer">
+            <div class="service-item active" data-category="trucks"><i class="fas fa-truck"></i> Trucks</div>
+            <div class="service-item" data-category="vans"><i class="fas fa-truck-moving"></i> Vans</div>
+            <div class="service-item" data-category="special"><i class="fas fa-cog"></i> Special</div>
+            <div class="service-item" data-category="rentals"><i class="fas fa-key"></i> Rentals</div>
+        </div>
+
+        <!-- Rewards Card -->
+        <div class="rewards-card">
+            <div class="rewards-left">
+                <h4>🚀 TruckRewards</h4>
+                <p>Earn points on every trip</p>
+            </div>
+            <button class="get-started-btn" onclick="showReferral()">Get Started</button>
+        </div>
+
+        <!-- Quantum Tracking Grid -->
+        <div class="quantum-grid">
+            <div class="grid-header">
+                <h3>⚡ QuantumTrackingGrid</h3>
+                <span>🛰️ <span id="onlineDrivers">0</span> drivers online</span>
+            </div>
+            <div class="latest-updates">
+                <div class="update-item">
+                    <span>🚚 Active shipments</span>
+                    <span id="activeShipments">0</span>
+                </div>
+                <div class="update-item">
+                    <span>⭐ Avg driver rating</span>
+                    <span id="avgRating">4.92</span>
+                </div>
+            </div>
+            <div class="anomaly-detected">
+                <span>⚠️ Referral Bonus:</span>
+                <span id="referralBonus">$10 credit</span>
+            </div>
+            <div class="cosmic-manifests">
+                <div class="manifest-item" onclick="showAddressBook()">📍<br>Address Book</div>
+                <div class="manifest-item" onclick="showPromo()">🎟️<br>Promo Code</div>
+                <div class="manifest-item" onclick="scheduleRide()">📅<br>Schedule</div>
+            </div>
+            <div class="wormhole-section">
+                <span>🌀 Your Referral Code: <strong id="referralCode">TRUCK123</strong></span>
+                <button class="wormhole-btn" onclick="copyReferral()">Copy</button>
+            </div>
+            <div class="view-all" onclick="loadAllVehicles()">
+                View All Transports
             </div>
         </div>
 
-        <button class="btn btn-primary" onclick="confirmBooking()">Confirm Booking</button>
+        <!-- Vehicle Grid -->
+        <h3 class="section-title" id="vehicleCategoryTitle"><i class="fas fa-truck"></i> Available Trucks</h3>
+        <div class="vehicle-grid" id="vehicleGrid"></div>
     </div>
-</div>
 
-<!-- History Screen -->
-<div id="historyScreen" class="screen">
-    <div class="booking-header">
-        <i class="fas fa-arrow-left back-btn" onclick="goBack()"></i>
-        <h3>Your Trips</h3>
-    </div>
-    <div class="booking-content" id="historyList"></div>
-</div>
-
-<!-- Tracking Screen -->
-<div id="trackingScreen" class="screen">
-    <div class="booking-header">
-        <i class="fas fa-arrow-left back-btn" onclick="goBack()"></i>
-        <h3>Track Your Shipment</h3>
-    </div>
-    <div class="booking-content">
-        <div id="trackingMap" style="height:300px; border-radius:24px; margin-bottom:20px;"></div>
-        <div id="trackingDetails" style="background:#f0f4ff; padding:20px; border-radius:20px; margin-bottom:20px;">
-            <p><i class="fas fa-circle-notch fa-spin"></i> Driver is on the way...</p>
+    <!-- BOOKING SCREEN -->
+    <div id="bookingScreen" class="screen">
+        <div class="booking-header">
+            <i class="fas fa-arrow-left back-btn" onclick="goBack()"></i>
+            <h3 id="bookingTitle">Confirm Shipment</h3>
         </div>
-        <button class="btn btn-primary" onclick="startTracking()" style="margin-bottom:10px;">🚚 Start Tracking (Demo)</button>
-        <button class="btn btn-secondary" onclick="cancelBooking()">Cancel Trip</button>
-        
+        <div class="booking-content">
+            <div id="selectedVehicleInfo" style="margin-bottom:20px; font-weight:600; color:#00f3ff;"></div>
+            <div class="input-group">
+                <label>📍 Pickup</label>
+                <input type="text" id="pickupAddr" placeholder="Enter pickup address" list="pickupSuggestions" oninput="fetchSuggestions(this.value, 'pickup')">
+            </div>
+            <div class="input-group">
+                <label>🏁 Drop</label>
+                <input type="text" id="dropAddr" placeholder="Enter drop address" list="dropSuggestions" oninput="fetchSuggestions(this.value, 'drop')">
+            </div>
+            <!-- Distance input (added from old code) -->
+            <div class="input-group">
+                <label>📏 Distance (miles) or use GPS</label>
+                <input type="number" id="kmInput" placeholder="Distance in miles" oninput="calculateFare()">
+            </div>
+            <div class="row">
+                <div class="input-group" style="flex:1;">
+                    <label>📅 Date & Time</label>
+                    <input type="datetime-local" id="scheduleTime">
+                </div>
+                <div class="input-group" style="flex:1;">
+                    <label>🎟️ Promo</label>
+                    <input type="text" id="promoCode" placeholder="Enter code">
+                </div>
+            </div>
+            <div id="map"></div>
+            <button class="btn btn-secondary" onclick="getCurrentLocation()"><i class="fas fa-location-dot"></i> Use my location</button>
+            <!-- Get Route button (from old code) -->
+            <button class="btn btn-primary" onclick="calculateRoute()" style="margin-top:10px;">🛣️ Get Route & Calculate Fare</button>
+            <datalist id="pickupSuggestions"></datalist>
+            <datalist id="dropSuggestions"></datalist>
+            
+            <!-- Fare Breakdown -->
+            <div class="fare-box">
+                <div class="fare" id="fareAmount">$0</div>
+                <div class="fare-breakdown">
+                    <span id="baseFare">Base: $0</span>
+                    <span id="distanceFare">Distance: $0</span>
+                    <span id="taxFare">Tax (10%): $0</span>
+                    <span id="discountFare">Discount: $0</span>
+                    <span id="totalFare">Total: $0</span>
+                </div>
+            </div>
+
+            <button class="btn btn-primary" onclick="confirmBooking()">Confirm Booking</button>
+        </div>
     </div>
-</div>
 
-<!-- Success Screen -->
-<div id="successScreen" class="screen">
-    <div style="text-align:center; padding:50px 20px;">
-        <i class="fas fa-check-circle" style="font-size:80px; color:#28a745;"></i>
-        <h2 style="margin:20px 0;">Booking Confirmed!</h2>
-        <div id="successDetails" style="background:#e8f5e9; padding:25px; border-radius:30px; margin:20px;"></div>
-        <button class="btn btn-primary" onclick="goHome()">Back to Home</button>
+    <!-- HISTORY SCREEN -->
+    <div id="historyScreen" class="screen">
+        <div class="booking-header">
+            <i class="fas fa-arrow-left back-btn" onclick="goBack()"></i>
+            <h3>Your Trips</h3>
+        </div>
+        <div class="booking-content" id="historyList"></div>
     </div>
-</div>
 
-<!-- Bottom Navigation -->
-<div class="bottom-nav">
-    <div class="nav-item active" onclick="showScreen('homeScreen')"><i class="fas fa-home"></i><span>Home</span></div>
-    <div class="nav-item" onclick="showScreen('historyScreen')"><i class="fas fa-history"></i><span>Trips</span></div>
-    <div class="nav-item" onclick="alert('Coming soon')"><i class="fas fa-wallet"></i><span>Wallet</span></div>
-    <div class="nav-item" onclick="alert('Coming soon')"><i class="fas fa-user"></i><span>Profile</span></div>
-</div>
+    <!-- TRACKING SCREEN -->
+    <div id="trackingScreen" class="screen">
+        <div class="booking-header">
+            <i class="fas fa-arrow-left back-btn" onclick="goBack()"></i>
+            <h3>Track Your Shipment</h3>
+        </div>
+        <div class="booking-content">
+            <div id="trackingMap" style="height:300px; border-radius:24px; margin-bottom:20px;"></div>
+            <div id="trackingDetails" style="background:rgba(0,243,255,0.05); backdrop-filter:blur(10px); padding:20px; border-radius:20px; margin-bottom:20px; border:1px solid #00f3ff;">
+                <p><i class="fas fa-circle-notch fa-spin"></i> Waiting for driver...</p>
+            </div>
+            <!-- Driver Profile Card -->
+            <div id="driverProfile" style="display:none; background:rgba(0,243,255,0.05); padding:15px; border-radius:20px; margin-bottom:20px;">
+                <div style="display:flex; align-items:center; gap:15px;">
+                    <div style="font-size:50px;">👤</div>
+                    <div>
+                        <h4 id="driverName">Driver Name</h4>
+                        <p id="driverRating">⭐ 4.9</p>
+                        <p id="driverVehicle">Box Truck</p>
+                    </div>
+                </div>
+                <button class="btn btn-secondary" onclick="openChat()" style="margin-top:10px;">💬 Chat with Driver</button>
+            </div>
+            <!-- Rating after completion -->
+            <div id="ratingSection" style="display:none; margin-bottom:20px;">
+                <h4>Rate your driver</h4>
+                <div class="rating-stars" id="ratingStars">
+                    <i class="far fa-star" data-rating="1"></i>
+                    <i class="far fa-star" data-rating="2"></i>
+                    <i class="far fa-star" data-rating="3"></i>
+                    <i class="far fa-star" data-rating="4"></i>
+                    <i class="far fa-star" data-rating="5"></i>
+                </div>
+                <textarea id="reviewText" placeholder="Leave a comment..." rows="2" style="width:100%; margin-top:10px; padding:10px; border-radius:20px;"></textarea>
+                <button class="btn btn-primary" onclick="submitReview()" style="margin-top:10px;">Submit Review</button>
+            </div>
+            <button class="btn btn-primary" onclick="startTracking()" style="margin-bottom:10px;">🚚 Start Tracking (Demo)</button>
+            <button class="btn btn-secondary" onclick="cancelBooking()">Cancel Trip</button>
+        </div>
+    </div>
 
-<!-- Loading -->
-<div id="loading" class="loading"><div class="spinner"></div><p>Loading...</p></div>
+    <!-- CHAT SCREEN -->
+    <div id="chatScreen" class="screen">
+        <div class="booking-header">
+            <i class="fas fa-arrow-left back-btn" onclick="goBack()"></i>
+            <h3>Chat with Driver</h3>
+        </div>
+        <div class="booking-content">
+            <div id="chatBox" class="chat-box"></div>
+            <div class="row">
+                <input type="text" id="chatInput" placeholder="Type a message..." style="flex:1; padding:15px; border-radius:40px;">
+                <button class="btn btn-primary" onclick="sendMessage()" style="width:auto; margin-top:0;">Send</button>
+            </div>
+        </div>
+    </div>
 
-<!-- Firebase SDK (only Firestore needed) -->
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
-<!-- Leaflet -->
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <!-- SUCCESS SCREEN -->
+    <div id="successScreen" class="screen">
+        <div style="text-align:center; padding:50px 20px;">
+            <i class="fas fa-check-circle" style="font-size:80px; color:#4caf50;"></i>
+            <h2 style="margin:20px 0;">Booking Confirmed!</h2>
+            <div id="successDetails" style="background:rgba(0,243,255,0.05); backdrop-filter:blur(10px); padding:25px; border-radius:30px; margin:20px;"></div>
+            <button class="btn btn-primary" onclick="goHome()">Back to Home</button>
+        </div>
+    </div>
 
+    <!-- ADDRESS BOOK MODAL -->
+    <div id="addressBookModal" class="modal">
+        <div class="modal-content">
+            <h3>📍 Saved Places</h3>
+            <div id="savedPlacesList"></div>
+            <input type="text" id="newPlaceName" placeholder="Place name (e.g. Home)">
+            <input type="text" id="newPlaceAddr" placeholder="Address">
+            <button class="btn btn-primary" onclick="savePlace()">Save Place</button>
+            <button class="btn btn-secondary" onclick="closeModal('addressBookModal')">Close</button>
+        </div>
+    </div>
+
+    <!-- PROMO MODAL -->
+    <div id="promoModal" class="modal">
+        <div class="modal-content">
+            <h3>🎟️ Apply Promo Code</h3>
+            <input type="text" id="promoInput" placeholder="Enter code">
+            <button class="btn btn-primary" onclick="applyPromo()">Apply</button>
+            <button class="btn btn-secondary" onclick="closeModal('promoModal')">Close</button>
+        </div>
+    </div>
+
+    <!-- BOTTOM NAVIGATION -->
+    <div class="bottom-nav">
+        <div class="nav-item active" onclick="showScreen('homeScreen')"><i class="fas fa-home"></i>Home</div>
+        <div class="nav-item" onclick="showScreen('historyScreen')"><i class="fas fa-truck"></i>Services</div>
+        <div class="nav-item" onclick="showActivities()"><i class="fas fa-calendar"></i>Activities</div>
+        <div class="nav-item" onclick="showScreen('historyScreen')"><i class="fas fa-chart-line"></i>Activity</div>
+        <div class="nav-item" onclick="showProfile()"><i class="fas fa-user"></i>Account</div>
+    </div>
+
+    <!-- Loading -->
+    <div id="loading" class="loading"><div class="spinner"></div><p>Loading...</p></div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-storage-compat.js"></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.js"></script>
+
     <script>
-    // ---------- FIREBASE CONFIG ----------
-    const firebaseConfig = {
-        apiKey: "AIzaSyByh4tT4zcUpjjQ_ebaYzpSulGtsDHjbw0",
-        authDomain: "truckease-cb961.firebaseapp.com",
-        projectId: "truckease-cb961",
-        storageBucket: "truckease-cb961.firebasestorage.app",
-        messagingSenderId: "558046020925",
-        appId: "1:558046020925:web:573533af4bbf93841e3154"
-    };
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.firestore();
+        // ---------- FIREBASE CONFIG ----------
+        const firebaseConfig = {
+            apiKey: "AIzaSyByh4tT4zcUpjjQ_ebaYzpSulGtsDHjbw0",
+            authDomain: "truckease-cb961.firebaseapp.com",
+            projectId: "truckease-cb961",
+            storageBucket: "truckease-cb961.firebasestorage.app",
+            messagingSenderId: "558046020925",
+            appId: "1:558046020925:web:573533af4bbf93841e3154"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+        const auth = firebase.auth();
+        const storage = firebase.storage();
 
-    // ---------- GLOBAL VARIABLES ----------
-    let currentUser = null;
-    let currentVehicle = null;
-    let basePrice = 0, perKmRate = 0;
-    let finalFare = 0;
-    let map = null;
-        // ---------- ROUTE CALCULATION (Leaflet Routing Machine) ----------
-let routingControl = null;
+        // ---------- GLOBAL VARIABLES ----------
+        let currentUser = null;
+        let currentVehicle = null;
+        let basePrice = 0, perKmRate = 0;
+        let finalFare = 0;
+        let map = null, trackingMap = null;
+        let routingControl = null;
+        let currentBookingId = null;
+        let driverListener = null;
+        let promoDiscount = 0;
+        let selectedRating = 0;
+        let chatListener = null;
 
-// Geocode address to coordinates using Nominatim
-async function geocodeAddress(address) {
-    const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}`;
-    try {
-        const res = await fetch(url);
-        const data = await res.json();
-        if (data && data.length > 0) {
-            return { lat: parseFloat(data[0].lat), lng: parseFloat(data[0].lon) };
-        } else {
-            throw new Error('Address not found');
+        // Variables for tracking simulation (from old code)
+        let trackingInterval = null;
+        let driverMarker = null;
+        let routeCoordinates = [];
+        let currentStep = 0;
+
+        // ---------- ONBOARDING ----------
+        if (!localStorage.getItem('onboardingSeen')) {
+            document.getElementById('onboarding').classList.add('active');
         }
-    } catch (e) {
-        alert('Geocoding failed: ' + e.message);
-        return null;
-    }
-}
-
-// Main route calculation function
-window.calculateRoute = async function() {
-    const pickup = document.getElementById('pickupAddr').value;
-    const drop = document.getElementById('dropAddr').value;
-    
-    if (!pickup || !drop) {
-        alert('Please enter both pickup and drop addresses');
-        return;
-    }
-
-    document.getElementById('loading').classList.add('active');
-
-    const pickupCoords = await geocodeAddress(pickup);
-    const dropCoords = await geocodeAddress(drop);
-
-    if (!pickupCoords || !dropCoords) {
-        document.getElementById('loading').classList.remove('active');
-        return;
-    }
-
-    // Show map if not already visible
-    const mapDiv = document.getElementById('map');
-    mapDiv.style.display = 'block';
-
-    // Initialize map if not exists
-    if (!map) {
-        map = L.map('map').setView([pickupCoords.lat, pickupCoords.lng], 10);
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
-    } else {
-        map.setView([pickupCoords.lat, pickupCoords.lng], 10);
-    }
-
-    // Remove existing routing control
-    if (routingControl) {
-        map.removeControl(routingControl);
-    }
-
-    // Create new route
-    routingControl = L.Routing.control({
-        waypoints: [
-            L.latLng(pickupCoords.lat, pickupCoords.lng),
-            L.latLng(dropCoords.lat, dropCoords.lng)
-        ],
-        routeWhileDragging: false,
-        showAlternatives: false,
-        lineOptions: {
-            styles: [{ color: '#2854ff', opacity: 0.8, weight: 6 }]
-        },
-        createMarker: function() { return null; } // no default markers
-    }).addTo(map);
-
-    // When route is found, update distance and fare
-    routingControl.on('routesfound', function(e) {
-        const routes = e.routes;
-        const summary = routes[0].summary;
-        // Distance in meters, convert to miles
-        const distanceMiles = summary.totalDistance * 0.000621371;
-        document.getElementById('kmInput').value = distanceMiles.toFixed(1);
-        // Trigger fare calculation
-        calculateFare();
-        document.getElementById('loading').classList.remove('active');
-    });
-
-    routingControl.on('routingerror', function(e) {
-        alert('Could not find route: ' + e.error.message);
-        document.getElementById('loading').classList.remove('active');
-    });
-};
-
-    // ---------- VEHICLE DATA (USA style) ----------
-    const vehicleData = {
-        trucks: [
-            { icon: '🚚', name: 'Box Truck 16ft', desc: 'Ideal for local deliveries', base: 65, perKm: 1.2, eta: 8 },
-            { icon: '🚛', name: 'Semi-Truck 53ft', desc: 'Long-haul freight', base: 120, perKm: 2.0, eta: 15 },
-            { icon: '🚛', name: 'Refrigerated Truck', desc: 'Temperature controlled', base: 150, perKm: 2.5, eta: 12 },
-            { icon: '🚜', name: 'Flatbed', desc: 'For heavy equipment', base: 140, perKm: 2.2, eta: 20 },
-            { icon: '🛻', name: 'Pickup Truck', desc: 'Small loads', base: 45, perKm: 0.9, eta: 5 }
-        ],
-        vans: [
-            { icon: '🚐', name: 'Cargo Van', desc: 'Perfect for parcels', base: 35, perKm: 0.7, eta: 4 },
-            { icon: '🚐', name: 'Sprinter Van', desc: 'Extra space', base: 50, perKm: 1.0, eta: 6 }
-        ],
-        special: [
-            { icon: '🏗️', name: 'Crane Truck', desc: 'For heavy lifting', base: 200, perKm: 3.0, eta: 25 },
-            { icon: '🚛', name: 'Hazmat Truck', desc: 'Certified for dangerous goods', base: 180, perKm: 2.8, eta: 18 }
-        ]
-    };
-
-    // ---------- DEMO LOGIN ----------
-    window.showLoginModal = function() {
-        if (currentUser) {
-            currentUser = null;
-            document.getElementById('userIcon').innerHTML = `<i class="fas fa-user"></i>`;
-            return;
-        }
-        document.getElementById('loginModal').classList.add('active');
-    };
-
-    document.getElementById('demoLoginBtn').addEventListener('click', function() {
-        const phone = document.getElementById('phoneNumber').value;
-        if (!phone || phone.length !== 10) {
-            document.getElementById('loginError').innerText = 'Enter a 10-digit US number';
-            return;
-        }
-        currentUser = { uid: 'demo_' + phone, phoneNumber: '+1' + phone };
-        document.getElementById('userIcon').innerHTML = `<i class="fas fa-user-check"></i>`;
-        document.getElementById('loginModal').classList.remove('active');
-        document.getElementById('loginError').innerText = '';
-    });
-
-    // ---------- SCREEN MANAGEMENT ----------
-    window.showScreen = function(screenId) {
-        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-        document.getElementById(screenId).classList.add('active');
-        document.querySelectorAll('.nav-item').forEach((item, idx) => {
-            if (screenId === 'homeScreen' && idx === 0) item.classList.add('active');
-            else if (screenId === 'historyScreen' && idx === 1) item.classList.add('active');
-            else item.classList.remove('active');
-        });
-        if (screenId === 'historyScreen') loadHistory();
-        if (screenId === 'homeScreen') loadVehicleGrid('trucks');
-    };
-
-    window.goBack = () => showScreen('homeScreen');
-    window.goHome = () => showScreen('homeScreen');
-
-    // ---------- LOAD VEHICLE GRID ----------
-    function loadVehicleGrid(category) {
-        const grid = document.getElementById('vehicleGrid');
-        const title = document.getElementById('vehicleCategoryTitle');
-        if (category === 'trucks') title.innerHTML = '<i class="fas fa-truck"></i> Trucks';
-        else if (category === 'vans') title.innerHTML = '<i class="fas fa-truck"></i> Vans';
-        else title.innerHTML = '<i class="fas fa-truck"></i> Specialized';
-
-        let html = '';
-        vehicleData[category].forEach(v => {
-            html += `<div class="vehicle-card" data-name="${v.name}" data-base="${v.base}" data-perkm="${v.perKm}" data-eta="${v.eta}">
-                <div class="icon">${v.icon}</div>
-                <div class="vehicle-info">
-                    <h4>${v.name}</h4>
-                    <p>${v.desc}</p>
-                </div>
-                <div class="vehicle-price">
-                    <div class="price">$${v.base}</div>
-                    <div class="eta">${v.eta} min away</div>
-                </div>
-            </div>`;
-        });
-        grid.innerHTML = html;
-
-        document.querySelectorAll('.vehicle-card').forEach(card => {
-            card.addEventListener('click', () => {
-                currentVehicle = card.dataset.name;
-                basePrice = parseFloat(card.dataset.base);
-                perKmRate = parseFloat(card.dataset.perkm);
-                document.getElementById('selectedVehicleInfo').innerHTML = `🚘 ${currentVehicle}`;
-                showScreen('bookingScreen');
-                document.getElementById('kmInput').value = '';
-                document.getElementById('fareAmount').innerText = '$0';
-            });
-        });
-    }
-
-    // Tab switching
-    document.querySelectorAll('.tab').forEach(tab => {
-        tab.addEventListener('click', function() {
-            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-            this.classList.add('active');
-            loadVehicleGrid(this.dataset.category);
-        });
-    });
-
-    // ---------- FARE CALCULATION ----------
-    window.calculateFare = function() {
-        let km = parseFloat(document.getElementById('kmInput').value) || 0;
-        finalFare = basePrice + (km * perKmRate);
-        document.getElementById('fareAmount').innerText = '$' + finalFare.toFixed(2);
-        document.getElementById('baseFare').innerText = `Base: $${basePrice}`;
-        document.getElementById('distanceFare').innerText = `Distance: $${(km * perKmRate).toFixed(2)}`;
-        document.getElementById('totalFare').innerText = `Total: $${finalFare.toFixed(2)}`;
-    };
-
-    // ---------- GPS LOCATION (USA) ----------
-    window.getCurrentLocation = function() {
-        if (!navigator.geolocation) { alert('Geolocation not supported'); return; }
-        document.getElementById('loading').classList.add('active');
-        navigator.geolocation.getCurrentPosition(async pos => {
-            const lat = pos.coords.latitude;
-            const lng = pos.coords.longitude;
-            document.getElementById('map').style.display = 'block';
-            if (map) map.remove();
-            map = L.map('map').setView([lat, lng], 15);
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
-            L.marker([lat, lng]).addTo(map).bindPopup('You are here').openPopup();
-            try {
-                const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`);
-                const data = await res.json();
-                document.getElementById('pickupAddr').value = data.display_name || 'Location found';
-            } catch(e) { }
-            document.getElementById('loading').classList.remove('active');
-        }, err => {
-            alert('Unable to get location');
-            document.getElementById('loading').classList.remove('active');
-        });
-    };
-
-    // ---------- CONFIRM BOOKING ----------
-    window.confirmBooking = async function() {
-        if (!currentUser) { alert('Please login first'); showLoginModal(); return; }
-        if (finalFare <= 0) { alert('Enter distance'); return; }
-        const pickup = document.getElementById('pickupAddr').value || 'Unknown';
-        const drop = document.getElementById('dropAddr').value || 'Unknown';
-        const km = parseFloat(document.getElementById('kmInput').value) || 0;
-
-        const commission = Math.round(finalFare * 0.15 * 100) / 100;
-        const driverAmount = finalFare - commission;
-
-        const booking = {
-            userId: currentUser.uid,
-            userPhone: currentUser.phoneNumber,
-            vehicle: currentVehicle,
-            pickup, drop, km,
-            fare: finalFare, commission, driverAmount,
-            currency: '$',
-            status: 'pending',
-            timestamp: firebase.firestore.FieldValue.serverTimestamp()
+        window.closeOnboarding = function() {
+            document.getElementById('onboarding').classList.remove('active');
+            localStorage.setItem('onboardingSeen', 'true');
         };
 
-        try {
-            document.getElementById('loading').classList.add('active');
-            const docRef = await db.collection('bookings').add(booking);
-            document.getElementById('loading').classList.remove('active');
-            document.getElementById('successDetails').innerHTML = `
-                <p><strong>Booking ID:</strong> ${docRef.id.slice(0,8)}</p>
-                <p><strong>Vehicle:</strong> ${currentVehicle}</p>
-                <p><strong>Fare:</strong> $${finalFare.toFixed(2)}</p>
-                <p><strong>Pickup:</strong> ${pickup.substring(0,30)}...</p>
-            `;
-            showScreen('successScreen');
-        } catch (e) {
-            alert('Booking failed: ' + e.message);
-            document.getElementById('loading').classList.remove('active');
-        }
-    };
+        // ---------- DEMO LOGIN ----------
+        window.showLoginModal = function() {
+            if (currentUser) {
+                currentUser = null;
+                document.getElementById('userIcon').innerHTML = `<i class="fas fa-user"></i>`;
+                return;
+            }
+            document.getElementById('loginModal').classList.add('active');
+        };
 
-    // ---------- LOAD HISTORY ----------
-    window.loadHistory = async function() {
-        if (!currentUser) { document.getElementById('historyList').innerHTML = '<p>Please login</p>'; return; }
-        try {
-            const snapshot = await db.collection('bookings')
-                .where('userId', '==', currentUser.uid)
-                .orderBy('timestamp', 'desc')
-                .get();
-            if (snapshot.empty) { document.getElementById('historyList').innerHTML = '<p>No trips yet</p>'; return; }
+        document.getElementById('demoLoginBtn').addEventListener('click', function() {
+            const phone = document.getElementById('phoneNumber').value;
+            if (!phone || phone.length !== 10) {
+                document.getElementById('loginError').innerText = 'Enter a 10-digit US number';
+                return;
+            }
+            currentUser = { uid: 'demo_' + phone, phoneNumber: '+1' + phone, name: 'Demo User' };
+            document.getElementById('userIcon').innerHTML = `<i class="fas fa-user-check"></i>`;
+            document.getElementById('loginModal').classList.remove('active');
+            document.getElementById('loginError').innerText = '';
+            loadUserProfile();
+        });
+
+        // ---------- SCREEN MANAGEMENT ----------
+        window.showScreen = function(screenId) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(screenId).classList.add('active');
+            // Update bottom nav active state
+            document.querySelectorAll('.nav-item').forEach((item, idx) => {
+                if (screenId === 'homeScreen' && idx === 0) item.classList.add('active');
+                else if (screenId === 'historyScreen' && idx === 1) item.classList.add('active');
+                else if (screenId === 'activitiesScreen' && idx === 2) item.classList.add('active');
+                else if (screenId === 'activityScreen' && idx === 3) item.classList.add('active');
+                else if (screenId === 'profileScreen' && idx === 4) item.classList.add('active');
+                else item.classList.remove('active');
+            });
+            if (screenId === 'historyScreen') loadHistory();
+            if (screenId === 'homeScreen') loadVehicleGrid('trucks');
+        };
+
+        window.goBack = () => showScreen('homeScreen');
+        window.goHome = () => showScreen('homeScreen');
+
+        // ---------- VEHICLE DATA ----------
+        const vehicleData = {
+            trucks: [
+                { icon: '🚚', name: 'Box Truck 16ft', desc: 'Ideal for local deliveries', base: 65, perKm: 1.2, eta: 8 },
+                { icon: '🚛', name: 'Semi-Truck 53ft', desc: 'Long-haul freight', base: 120, perKm: 2.0, eta: 15 },
+                { icon: '🚛', name: 'Refrigerated Truck', desc: 'Temperature controlled', base: 150, perKm: 2.5, eta: 12 }
+            ],
+            vans: [
+                { icon: '🚐', name: 'Cargo Van', desc: 'Perfect for parcels', base: 35, perKm: 0.7, eta: 4 },
+                { icon: '🚐', name: 'Sprinter Van', desc: 'Extra space', base: 50, perKm: 1.0, eta: 6 }
+            ],
+            special: [
+                { icon: '🏗️', name: 'Crane Truck', desc: 'For heavy lifting', base: 200, perKm: 3.0, eta: 25 },
+                { icon: '🚛', name: 'Hazmat Truck', desc: 'Certified for dangerous goods', base: 180, perKm: 2.8, eta: 18 }
+            ],
+            rentals: [
+                { icon: '🛻', name: 'Pickup Truck', desc: 'Daily rental', base: 45, perKm: 0.9, eta: 5 },
+                { icon: '🚚', name: 'Box Truck Rental', desc: 'Weekly rental', base: 300, perKm: 0, eta: 10 }
+            ]
+        };
+
+        function loadVehicleGrid(category) {
+            const grid = document.getElementById('vehicleGrid');
+            const title = document.getElementById('vehicleCategoryTitle');
+            if (category === 'trucks') title.innerHTML = '<i class="fas fa-truck"></i> Trucks';
+            else if (category === 'vans') title.innerHTML = '<i class="fas fa-truck"></i> Vans';
+            else if (category === 'special') title.innerHTML = '<i class="fas fa-cog"></i> Special';
+            else title.innerHTML = '<i class="fas fa-key"></i> Rentals';
+
             let html = '';
-            snapshot.forEach(doc => {
-                const b = doc.data();
-                const time = b.timestamp ? new Date(b.timestamp.toDate()).toLocaleString('en-US') : '';
-                html += `<div class="history-item">
-                    <div class="row"><span>${b.vehicle}</span><span class="status-badge status-${b.status}">${b.status}</span></div>
-                    <div class="row"><small>${b.pickup.substring(0,20)} → ${b.drop.substring(0,20)}</small></div>
-                    <div class="row"><span>$${b.fare?.toFixed(2)}</span><small>${time}</small></div>
+            if (vehicleData[category]) {
+                vehicleData[category].forEach(v => {
+                    html += `<div class="vehicle-card" data-name="${v.name}" data-base="${v.base}" data-perkm="${v.perKm}" data-eta="${v.eta}">
+                        <div class="icon">${v.icon}</div>
+                        <div class="vehicle-info">
+                            <h4>${v.name}</h4>
+                            <p>${v.desc}</p>
+                        </div>
+                        <div class="vehicle-price">
+                            <div class="price">$${v.base}</div>
+                            <div class="eta">${v.eta} min away</div>
+                        </div>
+                    </div>`;
+                });
+            }
+            grid.innerHTML = html;
+
+            document.querySelectorAll('.vehicle-card').forEach(card => {
+                card.addEventListener('click', () => {
+                    currentVehicle = card.dataset.name;
+                    basePrice = parseFloat(card.dataset.base);
+                    perKmRate = parseFloat(card.dataset.perkm);
+                    document.getElementById('selectedVehicleInfo').innerHTML = `🚘 ${currentVehicle}`;
+                    showScreen('bookingScreen');
+                    document.getElementById('kmInput').value = '';
+                    document.getElementById('fareAmount').innerText = '$0';
+                });
+            });
+        }
+
+        // Tab switching
+        document.querySelectorAll('.service-item').forEach(tab => {
+            tab.addEventListener('click', function() {
+                document.querySelectorAll('.service-item').forEach(t => t.classList.remove('active'));
+                this.classList.add('active');
+                loadVehicleGrid(this.dataset.category);
+            });
+        });
+
+        // ---------- FARE CALCULATION with Tax & Promo ----------
+        window.calculateFare = function() {
+            let km = parseFloat(document.getElementById('kmInput').value) || 0;
+            let base = basePrice;
+            let distanceCost = km * perKmRate;
+            let subtotal = base + distanceCost;
+            let tax = subtotal * 0.10;
+            let discount = promoDiscount;
+            finalFare = subtotal + tax - discount;
+            document.getElementById('fareAmount').innerText = '$' + finalFare.toFixed(2);
+            document.getElementById('baseFare').innerText = `Base: $${base.toFixed(2)}`;
+            document.getElementById('distanceFare').innerText = `Distance: $${distanceCost.toFixed(2)}`;
+            document.getElementById('taxFare').innerText = `Tax (10%): $${tax.toFixed(2)}`;
+            document.getElementById('discountFare').innerText = `Discount: -$${discount.toFixed(2)}`;
+            document.getElementById('totalFare').innerText = `Total: $${finalFare.toFixed(2)}`;
+        };
+
+        // ---------- ROUTE CALCULATION (from old code) ----------
+        async function geocodeAddress(address) {
+            const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}`;
+            try {
+                const res = await fetch(url);
+                const data = await res.json();
+                if (data && data.length > 0) {
+                    return { lat: parseFloat(data[0].lat), lng: parseFloat(data[0].lon) };
+                } else {
+                    throw new Error('Address not found');
+                }
+            } catch (e) {
+                alert('Geocoding failed: ' + e.message);
+                return null;
+            }
+        }
+
+        window.calculateRoute = async function() {
+            const pickup = document.getElementById('pickupAddr').value;
+            const drop = document.getElementById('dropAddr').value;
+            
+            if (!pickup || !drop) {
+                alert('Please enter both pickup and drop addresses');
+                return;
+            }
+
+            document.getElementById('loading').classList.add('active');
+
+            const pickupCoords = await geocodeAddress(pickup);
+            const dropCoords = await geocodeAddress(drop);
+
+            if (!pickupCoords || !dropCoords) {
+                document.getElementById('loading').classList.remove('active');
+                return;
+            }
+
+            const mapDiv = document.getElementById('map');
+            mapDiv.style.display = 'block';
+
+            if (!map) {
+                map = L.map('map').setView([pickupCoords.lat, pickupCoords.lng], 10);
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+            } else {
+                map.setView([pickupCoords.lat, pickupCoords.lng], 10);
+            }
+
+            if (routingControl) {
+                map.removeControl(routingControl);
+            }
+
+            routingControl = L.Routing.control({
+                waypoints: [
+                    L.latLng(pickupCoords.lat, pickupCoords.lng),
+                    L.latLng(dropCoords.lat, dropCoords.lng)
+                ],
+                routeWhileDragging: false,
+                showAlternatives: false,
+                lineOptions: {
+                    styles: [{ color: '#00f3ff', opacity: 0.8, weight: 6 }]
+                },
+                createMarker: function() { return null; }
+            }).addTo(map);
+
+            routingControl.on('routesfound', function(e) {
+                const routes = e.routes;
+                const summary = routes[0].summary;
+                const distanceMiles = summary.totalDistance * 0.000621371;
+                document.getElementById('kmInput').value = distanceMiles.toFixed(1);
+                calculateFare();
+                document.getElementById('loading').classList.remove('active');
+            });
+
+            routingControl.on('routingerror', function(e) {
+                alert('Could not find route: ' + e.error.message);
+                document.getElementById('loading').classList.remove('active');
+            });
+        };
+
+        // ---------- PROMO CODE ----------
+        window.applyPromo = async function() {
+            const code = document.getElementById('promoInput').value.trim().toUpperCase();
+            if (!code) return;
+            const promoRef = db.collection('promoCodes').doc(code);
+            const doc = await promoRef.get();
+            if (doc.exists) {
+                promoDiscount = doc.data().discount;
+                alert(`Promo applied! You get $${promoDiscount} off.`);
+                calculateFare();
+                closeModal('promoModal');
+            } else {
+                alert('Invalid promo code');
+            }
+        };
+
+        // ---------- SCHEDULING ----------
+        window.scheduleRide = function() {
+            document.getElementById('scheduleTime').focus();
+            showScreen('bookingScreen');
+        };
+
+        // ---------- ADDRESS BOOK ----------
+        let savedPlaces = [];
+        window.showAddressBook = async function() {
+            if (!currentUser) { alert('Login first'); return; }
+            const userRef = db.collection('users').doc(currentUser.uid);
+            const doc = await userRef.get();
+            if (doc.exists && doc.data().savedPlaces) {
+                savedPlaces = doc.data().savedPlaces;
+            }
+            let html = '';
+            savedPlaces.forEach((place, index) => {
+                html += `<div style="display:flex; justify-content:space-between; padding:10px; border-bottom:1px solid #333;">
+                    <span><strong>${place.name}</strong><br><small>${place.address}</small></span>
+                    <button onclick="useAddress('${place.address}')">Use</button>
                 </div>`;
             });
-            document.getElementById('historyList').innerHTML = html;
-        } catch(e) { document.getElementById('historyList').innerHTML = '<p>Error loading</p>'; }
-    };
+            document.getElementById('savedPlacesList').innerHTML = html || '<p>No saved places</p>';
+            document.getElementById('addressBookModal').classList.add('active');
+        };
 
-    window.cancelBooking = () => goHome();
-
-    // Close modal on outside click
-    document.getElementById('loginModal').addEventListener('click', function(e) {
-        if (e.target === this) this.classList.remove('active');
-    });
-
-    // Initialize with trucks
-        // ---------- ADDRESS AUTOCOMPLETE (Nominatim) ----------
-let suggestionTimeout;
-async function fetchSuggestions(query, type) {
-    clearTimeout(suggestionTimeout);
-    if (query.length < 3) return; // कम से कम 3 अक्षर
-
-    suggestionTimeout = setTimeout(async () => {
-        try {
-            const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&addressdetails=1&limit=5`;
-            const res = await fetch(url);
-            const data = await res.json();
-            
-            const datalist = document.getElementById(type === 'pickup' ? 'pickupSuggestions' : 'dropSuggestions');
-            datalist.innerHTML = ''; // पुराने सुझाव हटाएँ
-            
-            data.forEach(item => {
-                const option = document.createElement('option');
-                option.value = item.display_name;
-                datalist.appendChild(option);
-            });
-        } catch (e) {
-            console.error('Autocomplete error:', e);
-        }
-    }, 300); // 300ms की देरी
-}
-    loadVehicleGrid('trucks');
-        // ---------- TRACKING SIMULATION ----------
-let trackingInterval = null;
-let driverMarker = null;
-let routeCoordinates = [];
-let currentStep = 0;
-let trackingMap = null;
-
-window.startTracking = function() {
-    if (trackingInterval) {
-        clearInterval(trackingInterval);
-        trackingInterval = null;
-    }
-    
-    showScreen('trackingScreen');
-    
-    const pickup = document.getElementById('pickupAddr').value || '123 Main St, New York, NY';
-    const drop = document.getElementById('dropAddr').value || '456 Broadway, New York, NY';
-    
-    // Demo coordinates (New York)
-    const pickupCoords = { lat: 40.7128, lng: -74.0060 };
-    const dropCoords = { lat: 40.7580, lng: -73.9855 };
-    
-    const mapDiv = document.getElementById('trackingMap');
-    if (!trackingMap) {
-        trackingMap = L.map('trackingMap').setView([pickupCoords.lat, pickupCoords.lng], 13);
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(trackingMap);
-    } else {
-        trackingMap.setView([pickupCoords.lat, pickupCoords.lng], 13);
-    }
-    
-    L.marker([pickupCoords.lat, pickupCoords.lng]).addTo(trackingMap).bindPopup('Pickup').openPopup();
-    L.marker([dropCoords.lat, dropCoords.lng]).addTo(trackingMap).bindPopup('Drop').openPopup();
-    
-    driverMarker = L.marker([pickupCoords.lat + 0.01, pickupCoords.lng + 0.01]).addTo(trackingMap).bindPopup('Driver').openPopup();
-    
-    routeCoordinates = [];
-    const steps = 20;
-    for (let i = 0; i <= steps; i++) {
-        const lat = pickupCoords.lat + (dropCoords.lat - pickupCoords.lat) * i / steps;
-        const lng = pickupCoords.lng + (dropCoords.lng - pickupCoords.lng) * i / steps;
-        routeCoordinates.push({ lat, lng });
-    }
-    
-    currentStep = 0;
-    
-    document.getElementById('trackingDetails').innerHTML = `
-        <p><i class="fas fa-circle-notch fa-spin"></i> Driver is heading to pickup location...</p>
-        <p><strong>Pickup:</strong> ${pickup.substring(0,30)}</p>
-        <p><strong>Drop:</strong> ${drop.substring(0,30)}</p>
-    `;
-    
-    trackingInterval = setInterval(() => {
-        if (currentStep < routeCoordinates.length - 1) {
-            currentStep++;
-            const pos = routeCoordinates[currentStep];
-            driverMarker.setLatLng([pos.lat, pos.lng]);
-            trackingMap.panTo([pos.lat, pos.lng]);
-            
-            if (currentStep < routeCoordinates.length / 2) {
-                document.getElementById('trackingDetails').innerHTML = `
-                    <p><i class="fas fa-circle-notch fa-spin"></i> Driver is on the way to pickup...</p>
-                    <p><strong>Pickup:</strong> ${pickup.substring(0,30)}</p>
-                    <p><strong>Drop:</strong> ${drop.substring(0,30)}</p>
-                `;
-            } else {
-                document.getElementById('trackingDetails').innerHTML = `
-                    <p><i class="fas fa-circle-notch fa-spin"></i> Driver has picked up and heading to drop...</p>
-                    <p><strong>Pickup:</strong> ${pickup.substring(0,30)}</p>
-                    <p><strong>Drop:</strong> ${drop.substring(0,30)}</p>
-                `;
+        window.savePlace = async function() {
+            const name = document.getElementById('newPlaceName').value;
+            const addr = document.getElementById('newPlaceAddr').value;
+            if (!name || !addr) return;
+            savedPlaces.push({ name, address: addr });
+            if (currentUser) {
+                await db.collection('users').doc(currentUser.uid).set({ savedPlaces }, { merge: true });
             }
-        } else {
-            clearInterval(trackingInterval);
-            trackingInterval = null;
+            showAddressBook();
+            document.getElementById('newPlaceName').value = '';
+            document.getElementById('newPlaceAddr').value = '';
+        };
+
+        window.useAddress = function(addr) {
+            document.getElementById('pickupAddr').value = addr;
+            closeModal('addressBookModal');
+        };
+
+        // ---------- REFERRAL ----------
+        window.showReferral = function() {
+            document.getElementById('referralCode').innerText = currentUser ? 'TRUCK' + currentUser.uid.slice(-4) : 'TRUCK123';
+            alert('Referral code: ' + document.getElementById('referralCode').innerText);
+        };
+
+        window.copyReferral = function() {
+            navigator.clipboard.writeText(document.getElementById('referralCode').innerText);
+            alert('Copied!');
+        };
+
+        // ---------- SOS ----------
+        window.sosAlert = function() {
+            if (!currentUser) { alert('Login first'); return; }
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(pos => {
+                    const lat = pos.coords.latitude;
+                    const lng = pos.coords.longitude;
+                    alert(`🚨 SOS! Your location (${lat},${lng}) has been sent to emergency contacts.`);
+                }, () => {
+                    alert('SOS triggered (location unavailable)');
+                });
+            } else {
+                alert('SOS triggered');
+            }
+        };
+
+        // ---------- GPS LOCATION ----------
+        window.getCurrentLocation = function() {
+            if (!navigator.geolocation) { alert('Geolocation not supported'); return; }
+            document.getElementById('loading').classList.add('active');
+            navigator.geolocation.getCurrentPosition(async pos => {
+                const lat = pos.coords.latitude;
+                const lng = pos.coords.longitude;
+                document.getElementById('map').style.display = 'block';
+                if (map) map.remove();
+                map = L.map('map').setView([lat, lng], 15);
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+                L.marker([lat, lng]).addTo(map).bindPopup('You are here').openPopup();
+                try {
+                    const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`);
+                    const data = await res.json();
+                    document.getElementById('pickupAddr').value = data.display_name || 'Location found';
+                } catch(e) { }
+                document.getElementById('loading').classList.remove('active');
+            }, err => {
+                alert('Unable to get location');
+                document.getElementById('loading').classList.remove('active');
+            });
+        };
+
+        // ---------- CONFIRM BOOKING ----------
+        window.confirmBooking = async function() {
+            if (!currentUser) { alert('Please login first'); showLoginModal(); return; }
+            if (finalFare <= 0) { alert('Calculate fare first'); return; }
+            const pickup = document.getElementById('pickupAddr').value || 'Unknown';
+            const drop = document.getElementById('dropAddr').value || 'Unknown';
+            const km = parseFloat(document.getElementById('kmInput').value) || 0;
+            const schedule = document.getElementById('scheduleTime').value || new Date().toISOString();
+
+            const commission = finalFare * 0.15;
+            const driverAmount = finalFare - commission;
+
+            const booking = {
+                userId: currentUser.uid,
+                userPhone: currentUser.phoneNumber,
+                vehicle: currentVehicle,
+                pickup, drop, km,
+                fare: finalFare, commission, driverAmount,
+                currency: '$',
+                status: 'pending',
+                scheduledFor: schedule,
+                promoCode: document.getElementById('promoCode').value,
+                timestamp: firebase.firestore.FieldValue.serverTimestamp()
+            };
+
+            try {
+                document.getElementById('loading').classList.add('active');
+                const docRef = await db.collection('bookings').add(booking);
+                document.getElementById('loading').classList.remove('active');
+                currentBookingId = docRef.id;
+                document.getElementById('successDetails').innerHTML = `
+                    <p><strong>Booking ID:</strong> ${docRef.id.slice(0,8)}</p>
+                    <p><strong>Vehicle:</strong> ${currentVehicle}</p>
+                    <p><strong>Fare:</strong> $${finalFare.toFixed(2)}</p>
+                    <p><strong>Pickup:</strong> ${pickup.substring(0,30)}...</p>
+                `;
+                showScreen('successScreen');
+            } catch (e) {
+                alert('Booking failed: ' + e.message);
+                document.getElementById('loading').classList.remove('active');
+            }
+        };
+
+        // ---------- LOAD HISTORY ----------
+        window.loadHistory = async function() {
+            if (!currentUser) { document.getElementById('historyList').innerHTML = '<p>Please login</p>'; return; }
+            try {
+                const snapshot = await db.collection('bookings')
+                    .where('userId', '==', currentUser.uid)
+                    .orderBy('timestamp', 'desc')
+                    .get();
+                if (snapshot.empty) { document.getElementById('historyList').innerHTML = '<p>No trips yet</p>'; return; }
+                let html = '';
+                snapshot.forEach(doc => {
+                    const b = doc.data();
+                    const time = b.timestamp ? new Date(b.timestamp.toDate()).toLocaleString('en-US') : '';
+                    html += `<div class="history-item" onclick="viewTripDetails('${doc.id}')">
+                        <div class="row"><span>${b.vehicle}</span><span class="status-badge status-${b.status}">${b.status}</span></div>
+                        <div class="row"><small>${b.pickup.substring(0,20)} → ${b.drop.substring(0,20)}</small></div>
+                        <div class="row"><span>$${b.fare?.toFixed(2)}</span><small>${time}</small></div>
+                    </div>`;
+                });
+                document.getElementById('historyList').innerHTML = html;
+            } catch(e) { document.getElementById('historyList').innerHTML = '<p>Error loading</p>'; }
+        };
+
+        // ---------- TRACKING SIMULATION (from old code) ----------
+        window.startTracking = function() {
+            if (trackingInterval) {
+                clearInterval(trackingInterval);
+                trackingInterval = null;
+            }
+            
+            showScreen('trackingScreen');
+            
+            const pickup = document.getElementById('pickupAddr').value || '123 Main St, New York, NY';
+            const drop = document.getElementById('dropAddr').value || '456 Broadway, New York, NY';
+            
+            // Demo coordinates (New York)
+            const pickupCoords = { lat: 40.7128, lng: -74.0060 };
+            const dropCoords = { lat: 40.7580, lng: -73.9855 };
+            
+            const mapDiv = document.getElementById('trackingMap');
+            if (!trackingMap) {
+                trackingMap = L.map('trackingMap').setView([pickupCoords.lat, pickupCoords.lng], 13);
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(trackingMap);
+            } else {
+                trackingMap.setView([pickupCoords.lat, pickupCoords.lng], 13);
+            }
+            
+            L.marker([pickupCoords.lat, pickupCoords.lng]).addTo(trackingMap).bindPopup('Pickup').openPopup();
+            L.marker([dropCoords.lat, dropCoords.lng]).addTo(trackingMap).bindPopup('Drop').openPopup();
+            
+            driverMarker = L.marker([pickupCoords.lat + 0.01, pickupCoords.lng + 0.01]).addTo(trackingMap).bindPopup('Driver').openPopup();
+            
+            routeCoordinates = [];
+            const steps = 20;
+            for (let i = 0; i <= steps; i++) {
+                const lat = pickupCoords.lat + (dropCoords.lat - pickupCoords.lat) * i / steps;
+                const lng = pickupCoords.lng + (dropCoords.lng - pickupCoords.lng) * i / steps;
+                routeCoordinates.push({ lat, lng });
+            }
+            
+            currentStep = 0;
+            
             document.getElementById('trackingDetails').innerHTML = `
-                <p><i class="fas fa-check-circle" style="color:#28a745;"></i> Trip completed!</p>
+                <p><i class="fas fa-circle-notch fa-spin"></i> Driver is heading to pickup location...</p>
                 <p><strong>Pickup:</strong> ${pickup.substring(0,30)}</p>
                 <p><strong>Drop:</strong> ${drop.substring(0,30)}</p>
             `;
-        }
-    }, 2000);
-};
+            
+            trackingInterval = setInterval(() => {
+                if (currentStep < routeCoordinates.length - 1) {
+                    currentStep++;
+                    const pos = routeCoordinates[currentStep];
+                    driverMarker.setLatLng([pos.lat, pos.lng]);
+                    trackingMap.panTo([pos.lat, pos.lng]);
+                    
+                    if (currentStep < routeCoordinates.length / 2) {
+                        document.getElementById('trackingDetails').innerHTML = `
+                            <p><i class="fas fa-circle-notch fa-spin"></i> Driver is on the way to pickup...</p>
+                            <p><strong>Pickup:</strong> ${pickup.substring(0,30)}</p>
+                            <p><strong>Drop:</strong> ${drop.substring(0,30)}</p>
+                        `;
+                    } else {
+                        document.getElementById('trackingDetails').innerHTML = `
+                            <p><i class="fas fa-circle-notch fa-spin"></i> Driver has picked up and heading to drop...</p>
+                            <p><strong>Pickup:</strong> ${pickup.substring(0,30)}</p>
+                            <p><strong>Drop:</strong> ${drop.substring(0,30)}</p>
+                        `;
+                    }
+                } else {
+                    clearInterval(trackingInterval);
+                    trackingInterval = null;
+                    document.getElementById('trackingDetails').innerHTML = `
+                        <p><i class="fas fa-check-circle" style="color:#4caf50;"></i> Trip completed!</p>
+                        <p><strong>Pickup:</strong> ${pickup.substring(0,30)}</p>
+                        <p><strong>Drop:</strong> ${drop.substring(0,30)}</p>
+                    `;
+                }
+            }, 2000);
+        };
 
-window.cancelBooking = function() {
-    if (trackingInterval) {
-        clearInterval(trackingInterval);
-        trackingInterval = null;
-    }
-    if (trackingMap) {
-        trackingMap.remove();
-        trackingMap = null;
-    }
-    goHome();
-};
-</script>
+        window.cancelBooking = function() {
+            if (trackingInterval) {
+                clearInterval(trackingInterval);
+                trackingInterval = null;
+            }
+            if (trackingMap) {
+                trackingMap.remove();
+                trackingMap = null;
+            }
+            goHome();
+        };
+
+        // ---------- RATING ----------
+        document.querySelectorAll('#ratingStars i').forEach(star => {
+            star.addEventListener('mouseenter', function() {
+                const rating = this.dataset.rating;
+                document.querySelectorAll('#ratingStars i').forEach((s, idx) => {
+                    if (idx < rating) { s.classList.remove('far'); s.classList.add('fas'); }
+                    else { s.classList.remove('fas'); s.classList.add('far'); }
+                });
+            });
+            star.addEventListener('click', function() {
+                selectedRating = this.dataset.rating;
+                document.querySelectorAll('#ratingStars i').forEach((s, idx) => {
+                    if (idx < selectedRating) s.classList.add('selected');
+                    else s.classList.remove('selected');
+                });
+            });
+        });
+
+        window.submitReview = async function() {
+            if (!currentBookingId || !selectedRating) { alert('Please select rating'); return; }
+            const review = document.getElementById('reviewText').value;
+            await db.collection('reviews').add({
+                bookingId: currentBookingId,
+                userId: currentUser.uid,
+                rating: selectedRating,
+                comment: review,
+                timestamp: firebase.firestore.FieldValue.serverTimestamp()
+            });
+            alert('Thank you for your review!');
+            document.getElementById('ratingSection').style.display = 'none';
+        };
+
+        // ---------- CHAT ----------
+        window.openChat = function() {
+            if (!currentBookingId) return;
+            showScreen('chatScreen');
+            if (chatListener) chatListener();
+            chatListener = db.collection('chats').where('bookingId', '==', currentBookingId).orderBy('timestamp').onSnapshot(snapshot => {
+                let html = '';
+                snapshot.forEach(doc => {
+                    const msg = doc.data();
+                    const className = msg.sender === currentUser.uid ? 'sent' : 'received';
+                    html += `<div class="chat-message ${className}">${msg.text}</div>`;
+                });
+                document.getElementById('chatBox').innerHTML = html;
+                document.getElementById('chatBox').scrollTop = document.getElementById('chatBox').scrollHeight;
+            });
+        };
+
+        window.sendMessage = async function() {
+            const text = document.getElementById('chatInput').value.trim();
+            if (!text || !currentBookingId) return;
+            await db.collection('chats').add({
+                bookingId: currentBookingId,
+                sender: currentUser.uid,
+                text: text,
+                timestamp: firebase.firestore.FieldValue.serverTimestamp()
+            });
+            document.getElementById('chatInput').value = '';
+        };
+
+        // ---------- ADDRESS AUTOCOMPLETE ----------
+        let suggestionTimeout;
+        async function fetchSuggestions(query, type) {
+            clearTimeout(suggestionTimeout);
+            if (query.length < 3) return;
+            suggestionTimeout = setTimeout(async () => {
+                try {
+                    const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&addressdetails=1&limit=5`;
+                    const res = await fetch(url);
+                    const data = await res.json();
+                    const datalist = document.getElementById(type === 'pickup' ? 'pickupSuggestions' : 'dropSuggestions');
+                    datalist.innerHTML = '';
+                    data.forEach(item => {
+                        const option = document.createElement('option');
+                        option.value = item.display_name;
+                        datalist.appendChild(option);
+                    });
+                } catch (e) {
+                    console.error('Autocomplete error:', e);
+                }
+            }, 300);
+        }
+
+        // ---------- UTILITY ----------
+        function closeModal(id) {
+            document.getElementById(id).classList.remove('active');
+        }
+
+        // Initialize
+        loadVehicleGrid('trucks');
+        // Load online drivers count
+        db.collection('drivers').where('status', '==', 'online').onSnapshot(snap => {
+            document.getElementById('onlineDrivers').innerText = snap.size;
+        });
+        // Load active shipments
+        db.collection('bookings').where('status', '==', 'accepted').onSnapshot(snap => {
+            document.getElementById('activeShipments').innerText = snap.size;
+        });
+    </script>
 </body>
 </html>
