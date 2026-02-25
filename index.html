@@ -242,8 +242,9 @@
                 <span>🌀 Your Referral Code: <strong id="referralCode">TRUCK123</strong></span>
                 <button class="wormhole-btn" onclick="copyReferral()">Copy</button>
             </div>
-            <div class="view-all" onclick="loadAllVehicles()">
-                View All Transports
+            <div class="view-all" onclick="loadVehicleGrid('trucks')">View All Transports</div>
+            
+                
             </div>
         </div>
 
@@ -481,7 +482,6 @@
             document.getElementById('userIcon').innerHTML = `<i class="fas fa-user-check"></i>`;
             document.getElementById('loginModal').classList.remove('active');
             document.getElementById('loginError').innerText = '';
-            loadUserProfile();
         });
 
         // ---------- SCREEN MANAGEMENT ----------
