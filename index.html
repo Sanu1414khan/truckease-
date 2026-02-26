@@ -10,6 +10,21 @@
     <!-- Leaflet for map -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.css" />
+    
+    <!-- API Configuration (खरीदने वाला अपनी कुंजी डालेगा) -->
+    <script>
+        window.APP_CONFIG = {
+            // Google Maps API (Geocoding + Directions के लिए)
+            GOOGLE_MAPS_API_KEY: '',
+            
+            // Stripe/PayPal (Payment के लिए)
+            STRIPE_PUBLIC_KEY: '',
+            
+            // DAT RateView (Real-time spot rates के लिए)
+            DAT_API_KEY: ''
+        };
+    </script>
+    
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
         body {
@@ -32,7 +47,7 @@
             z-index: 0;
         }
         /* Glassmorphism base */
-        .glass, .service-item, .vehicle-card, .rewards-card, .quantum-grid, .booking-header, .fare-box, .history-item, .modal-content {
+        .service-item, .vehicle-card, .rewards-card, .quantum-grid, .booking-header, .fare-box, .history-item, .modal-content {
             background: rgba(20, 30, 50, 0.4);
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
@@ -242,7 +257,7 @@
                 <span>🌀 Your Referral Code: <strong id="referralCode">TRUCK123</strong></span>
                 <button class="wormhole-btn" onclick="copyReferral()">Copy</button>
             </div>
-            <div class="view-all" onclick="loadAllVehicles()">
+            <div class="view-all" onclick="loadVehicleGrid('trucks')">
                 View All Transports
             </div>
         </div>
@@ -268,10 +283,15 @@
                 <label>🏁 Drop</label>
                 <input type="text" id="dropAddr" placeholder="Enter drop address" list="dropSuggestions" oninput="fetchSuggestions(this.value, 'drop')">
             </div>
-            <!-- Distance input (added from old code) -->
+            <!-- Distance input -->
             <div class="input-group">
                 <label>📏 Distance (miles) or use GPS</label>
                 <input type="number" id="kmInput" placeholder="Distance in miles" oninput="calculateFare()">
+            </div>
+            <!-- Weight Input (वजन) - नया फीचर -->
+            <div class="input-group">
+                <label>⚖️ Weight (lbs)</label>
+                <input type="number" id="weightInput" placeholder="Enter weight in lbs" value="0" oninput="calculateFare()">
             </div>
             <div class="row">
                 <div class="input-group" style="flex:1;">
@@ -285,23 +305,27 @@
             </div>
             <div id="map"></div>
             <button class="btn btn-secondary" onclick="getCurrentLocation()"><i class="fas fa-location-dot"></i> Use my location</button>
-            <!-- Get Route button (from old code) -->
+            <!-- Get Route button -->
             <button class="btn btn-primary" onclick="calculateRoute()" style="margin-top:10px;">🛣️ Get Route & Calculate Fare</button>
             <datalist id="pickupSuggestions"></datalist>
             <datalist id="dropSuggestions"></datalist>
             
-            <!-- Fare Breakdown -->
+            <!-- Fare Breakdown (अपडेटेड) -->
             <div class="fare-box">
                 <div class="fare" id="fareAmount">$0</div>
                 <div class="fare-breakdown">
                     <span id="baseFare">Base: $0</span>
                     <span id="distanceFare">Distance: $0</span>
-                    <span id="taxFare">Tax (10%): $0</span>
+                    <span id="weightMultiplier">Weight: 1x</span>
+                    <span id="surgeMultiplier">Surge: 1x</span>
+                    <span id="taxFare">Tax: $0</span>
                     <span id="discountFare">Discount: $0</span>
                     <span id="totalFare">Total: $0</span>
                 </div>
             </div>
 
+            <!-- Payment Placeholder Button -->
+            <button class="btn btn-primary" onclick="processPayment()" style="margin-bottom:10px;">💰 Process Payment</button>
             <button class="btn btn-primary" onclick="confirmBooking()">Confirm Booking</button>
         </div>
     </div>
@@ -403,23 +427,20 @@
         </div>
     </div>
 
-    <!-- BOTTOM NAVIGATION -->
+    <!-- BOTTOM NAVIGATION (अपडेटेड - सिर्फ 4 आइटम) -->
     <div class="bottom-nav">
         <div class="nav-item active" onclick="showScreen('homeScreen')"><i class="fas fa-home"></i>Home</div>
-        <div class="nav-item" onclick="showScreen('historyScreen')"><i class="fas fa-truck"></i>Services</div>
-        <div class="nav-item" onclick="showActivities()"><i class="fas fa-calendar"></i>Activities</div>
-        <div class="nav-item" onclick="showScreen('historyScreen')"><i class="fas fa-chart-line"></i>Activity</div>
-        <div class="nav-item" onclick="showProfile()"><i class="fas fa-user"></i>Account</div>
+        <div class="nav-item" onclick="showScreen('historyScreen')"><i class="fas fa-history"></i>Trips</div>
+        <div class="nav-item" onclick="alert('Coming soon')"><i class="fas fa-wallet"></i>Wallet</div>
+        <div class="nav-item" onclick="alert('Coming soon')"><i class="fas fa-user"></i>Account</div>
     </div>
 
     <!-- Loading -->
     <div id="loading" class="loading"><div class="spinner"></div><p>Loading...</p></div>
 
-    <!-- Firebase SDK -->
+    <!-- Firebase SDK (केवल Firestore) -->
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-storage-compat.js"></script>
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.js"></script>
 
@@ -435,8 +456,6 @@
         };
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
-        const auth = firebase.auth();
-        const storage = firebase.storage();
 
         // ---------- GLOBAL VARIABLES ----------
         let currentUser = null;
@@ -451,7 +470,7 @@
         let selectedRating = 0;
         let chatListener = null;
 
-        // Variables for tracking simulation (from old code)
+        // Variables for tracking simulation
         let trackingInterval = null;
         let driverMarker = null;
         let routeCoordinates = [];
@@ -486,7 +505,6 @@
             document.getElementById('userIcon').innerHTML = `<i class="fas fa-user-check"></i>`;
             document.getElementById('loginModal').classList.remove('active');
             document.getElementById('loginError').innerText = '';
-            loadUserProfile();
         });
 
         // ---------- SCREEN MANAGEMENT ----------
@@ -497,9 +515,6 @@
             document.querySelectorAll('.nav-item').forEach((item, idx) => {
                 if (screenId === 'homeScreen' && idx === 0) item.classList.add('active');
                 else if (screenId === 'historyScreen' && idx === 1) item.classList.add('active');
-                else if (screenId === 'activitiesScreen' && idx === 2) item.classList.add('active');
-                else if (screenId === 'activityScreen' && idx === 3) item.classList.add('active');
-                else if (screenId === 'profileScreen' && idx === 4) item.classList.add('active');
                 else item.classList.remove('active');
             });
             if (screenId === 'historyScreen') loadHistory();
@@ -508,13 +523,7 @@
 
         window.goBack = () => showScreen('homeScreen');
         window.goHome = () => showScreen('homeScreen');
-        // Pseudo-code for dynamic pricing
-async function getSpotRate(pickup, drop, equipment) {
-  // Call external API with location and equipment type
-  const rate = await fetch(`https://api.dat.com/v1/rates?origin=${pickup}&dest=${drop}&type=${equipment}`);
-  return rate.perMile; // Returns dynamic $/mile
-}
-        
+
         // ---------- VEHICLE DATA ----------
         const vehicleData = {
             trucks: [
@@ -570,6 +579,7 @@ async function getSpotRate(pickup, drop, equipment) {
                     document.getElementById('selectedVehicleInfo').innerHTML = `🚘 ${currentVehicle}`;
                     showScreen('bookingScreen');
                     document.getElementById('kmInput').value = '';
+                    document.getElementById('weightInput').value = '0';
                     document.getElementById('fareAmount').innerText = '$0';
                 });
             });
@@ -584,24 +594,55 @@ async function getSpotRate(pickup, drop, equipment) {
             });
         });
 
-        // ---------- FARE CALCULATION with Tax & Promo ----------
+        // ---------- ENHANCED FARE CALCULATION with Weight & Surge ----------
         window.calculateFare = function() {
-            let km = parseFloat(document.getElementById('kmInput').value) || 0;
+            // दूरी और वजन लें
+            let distance = parseFloat(document.getElementById('kmInput').value) || 0;
+            let weight = parseFloat(document.getElementById('weightInput').value) || 0;
+            
+            // बेस रेट
             let base = basePrice;
-            let distanceCost = km * perKmRate;
-            let subtotal = base + distanceCost;
+            
+            // दूरी का किराया
+            let distanceCost = distance * perKmRate;
+            
+            // वजन का गुणक (weight multiplier)
+            let weightMultiplier = 1.0;
+            if (weight > 5000) weightMultiplier = 1.2;      // 5000 lbs से ऊपर 20% ज्यादा
+            if (weight > 10000) weightMultiplier = 1.5;     // 10000 lbs से ऊपर 50% ज्यादा
+            
+            // समय का सर्ज (surge pricing - रात का किराया)
+            let surgeMultiplier = 1.0;
+            let now = new Date();
+            let hours = now.getHours();
+            // रात 10 बजे से सुबह 6 बजे तक 25% ज्यादा
+            if (hours >= 22 || hours <= 6) {
+                surgeMultiplier = 1.25;
+            }
+            
+            // कुल किराया (बिना टैक्स के)
+            let subtotal = (base + distanceCost) * weightMultiplier * surgeMultiplier;
+            
+            // टैक्स (10%)
             let tax = subtotal * 0.10;
+            
+            // डिस्काउंट (अगर कोई प्रोमो हो)
             let discount = promoDiscount;
+            
             finalFare = subtotal + tax - discount;
+            
+            // स्क्रीन पर दिखाएँ
             document.getElementById('fareAmount').innerText = '$' + finalFare.toFixed(2);
             document.getElementById('baseFare').innerText = `Base: $${base.toFixed(2)}`;
             document.getElementById('distanceFare').innerText = `Distance: $${distanceCost.toFixed(2)}`;
-            document.getElementById('taxFare').innerText = `Tax (10%): $${tax.toFixed(2)}`;
-            document.getElementById('discountFare').innerText = `Discount: -$${discount.toFixed(2)}`;
+            document.getElementById('weightMultiplier').innerText = `Weight: ${weightMultiplier}x`;
+            document.getElementById('surgeMultiplier').innerText = `Surge: ${surgeMultiplier}x`;
+            document.getElementById('taxFare').innerText = `Tax: $${tax.toFixed(2)}`;
+            document.getElementById('discountFare').innerText = `Discount: $${discount.toFixed(2)}`;
             document.getElementById('totalFare').innerText = `Total: $${finalFare.toFixed(2)}`;
         };
 
-        // ---------- ROUTE CALCULATION (from old code) ----------
+        // ---------- ROUTE CALCULATION ----------
         async function geocodeAddress(address) {
             const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}`;
             try {
@@ -679,6 +720,14 @@ async function getSpotRate(pickup, drop, equipment) {
             });
         };
 
+        // ---------- PAYMENT PLACEHOLDER ----------
+        window.processPayment = function() {
+            if (!currentUser) { alert('Please login first'); showLoginModal(); return; }
+            if (finalFare <= 0) { alert('Calculate fare first'); return; }
+            alert('🔌 Payment Gateway Connection Ready. Plug in your Stripe Key here.');
+            // जब Stripe key डाल दी जाए, तो यहाँ payment लॉजिक आएगा
+        };
+
         // ---------- PROMO CODE ----------
         window.applyPromo = async function() {
             const code = document.getElementById('promoInput').value.trim().toUpperCase();
@@ -693,6 +742,10 @@ async function getSpotRate(pickup, drop, equipment) {
             } else {
                 alert('Invalid promo code');
             }
+        };
+
+        window.showPromo = function() {
+            document.getElementById('promoModal').classList.add('active');
         };
 
         // ---------- SCHEDULING ----------
@@ -789,25 +842,6 @@ async function getSpotRate(pickup, drop, equipment) {
                 document.getElementById('loading').classList.remove('active');
             });
         };
-          
-        window.calculateFare = async function() {
-    // 1. स्क्रीन से वजन और दूरी उठाना (ये जरूरी है!)
-    let distance = parseFloat(document.getElementById('kmInput').value) || 0;
-    let weight = parseFloat(document.getElementById('weightInput').value) || 0;
-    let commodityMultiplier = parseFloat(document.getElementById('commodityType')?.value) || 1;
-
-    // 2. वेरिएबल्स सेट करना
-    let baseRate = basePrice;
-    let weightMultiplier = (weight > 10000) ? 1.2 : 1.0;
-    let accessorials = 50; 
-
-    // 3. *** यहाँ आपका DeepSeek वाला फार्मूला लगा है ***
-    let subtotal = (baseRate + (1.5 * distance)) * weightMultiplier * commodityMultiplier + accessorials;
-    
-    // 4. इसे स्क्रीन पर सुंदर तरीके से दिखाना
-    document.getElementById('fareAmount').innerText = '$' + subtotal.toFixed(2);
-            finalFare = subtotal;
-};
         
         // ---------- CONFIRM BOOKING ----------
         window.confirmBooking = async function() {
@@ -816,6 +850,7 @@ async function getSpotRate(pickup, drop, equipment) {
             const pickup = document.getElementById('pickupAddr').value || 'Unknown';
             const drop = document.getElementById('dropAddr').value || 'Unknown';
             const km = parseFloat(document.getElementById('kmInput').value) || 0;
+            const weight = parseFloat(document.getElementById('weightInput').value) || 0;
             const schedule = document.getElementById('scheduleTime').value || new Date().toISOString();
 
             const commission = finalFare * 0.15;
@@ -825,7 +860,7 @@ async function getSpotRate(pickup, drop, equipment) {
                 userId: currentUser.uid,
                 userPhone: currentUser.phoneNumber,
                 vehicle: currentVehicle,
-                pickup, drop, km,
+                pickup, drop, km, weight,
                 fare: finalFare, commission, driverAmount,
                 currency: '$',
                 status: 'pending',
@@ -865,7 +900,7 @@ async function getSpotRate(pickup, drop, equipment) {
                 snapshot.forEach(doc => {
                     const b = doc.data();
                     const time = b.timestamp ? new Date(b.timestamp.toDate()).toLocaleString('en-US') : '';
-                    html += `<div class="history-item" onclick="viewTripDetails('${doc.id}')">
+                    html += `<div class="history-item">
                         <div class="row"><span>${b.vehicle}</span><span class="status-badge status-${b.status}">${b.status}</span></div>
                         <div class="row"><small>${b.pickup.substring(0,20)} → ${b.drop.substring(0,20)}</small></div>
                         <div class="row"><span>$${b.fare?.toFixed(2)}</span><small>${time}</small></div>
@@ -875,7 +910,7 @@ async function getSpotRate(pickup, drop, equipment) {
             } catch(e) { document.getElementById('historyList').innerHTML = '<p>Error loading</p>'; }
         };
 
-        // ---------- TRACKING SIMULATION (from old code) ----------
+        // ---------- TRACKING SIMULATION ----------
         window.startTracking = function() {
             if (trackingInterval) {
                 clearInterval(trackingInterval);
