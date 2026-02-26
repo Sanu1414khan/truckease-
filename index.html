@@ -789,7 +789,25 @@ async function getSpotRate(pickup, drop, equipment) {
                 document.getElementById('loading').classList.remove('active');
             });
         };
+          
+        window.calculateFare = async function() {
+    // 1. स्क्रीन से वजन और दूरी उठाना (ये जरूरी है!)
+    let distance = parseFloat(document.getElementById('kmInput').value) || 0;
+    let weight = parseFloat(document.getElementById('weightInput').value) || 0;
+    let commodityMultiplier = parseFloat(document.getElementById('commodityType')?.value) || 1;
 
+    // 2. वेरिएबल्स सेट करना
+    let baseRate = basePrice;
+    let weightMultiplier = (weight > 10000) ? 1.2 : 1.0;
+    let accessorials = 50; 
+
+    // 3. *** यहाँ आपका DeepSeek वाला फार्मूला लगा है ***
+    let subtotal = (baseRate + (1.5 * distance)) * weightMultiplier * commodityMultiplier + accessorials;
+    
+    // 4. इसे स्क्रीन पर सुंदर तरीके से दिखाना
+    document.getElementById('fareAmount').innerText = '$' + subtotal.toFixed(2);
+};
+        
         // ---------- CONFIRM BOOKING ----------
         window.confirmBooking = async function() {
             if (!currentUser) { alert('Please login first'); showLoginModal(); return; }
