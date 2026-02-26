@@ -508,7 +508,13 @@
 
         window.goBack = () => showScreen('homeScreen');
         window.goHome = () => showScreen('homeScreen');
-
+        // Pseudo-code for dynamic pricing
+async function getSpotRate(pickup, drop, equipment) {
+  // Call external API with location and equipment type
+  const rate = await fetch(`https://api.dat.com/v1/rates?origin=${pickup}&dest=${drop}&type=${equipment}`);
+  return rate.perMile; // Returns dynamic $/mile
+}
+        
         // ---------- VEHICLE DATA ----------
         const vehicleData = {
             trucks: [
