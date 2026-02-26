@@ -3,500 +3,1096 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>TruckEase Driver - Partner App</title>
+    <title>TRUCKEASE • Driver Panel</title>
+    <!-- Fonts & Icons -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <!-- API Configuration -->
+    <script>
+        window.APP_CONFIG = {
+            GOOGLE_MAPS_API_KEY: '',
+            STRIPE_PUBLIC_KEY: '',
+            DAT_API_KEY: ''
+        };
+    </script>
+    
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
-        body { background: #f4f7fc; padding-bottom: 70px; }
-
-        .header { background: rgba(255,255,255,0.95); backdrop-filter: blur(10px); padding: 15px; display: flex; align-items: center; gap: 10px; position: sticky; top: 0; z-index: 100; box-shadow: 0 4px 20px rgba(0,0,0,0.05); }
-        .header h2 { font-size: 20px; color: #2854ff; font-weight: 800; flex: 1; }
-        .user-icon { font-size: 24px; color: #2854ff; background: white; width: 48px; height: 48px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 4px 12px rgba(40,84,255,0.15); border: 1px solid rgba(40,84,255,0.1); }
-
-        .earnings-card { background: linear-gradient(135deg, #2854ff, #1a3ebb); color: white; border-radius: 30px; padding: 20px; margin: 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 20px 30px rgba(40,84,255,0.3); }
-        .earnings-card .label { font-size: 14px; opacity: 0.9; }
-        .earnings-card .amount { font-size: 36px; font-weight: 800; line-height: 1.2; }
-        .earnings-card .small { font-size: 14px; opacity: 0.8; }
-
+        body {
+            background: #0a0c14;
+            color: #fff;
+            padding-bottom: 80px;
+            position: relative;
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+        /* Starfield / Grid Background */
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-image: 
+                linear-gradient(rgba(0, 243, 255, 0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 243, 255, 0.05) 1px, transparent 1px);
+            background-size: 50px 50px;
+            pointer-events: none;
+            z-index: 0;
+        }
+        /* Glassmorphism base */
+        .glass, .load-card, .vehicle-card, .earnings-card, .stats-card, .profile-card, .booking-header, .modal-content, .registration-container, .step-card, .pending-card {
+            background: rgba(20, 30, 50, 0.4);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(0, 243, 255, 0.2);
+            border-radius: 24px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+        }
+        /* Header */
+        .header { padding: 20px 20px 10px; display: flex; flex-direction: column; gap: 15px; z-index: 10; background: transparent; position: relative; z-index: 10; }
+        .logo-area { display: flex; justify-content: space-between; align-items: center; }
+        .logo { font-size: 28px; font-weight: 800; color: #00f3ff; text-shadow: 0 0 15px #00f3ff; letter-spacing: 2px; }
+        .user-icon { width: 48px; height: 48px; border-radius: 50%; background: rgba(255,255,255,0.05); border: 1px solid rgba(0,243,255,0.3); display: flex; align-items: center; justify-content: center; cursor: pointer; color: #00f3ff; font-size: 24px; }
+        .status-badge { display: inline-block; padding: 4px 12px; border-radius: 40px; font-size: 12px; font-weight: 600; background: rgba(0,243,255,0.1); border: 1px solid #00f3ff; color: #00f3ff; }
+        /* Section Titles */
+        .section-title { padding: 20px 20px 10px; font-size: 18px; font-weight: 600; color: #00f3ff; text-transform: uppercase; letter-spacing: 2px; }
+        /* Stats Grid */
         .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin: 20px; }
-        .stat-box { background: white; border-radius: 24px; padding: 16px; text-align: center; box-shadow: 0 4px 12px rgba(0,0,0,0.02); border: 1px solid #f0f0f0; }
-        .stat-box .value { font-size: 24px; font-weight: 800; color: #2854ff; }
-        .stat-box .label { font-size: 12px; color: #666; margin-top: 4px; }
-
-        .tabs { display: flex; gap: 20px; padding: 0 20px; overflow-x: auto; background: white; border-bottom: 1px solid #f0f0f0; }
+        .stats-card { padding: 16px; text-align: center; }
+        .stats-card .value { font-size: 28px; font-weight: 800; color: #00f3ff; }
+        .stats-card .label { font-size: 12px; color: #ccc; margin-top: 4px; }
+        /* Earnings Card */
+        .earnings-card { margin: 20px; padding: 20px; display: flex; justify-content: space-between; align-items: center; border-color: #00f3ff; background: linear-gradient(135deg, rgba(0,243,255,0.1), rgba(0,0,0,0)); }
+        .earnings-left h3 { font-size: 14px; color: #ccc; margin-bottom: 5px; }
+        .earnings-left .amount { font-size: 36px; font-weight: 800; color: #00f3ff; }
+        /* Tabs */
+        .tabs { display: flex; gap: 20px; padding: 0 20px; overflow-x: auto; background: transparent; border-bottom: 1px solid rgba(0,243,255,0.3); }
         .tab { padding: 12px 0; font-weight: 600; font-size: 16px; color: #999; white-space: nowrap; cursor: pointer; border-bottom: 3px solid transparent; transition: 0.2s; }
-        .tab.active { color: #2854ff; border-bottom-color: #2854ff; }
-
-        .booking-item { background: white; border-radius: 24px; padding: 16px; margin: 0 20px 12px 20px; border: 1px solid #f0f0f0; }
-        .booking-header { display: flex; justify-content: space-between; margin-bottom: 8px; }
-        .booking-route { font-size: 16px; font-weight: 600; margin-bottom: 8px; }
-        .booking-details { display: flex; gap: 16px; font-size: 14px; color: #666; margin-bottom: 12px; }
-        .booking-actions { display: flex; gap: 10px; }
-        .btn-accept { background: #28a745; color: white; border: none; border-radius: 40px; padding: 12px; font-weight: 700; flex: 1; cursor: pointer; }
-        .btn-decline { background: #dc2626; color: white; border: none; border-radius: 40px; padding: 12px; font-weight: 700; flex: 1; cursor: pointer; }
-
-        .btn-primary { background: #2854ff; color: white; border: none; border-radius: 40px; padding: 12px; font-weight: 700; width: 100%; cursor: pointer; margin-top: 10px; }
-        .btn-secondary { background: #e0e0e0; color: #333; border: none; border-radius: 40px; padding: 12px; font-weight: 700; width: 100%; cursor: pointer; margin-top: 10px; }
-
+        .tab.active { color: #00f3ff; border-bottom-color: #00f3ff; }
+        /* Load Cards */
+        .loads-grid { display: flex; flex-direction: column; gap: 12px; padding: 20px; }
+        .load-card { padding: 16px; display: flex; flex-direction: column; gap: 12px; cursor: pointer; }
+        .load-card:hover { border-color: #00f3ff; box-shadow: 0 0 20px #00f3ff; }
+        .load-header { display: flex; justify-content: space-between; align-items: center; }
+        .load-header h4 { font-size: 18px; font-weight: 700; color: #fff; }
+        .load-distance { color: #00f3ff; font-weight: 600; }
+        .load-route { display: flex; gap: 10px; color: #ccc; font-size: 14px; margin: 5px 0; }
+        .load-route i { color: #00f3ff; width: 20px; }
+        .load-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 5px; }
+        .load-price { font-size: 24px; font-weight: 800; color: #00f3ff; }
+        .load-actions { display: flex; gap: 10px; }
+        .btn-accept { background: #00f3ff; color: #0a0c14; padding: 10px 20px; border-radius: 40px; font-weight: 700; border: none; cursor: pointer; box-shadow: 0 0 20px #00f3ff; }
+        .btn-decline { background: rgba(255,255,255,0.05); border: 1px solid #ff4444; color: #ff4444; padding: 10px 20px; border-radius: 40px; font-weight: 700; cursor: pointer; }
+        /* Vehicle Cards */
         .vehicle-grid { display: flex; flex-direction: column; gap: 12px; padding: 20px; }
-        .vehicle-card { background: white; border-radius: 24px; padding: 16px; display: flex; align-items: center; gap: 16px; box-shadow: 0 4px 16px rgba(0,0,0,0.02); border: 1px solid #f0f0f0; }
+        .vehicle-card { padding: 16px; display: flex; align-items: center; gap: 16px; }
         .vehicle-card .icon { font-size: 40px; width: 60px; text-align: center; }
         .vehicle-info { flex: 1; }
-        .vehicle-info h4 { font-size: 18px; font-weight: 700; margin-bottom: 2px; }
-        .vehicle-info p { font-size: 13px; color: #666; }
-        .vehicle-status { padding: 6px 12px; border-radius: 40px; font-size: 12px; font-weight: 700; background: #d4edda; color: #155724; }
-
+        .vehicle-info h4 { font-size: 18px; font-weight: 700; color: #fff; }
+        .vehicle-info p { font-size: 14px; color: #aaa; }
+        .vehicle-status { padding: 6px 14px; border-radius: 40px; font-size: 12px; font-weight: 700; background: rgba(40,167,69,0.2); color: #4caf50; border: 1px solid #4caf50; }
+        /* Buttons */
+        .btn { width: 100%; padding: 18px; border-radius: 40px; font-weight: 700; cursor: pointer; margin-top: 10px; border: none; position: relative; }
+        .btn-primary { background: #00f3ff; color: #0a0c14; box-shadow: 0 0 30px #00f3ff; }
+        .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+        .btn-secondary { background: rgba(255,255,255,0.05); border: 1px solid rgba(0,243,255,0.3); color: #00f3ff; }
+        /* Button Spinner */
+        .btn-spinner { display: inline-block; width: 20px; height: 20px; border: 2px solid rgba(0,0,0,0.1); border-radius: 50%; border-top-color: #0a0c14; animation: spin 1s ease-in-out infinite; margin-right: 8px; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        /* Registration Screen */
+        .registration-container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .step-card { padding: 20px; margin-bottom: 20px; }
+        .step-indicator { display: flex; justify-content: space-between; margin-bottom: 30px; padding: 0 10px; }
+        .step { text-align: center; position: relative; flex: 1; }
+        .step-circle { width: 40px; height: 40px; border-radius: 50%; background: rgba(255,255,255,0.05); border: 2px solid rgba(0,243,255,0.3); color: #aaa; display: flex; align-items: center; justify-content: center; margin: 0 auto 8px; font-weight: 700; transition: 0.2s; }
+        .step.active .step-circle { background: #00f3ff; color: #0a0c14; border-color: #00f3ff; box-shadow: 0 0 20px #00f3ff; }
+        .step.completed .step-circle { background: #4caf50; border-color: #4caf50; color: white; }
+        .step-label { font-size: 12px; color: #aaa; }
+        .step.active .step-label { color: #00f3ff; }
+        .form-group { margin-bottom: 20px; }
+        .form-group label { display: block; margin-bottom: 8px; color: #00f3ff; font-weight: 600; font-size: 14px; }
+        .form-group input, .form-group select { width: 100%; padding: 16px; background: rgba(255,255,255,0.05); border: 1px solid rgba(0,243,255,0.3); border-radius: 20px; color: #fff; }
+        .form-group input:focus { border-color: #00f3ff; outline: none; box-shadow: 0 0 20px #00f3ff; }
+        .form-group input.error { border-color: #ff4444; }
+        .error-message { color: #ff4444; font-size: 12px; margin-top: 5px; display: none; }
+        .file-upload { border: 2px dashed rgba(0,243,255,0.3); border-radius: 20px; padding: 20px; text-align: center; cursor: pointer; transition: 0.2s; margin-bottom: 10px; }
+        .file-upload:hover { border-color: #00f3ff; background: rgba(0,243,255,0.05); }
+        .file-upload i { font-size: 24px; color: #00f3ff; margin-bottom: 10px; }
+        .image-preview { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px; }
+        .preview-item { position: relative; width: 80px; height: 80px; border-radius: 10px; overflow: hidden; border: 2px solid #00f3ff; }
+        .preview-item img { width: 100%; height: 100%; object-fit: cover; }
+        .nav-buttons { display: flex; gap: 10px; margin-top: 30px; }
+        /* Pending Screen */
+        .pending-card { max-width: 500px; margin: 40px auto; padding: 40px; text-align: center; }
+        .pending-icon { font-size: 80px; color: #00f3ff; margin-bottom: 20px; }
+        .pending-title { font-size: 28px; font-weight: 800; color: #00f3ff; margin-bottom: 15px; }
+        .pending-text { color: #ccc; font-size: 16px; margin-bottom: 30px; line-height: 1.6; }
+        .pending-timer { background: rgba(0,243,255,0.1); padding: 15px; border-radius: 40px; font-size: 14px; color: #00f3ff; }
+        /* Screens */
         .screen { display: none; padding: 0; }
         .screen.active { display: block; }
-        .booking-header { display: flex; align-items: center; gap: 20px; padding: 20px; background: white; border-bottom: 1px solid #f0f0f0; }
-        .back-btn { font-size: 24px; cursor: pointer; color: #2854ff; }
-
-        .bottom-nav { position: fixed; bottom: 0; width: 100%; max-width: 450px; background: white; display: flex; justify-content: space-around; padding: 12px 0; border-top: 1px solid #eee; left: 50%; transform: translateX(-50%); z-index: 100; border-radius: 30px 30px 0 0; }
-        .nav-item { text-align: center; color: #999; font-size: 12px; cursor: pointer; }
-        .nav-item.active { color: #2854ff; font-weight: 700; }
-        .nav-item i { font-size: 24px; display: block; margin-bottom: 4px; }
-
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); backdrop-filter: blur(5px); z-index: 1000; justify-content: center; align-items: center; }
+        .booking-header { display: flex; align-items: center; gap: 20px; padding: 20px; border-bottom: 1px solid rgba(0,243,255,0.3); }
+        .back-btn { font-size: 24px; cursor: pointer; color: #00f3ff; }
+        /* Modal */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); backdrop-filter: blur(10px); z-index: 2000; justify-content: center; align-items: center; }
         .modal.active { display: flex; }
-        .modal-content { background: white; padding: 30px; border-radius: 40px; width: 90%; max-width: 400px; text-align: center; }
-        .modal-content input { width: 100%; padding: 18px; margin: 10px 0; border: 1px solid #ddd; border-radius: 30px; }
-        .demo-hint { background: #fef9e7; padding: 15px; border-radius: 20px; margin-bottom: 20px; }
-
+        .modal-content { padding: 30px; width: 90%; max-width: 400px; text-align: center; }
+        .modal-content h3 { color: #00f3ff; margin-bottom: 20px; }
+        .modal-content input { width: 100%; padding: 16px; margin: 10px 0; background: rgba(255,255,255,0.05); border: 1px solid rgba(0,243,255,0.3); border-radius: 30px; color: #fff; }
+        .demo-hint { background: rgba(255,193,7,0.1); color: #ffc107; padding: 15px; border-radius: 20px; margin-bottom: 20px; border: 1px solid #ffc107; }
+        /* Bottom Navigation */
+        .bottom-nav { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); width: calc(100% - 40px); max-width: 450px; background: rgba(10,12,20,0.8); backdrop-filter: blur(20px); display: flex; justify-content: space-around; padding: 12px 0; border: 1px solid rgba(0,243,255,0.3); border-radius: 50px; z-index: 1000; }
+        .nav-item { text-align: center; color: #aaa; font-size: 12px; cursor: pointer; }
+        .nav-item.active { color: #00f3ff; text-shadow: 0 0 10px #00f3ff; }
+        .nav-item i { font-size: 22px; display: block; margin-bottom: 4px; }
+        /* Loading */
         .loading { display: none; text-align: center; padding: 50px; }
         .loading.active { display: block; }
-        .spinner { border: 4px solid #f3f3f3; border-top: 4px solid #2854ff; border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite; margin: 0 auto; }
-        @keyframes spin { 0% { transform: rotate(0); } 100% { transform: rotate(360deg); } }
+        .spinner { border: 4px solid rgba(0,243,255,0.1); border-top: 4px solid #00f3ff; border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite; margin: 0 auto; }
+        /* Chart Container */
+        .chart-container { background: rgba(20,30,50,0.4); backdrop-filter: blur(12px); border-radius: 24px; padding: 20px; margin: 20px; border: 1px solid rgba(0,243,255,0.2); }
     </style>
 </head>
 <body>
 
-<!-- Login Modal -->
-<div id="loginModal" class="modal">
-    <div class="modal-content">
-        <h3>🔐 Driver Login</h3>
-        <div class="demo-hint">
-            <i class="fas fa-info-circle"></i> Demo: Enter any 10-digit number
-        </div>
-        <input type="tel" id="phoneNumber" placeholder="e.g. 2125551234" maxlength="10" value="2125551234">
-        <button class="btn-primary" id="demoLoginBtn">Login as Driver</button>
-        <p id="loginError" style="color:red; font-size:12px;"></p>
-    </div>
-</div>
-
-<!-- Header -->
-<div class="header">
-    <h2>🚛 TruckEase Driver</h2>
-    <div class="user-icon" id="userIcon" onclick="showLoginModal()">
-        <i class="fas fa-user"></i>
-    </div>
-</div>
-
-<!-- Dashboard Screen -->
-<div id="dashboardScreen" class="screen active">
-    <div class="earnings-card">
-        <div>
-            <div class="label">Today's Earnings</div>
-            <div class="amount" id="todayEarnings">$124.50</div>
-            <div class="small">+$32.40 from yesterday</div>
-        </div>
-        <i class="fas fa-chart-line" style="font-size: 48px; opacity: 0.5;"></i>
-    </div>
-
-    <div class="stats-grid">
-        <div class="stat-box"><div class="value" id="totalTrips">47</div><div class="label">Total Trips</div></div>
-        <div class="stat-box"><div class="value" id="acceptanceRate">94%</div><div class="label">Acceptance</div></div>
-        <div class="stat-box"><div class="value" id="rating">4.92</div><div class="label">Rating</div></div>
-    </div>
-
-    <div class="tabs">
-        <div class="tab active" data-tab="available">Available Loads</div>
-        <div class="tab" data-tab="myvehicles">My Vehicles</div>
-        <div class="tab" data-tab="earnings">Earnings</div>
-    </div>
-
-    <div id="availableTab" class="tab-content active">
-        <div id="availableLoadsList"></div>
-    </div>
-
-    <div id="vehiclesTab" class="tab-content" style="display:none;">
-        <div class="vehicle-grid" id="vehicleList"></div>
-        <button class="btn-primary" onclick="alert('Add vehicle feature coming soon!')">+ Add New Vehicle</button>
-    </div>
-
-    <div id="earningsTab" class="tab-content" style="display:none;">
-        <div style="background:white; border-radius:24px; padding:20px; margin:20px;">
-            <h4>Weekly Earnings</h4>
-            <canvas id="earningsChart" style="height:200px;"></canvas>
-        </div>
-        <div style="background:white; border-radius:24px; padding:20px; margin:20px;">
-            <h4>Available Balance</h4>
-            <div style="font-size:36px; font-weight:800; color:#2854ff;" id="availableBalance">$1,247.80</div>
-            <button class="btn-primary" style="margin-top:10px;" onclick="alert('Payout requested!')">Request Payout</button>
-        </div>
-    </div>
-</div>
-
-<!-- Bottom Navigation -->
-<div class="bottom-nav">
-    <div class="nav-item active" onclick="showScreen('dashboardScreen')"><i class="fas fa-home"></i><span>Home</span></div>
-    <div class="nav-item" onclick="showScreen('earningsScreen')"><i class="fas fa-dollar-sign"></i><span>Earnings</span></div>
-    <div class="nav-item" onclick="showScreen('vehiclesScreen')"><i class="fas fa-truck"></i><span>Vehicles</span></div>
-    <div class="nav-item" onclick="showScreen('profileScreen')"><i class="fas fa-user"></i><span>Profile</span></div>
-</div>
-
-
-    </div> <!-- dashboardScreen ends -->
-
-<!-- Earnings Screen -->
-<div id="earningsScreen" class="screen">
-    <div class="booking-header">
-        <i class="fas fa-arrow-left back-btn" onclick="goBack()"></i>
-        <h3>Your Earnings</h3>
-    </div>
-    <div class="booking-content">
-        <div class="earnings-card" style="margin:0 0 20px 0;">
-            <div>
-                <div class="label">Total Earnings</div>
-                <div class="amount" id="totalEarningsAmount">$4,280.50</div>
+    <!-- Login Modal (Demo) -->
+    <div id="loginModal" class="modal">
+        <div class="modal-content">
+            <h3>🔐 Driver Login</h3>
+            <div class="demo-hint">
+                <i class="fas fa-info-circle"></i> Demo: Enter any 10-digit US number
             </div>
-            <i class="fas fa-dollar-sign" style="font-size: 48px; opacity: 0.5;"></i>
-        </div>
-
-        <div style="background:white; border-radius:24px; padding:20px; margin-bottom:20px;">
-            <h4>Weekly Breakdown</h4>
-            <canvas id="earningsDetailChart" style="height:200px;"></canvas>
-        </div>
-
-        <div style="background:white; border-radius:24px; padding:20px;">
-            <h4>Recent Transactions</h4>
-            <div id="recentTransactions"></div>
+            <input type="tel" id="phoneNumber" placeholder="e.g. 2125551234" maxlength="10" value="2125551234">
+            <button class="btn btn-primary" id="demoLoginBtn">🚀 Login as Driver</button>
+            <p id="loginError" style="color:red; font-size:12px; margin-top:10px;"></p>
         </div>
     </div>
-</div>
 
-<!-- Vehicles Screen -->
-<div id="vehiclesScreen" class="screen">
-    <div class="booking-header">
-        <i class="fas fa-arrow-left back-btn" onclick="goBack()"></i>
-        <h3>My Vehicles</h3>
-    </div>
-    <div class="booking-content">
-        <div class="vehicle-grid" id="myVehiclesList">
-            <!-- Demo vehicles will be inserted here by JavaScript -->
-        </div>
-        <button class="btn-primary" onclick="alert('Add vehicle feature coming soon!')">+ Add New Vehicle</button>
-    </div>
-</div>
-
-<!-- Profile Screen -->
-<div id="profileScreen" class="screen">
-    <div class="booking-header">
-        <i class="fas fa-arrow-left back-btn" onclick="goBack()"></i>
-        <h3>My Profile</h3>
-    </div>
-    <div class="booking-content">
-        <div style="text-align:center; margin-bottom:20px;">
-            <div style="font-size:80px; color:#2854ff;">👤</div>
-            <h2 id="profileName">Demo Driver</h2>
-            <p id="profilePhone">+1 212-555-1234</p>
-        </div>
-
-        <div style="background:white; border-radius:24px; padding:20px; margin-bottom:20px;">
-            <h4>Account Status</h4>
-            <p><strong>Status:</strong> <span style="color:#28a745;" id="profileStatus">Active</span></p>
-            <p><strong>Member Since:</strong> <span id="profileMemberSince">Feb 2024</span></p>
-            <p><strong>Total Trips:</strong> <span id="profileTotalTrips">47</span></p>
-            <p><strong>Rating:</strong> <span id="profileRating">4.92 ⭐</span></p>
-        </div>
-
-        <div style="background:white; border-radius:24px; padding:20px;">
-            <h4>Documents</h4>
-            <p><strong>DOT Number:</strong> <span id="profileDOT">1234567</span></p>
-            <p><strong>CDL Number:</strong> <span id="profileCDL">CDL-987654</span></p>
-            <p><strong>Insurance:</strong> <span id="profileInsurance">INS-12345</span></p>
-        </div>
-
-        <!-- We'll add logout button later, keeping it simple for now -->
-    </div>
-</div>
-
-<!-- Loading -->
-<div id="loading" class="loading"><div class="spinner"></div><p>Loading...</p></div>
-
-<!-- Firebase SDK -->
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-storage-compat.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-<script>
-    const firebaseConfig = {
-        apiKey: "AIzaSyByh4tT4zcUpjjQ_ebaYzpSulGtsDHjbw0",
-        authDomain: "truckease-cb961.firebaseapp.com",
-        projectId: "truckease-cb961",
-        storageBucket: "truckease-cb961.firebasestorage.app",
-        messagingSenderId: "558046020925",
-        appId: "1:558046020925:web:573533af4bbf93841e3154"
-    };
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.firestore();
-
-    let currentDriver = null;
-    let earningsChart = null;
-
-    window.showLoginModal = function() {
-        if (currentDriver) { currentDriver = null; document.getElementById('userIcon').innerHTML = `<i class="fas fa-user"></i>`; return; }
-        document.getElementById('loginModal').classList.add('active');
-    };
-
-    document.getElementById('demoLoginBtn').addEventListener('click', function() {
-        const phone = document.getElementById('phoneNumber').value;
-        if (!phone || phone.length !== 10) {
-            document.getElementById('loginError').innerText = 'Enter 10-digit number';
-            return;
-        }
-        currentDriver = { uid: 'driver_' + phone, phoneNumber: '+1' + phone, name: 'Demo Driver' };
-        document.getElementById('userIcon').innerHTML = `<i class="fas fa-user-check"></i>`;
-        document.getElementById('loginModal').classList.remove('active');
-        loadDriverData();
-        loadAvailableLoads();
-    });
-
-    // ---------- HELPER FUNCTION TO GO BACK ----------
-window.goBack = function() {
-    showScreen('dashboardScreen');
-};
-
-// ---------- LOAD EARNINGS DATA ----------
-function loadEarningsData() {
-    // For demo, we'll show static data
-    document.getElementById('totalEarningsAmount').innerText = '$4,280.50';
-    
-    // Create earnings chart
-    const ctx = document.getElementById('earningsDetailChart')?.getContext('2d');
-    if (ctx) {
-        new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
-                datasets: [{
-                    label: 'Earnings',
-                    data: [850, 1100, 1230, 1100.50],
-                    backgroundColor: '#2854ff',
-                    borderRadius: 8
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: { legend: { display: false } }
-            }
-        });
-    }
-
-    // Recent transactions
-    const transactions = [
-        { date: '2024-02-24', amount: 124.50, load: 'NYC → Boston' },
-        { date: '2024-02-23', amount: 210.00, load: 'Brooklyn → Queens' },
-        { date: '2024-02-22', amount: 95.00, load: 'Manhattan → JFK' },
-        { date: '2024-02-21', amount: 320.75, load: 'Albany → NYC' },
-    ];
-
-    let html = '';
-    transactions.forEach(t => {
-        html += `
-            <div style="display:flex; justify-content:space-between; padding:12px 0; border-bottom:1px solid #eee;">
-                <div>
-                    <div><strong>${t.load}</strong></div>
-                    <div style="font-size:12px; color:#666;">${t.date}</div>
-                </div>
-                <div style="font-weight:700; color:#2854ff;">$${t.amount.toFixed(2)}</div>
+    <!-- Header -->
+    <div class="header">
+        <div class="logo-area">
+            <div class="logo">TRUCKEASE • DRIVER</div>
+            <div class="user-icon" id="userIcon" onclick="showLoginModal()">
+                <i class="fas fa-user"></i>
             </div>
-        `;
-    });
-    document.getElementById('recentTransactions').innerHTML = html;
-}
+        </div>
+        <div class="status-badge" id="onlineStatus">🔴 Offline</div>
+    </div>
 
-// ---------- LOAD VEHICLES DATA ----------
-function loadVehiclesData() {
-    const container = document.getElementById('myVehiclesList');
-    if (!container) return;
-
-    // Demo vehicles
-    const vehicles = [
-        { icon: '🚛', name: 'Box Truck 16ft', plate: 'ABC-1234', type: 'Box Truck', status: 'Active' },
-        { icon: '🚚', name: 'Semi-Truck 53ft', plate: 'XYZ-5678', type: 'Semi', status: 'Active' },
-        { icon: '🚐', name: 'Cargo Van', plate: 'VAN-9012', type: 'Van', status: 'Inactive' },
-    ];
-
-    let html = '';
-    vehicles.forEach(v => {
-        html += `
-            <div class="vehicle-card">
-                <div class="icon">${v.icon}</div>
-                <div class="vehicle-info">
-                    <h4>${v.name}</h4>
-                    <p>${v.plate} • ${v.type}</p>
-                </div>
-                <div class="vehicle-status" style="background:${v.status === 'Active' ? '#d4edda' : '#f8d7da'}; color:${v.status === 'Active' ? '#155724' : '#721c24'};">${v.status}</div>
+    <!-- PENDING APPROVAL SCREEN -->
+    <div id="pendingScreen" class="screen">
+        <div class="pending-card">
+            <div class="pending-icon">
+                <i class="fas fa-clock"></i>
             </div>
-        `;
-    });
-    container.innerHTML = html;
-}
+            <h2 class="pending-title">Application Under Review</h2>
+            <p class="pending-text">
+                Thank you for submitting your documents. Your application is currently being verified by our compliance team.
+            </p>
+            <p class="pending-text" style="font-weight: 600;">
+                ⏱️ Estimated time: <span style="color:#00f3ff;">24 hours</span>
+            </p>
+            <div class="pending-timer">
+                <i class="fas fa-shield-alt"></i> Your information is secure with us
+            </div>
+        </div>
+    </div>
 
-// ---------- LOAD PROFILE DATA ----------
-function loadProfileData() {
-    if (!currentDriver) return;
-
-    document.getElementById('profileName').innerText = currentDriver.name || 'Demo Driver';
-    document.getElementById('profilePhone').innerText = currentDriver.phoneNumber || '+1 212-555-1234';
-    document.getElementById('profileTotalTrips').innerText = '47';
-    document.getElementById('profileRating').innerText = '4.92 ⭐';
-    document.getElementById('profileDOT').innerText = '1234567';
-    document.getElementById('profileCDL').innerText = 'CDL-987654';
-    document.getElementById('profileInsurance').innerText = 'INS-12345';
-}
-
-// ---------- UPDATE SCREEN MANAGEMENT ----------
-// Replace the existing showScreen function with this improved version
-window.showScreen = function(screenId) {
-    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-    document.getElementById(screenId).classList.add('active');
-    
-    // Update bottom nav
-    document.querySelectorAll('.nav-item').forEach((item, idx) => {
-        if (screenId === 'dashboardScreen' && idx === 0) item.classList.add('active');
-        else if (screenId === 'earningsScreen' && idx === 1) item.classList.add('active');
-        else if (screenId === 'vehiclesScreen' && idx === 2) item.classList.add('active');
-        else if (screenId === 'profileScreen' && idx === 3) item.classList.add('active');
-        else item.classList.remove('active');
-    });
-
-    // Load data based on screen
-    if (screenId === 'earningsScreen') {
-        loadEarningsData();
-    } else if (screenId === 'vehiclesScreen') {
-        loadVehiclesData();
-    } else if (screenId === 'profileScreen') {
-        loadProfileData();
-    }
-};
-
-// ---------- UPDATE TAB SWITCHING ----------
-// Replace the existing tab switching code with this
-document.querySelectorAll('.tab').forEach(tab => {
-    tab.addEventListener('click', function() {
-        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-        this.classList.add('active');
+    <!-- REGISTRATION SCREEN (USA Compliant) -->
+    <div id="registrationScreen" class="screen">
+        <div class="booking-header">
+            <i class="fas fa-arrow-left back-btn" onclick="goBack()"></i>
+            <h3>Driver Registration • USA</h3>
+        </div>
         
-        const tabName = this.dataset.tab;
-        document.querySelectorAll('.tab-content').forEach(c => c.style.display = 'none');
-        if (tabName === 'available') {
-            document.getElementById('availableTab').style.display = 'block';
-        } else if (tabName === 'myvehicles') {
-            document.getElementById('vehiclesTab').style.display = 'block';
-            loadVehiclesData(); // Load vehicles when tab is clicked
-        } else if (tabName === 'earnings') {
-            document.getElementById('earningsTab').style.display = 'block';
-            loadEarningsData(); // Load earnings when tab is clicked
+        <div class="registration-container">
+            <!-- Step Indicator -->
+            <div class="step-indicator" id="stepIndicator">
+                <div class="step active" data-step="1">
+                    <div class="step-circle">1</div>
+                    <div class="step-label">Personal</div>
+                </div>
+                <div class="step" data-step="2">
+                    <div class="step-circle">2</div>
+                    <div class="step-label">Compliance</div>
+                </div>
+                <div class="step" data-step="3">
+                    <div class="step-circle">3</div>
+                    <div class="step-label">Authority</div>
+                </div>
+            </div>
+
+            <!-- Step 1: Personal Information -->
+            <div id="step1" class="step-card" style="display: block;">
+                <h4 style="color:#00f3ff; margin-bottom:20px;">📋 Personal Details</h4>
+                <div class="form-group">
+                    <label>Full Legal Name (as per ID)</label>
+                    <input type="text" id="fullName" placeholder="John A. Doe">
+                    <div class="error-message" id="error-fullName"></div>
+                </div>
+                <div class="form-group">
+                    <label>Phone Number</label>
+                    <input type="tel" id="regPhone" placeholder="+1 (212) 555-1234">
+                    <div class="error-message" id="error-regPhone"></div>
+                </div>
+                <div class="form-group">
+                    <label>Email Address</label>
+                    <input type="email" id="email" placeholder="driver@example.com">
+                    <div class="error-message" id="error-email"></div>
+                </div>
+                <div class="form-group">
+                    <label>Social Security Number (SSN) • Last 4 digits</label>
+                    <input type="text" id="ssn" placeholder="XXX-XX-1234" maxlength="11">
+                    <div class="error-message" id="error-ssn"></div>
+                    <small style="color:#aaa;">For background check and tax purposes</small>
+                </div>
+                <div class="nav-buttons">
+                    <button class="btn btn-primary" onclick="nextStep(1)">Next →</button>
+                </div>
+            </div>
+
+            <!-- Step 2: Driver Compliance -->
+            <div id="step2" class="step-card" style="display: none;">
+                <h4 style="color:#00f3ff; margin-bottom:20px;">🚛 Compliance (FMCSA)</h4>
+                <div class="form-group">
+                    <label>CDL License Number (Commercial)</label>
+                    <input type="text" id="cdlNumber" placeholder="e.g. CDL123456789">
+                    <div class="error-message" id="error-cdlNumber"></div>
+                </div>
+                <div class="form-group">
+                    <label>License Expiry Date</label>
+                    <input type="date" id="cdlExpiry">
+                    <div class="error-message" id="error-cdlExpiry"></div>
+                </div>
+                <div class="form-group">
+                    <label>Medical Examiner's Certificate (DOT Card)</label>
+                    <div class="file-upload" onclick="document.getElementById('medCard').click()">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                        <p>Upload Med Card (PDF/Image)</p>
+                        <input type="file" id="medCard" hidden accept="image/*,application/pdf" onchange="previewImage(this, 'medPreview')">
+                    </div>
+                    <div class="image-preview" id="medPreview"></div>
+                    <div class="error-message" id="error-medCard"></div>
+                </div>
+                <div class="form-group">
+                    <label>Drug & Alcohol Clearinghouse Consent</label>
+                    <select id="clearinghouse">
+                        <option value="">Select</option>
+                        <option value="yes">I consent to background check</option>
+                        <option value="no">I do not consent</option>
+                    </select>
+                    <div class="error-message" id="error-clearinghouse"></div>
+                </div>
+                <div class="nav-buttons">
+                    <button class="btn btn-secondary" onclick="prevStep(2)">← Back</button>
+                    <button class="btn btn-primary" onclick="nextStep(2)">Next →</button>
+                </div>
+            </div>
+
+            <!-- Step 3: Authority & Vehicle -->
+            <div id="step3" class="step-card" style="display: none;">
+                <h4 style="color:#00f3ff; margin-bottom:20px;">📄 Authority & Vehicle</h4>
+                <div class="form-group">
+                    <label>USDOT Number (Numbers only)</label>
+                    <input type="text" id="usdot" placeholder="e.g. 1234567" pattern="[0-9]*" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+                    <div class="error-message" id="error-usdot"></div>
+                    <small style="color:#aaa;">Required for interstate operation - numbers only</small>
+                </div>
+                <div class="form-group">
+                    <label>MC Number (if applicable)</label>
+                    <input type="text" id="mcNumber" placeholder="e.g. MC-123456">
+                </div>
+                <div class="form-group">
+                    <label>VIN Number (17 characters)</label>
+                    <input type="text" id="vin" placeholder="17-character VIN" maxlength="17" minlength="17">
+                    <div class="error-message" id="error-vin"></div>
+                    <small style="color:#aaa;">Must be exactly 17 characters</small>
+                </div>
+                <div class="form-group">
+                    <label>Certificate of Insurance (COI)</label>
+                    <div class="file-upload" onclick="document.getElementById('insuranceFile').click()">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                        <p>Upload Insurance Certificate</p>
+                        <input type="file" id="insuranceFile" hidden accept="image/*,application/pdf" onchange="previewImage(this, 'insurancePreview')">
+                    </div>
+                    <div class="image-preview" id="insurancePreview"></div>
+                    <div class="error-message" id="error-insuranceFile"></div>
+                </div>
+                <div class="nav-buttons">
+                    <button class="btn btn-secondary" onclick="prevStep(3)">← Back</button>
+                    <button class="btn btn-primary" id="submitBtn" onclick="submitRegistration()">Submit for Review</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- DASHBOARD SCREEN (Home) -->
+    <div id="dashboardScreen" class="screen">
+        <!-- Stats Grid -->
+        <div class="stats-grid">
+            <div class="stats-card">
+                <div class="value" id="totalTrips">47</div>
+                <div class="label">Total Trips</div>
+            </div>
+            <div class="stats-card">
+                <div class="value" id="acceptanceRate">94%</div>
+                <div class="label">Acceptance</div>
+            </div>
+            <div class="stats-card">
+                <div class="value" id="rating">4.92</div>
+                <div class="label">Rating</div>
+            </div>
+        </div>
+
+        <!-- Earnings Card -->
+        <div class="earnings-card">
+            <div class="earnings-left">
+                <h3>Today's Earnings</h3>
+                <div class="amount" id="todayEarnings">$124.50</div>
+            </div>
+            <i class="fas fa-chart-line" style="font-size: 48px; color: #00f3ff; opacity: 0.5;"></i>
+        </div>
+
+        <!-- Tabs -->
+        <div class="tabs">
+            <div class="tab active" data-tab="available">Available Loads</div>
+            <div class="tab" data-tab="myvehicles">My Vehicles</div>
+            <div class="tab" data-tab="earnings">Earnings</div>
+            <div class="tab" data-tab="profile">Profile</div>
+        </div>
+
+        <!-- Available Loads Tab -->
+        <div id="availableTab" class="tab-content" style="display: block;">
+            <div class="loads-grid" id="availableLoadsList"></div>
+        </div>
+
+        <!-- My Vehicles Tab -->
+        <div id="vehiclesTab" class="tab-content" style="display: none;">
+            <div class="vehicle-grid" id="vehicleList"></div>
+            <div style="padding: 20px;">
+                <button class="btn btn-primary" onclick="showAddVehicle()">+ Add New Vehicle</button>
+            </div>
+        </div>
+
+        <!-- Earnings Tab -->
+        <div id="earningsTab" class="tab-content" style="display: none;">
+            <div class="chart-container">
+                <h4 style="color:#00f3ff; margin-bottom:15px;">Weekly Earnings</h4>
+                <canvas id="earningsChart" style="height:200px;"></canvas>
+            </div>
+            <div class="earnings-card" style="margin:20px;">
+                <div>
+                    <h3>Available Balance</h3>
+                    <div class="amount" id="availableBalance">$1,247.80</div>
+                </div>
+                <button class="btn btn-primary" onclick="requestPayout()" style="width:auto;">Request Payout</button>
+            </div>
+        </div>
+
+        <!-- Profile Tab -->
+        <div id="profileTab" class="tab-content" style="display: none;">
+            <div class="profile-card" style="padding:20px; margin:20px;">
+                <div style="text-align:center; margin-bottom:20px;">
+                    <div style="font-size:80px; color:#00f3ff;">👤</div>
+                    <h3 id="profileName">Demo Driver</h3>
+                    <p id="profilePhone">+1 212-555-1234</p>
+                </div>
+                <div style="margin:15px 0;">
+                    <p><strong>Status:</strong> <span style="color:#4caf50;">Active</span></p>
+                    <p><strong>Member Since:</strong> Feb 2024</p>
+                    <p><strong>Total Trips:</strong> 47</p>
+                </div>
+                <button class="btn btn-primary" onclick="showScreen('registrationScreen')" style="margin-bottom:10px;">📝 Complete Registration</button>
+                <button class="btn btn-secondary" onclick="toggleOnlineStatus()" style="margin-top:10px;">
+                    <span id="statusToggleText">Go Online</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- EARNINGS SCREEN (separate full screen) -->
+    <div id="earningsScreen" class="screen">
+        <div class="booking-header">
+            <i class="fas fa-arrow-left back-btn" onclick="showScreen('dashboardScreen')"></i>
+            <h3>Earnings</h3>
+        </div>
+        <div class="chart-container" style="margin:20px;">
+            <h4 style="color:#00f3ff; margin-bottom:15px;">Weekly Earnings</h4>
+            <canvas id="earningsChartFull" style="height:200px;"></canvas>
+        </div>
+        <div class="earnings-card" style="margin:20px;">
+            <div>
+                <h3>Total Balance</h3>
+                <div class="amount" id="totalBalanceFull">$1,247.80</div>
+            </div>
+            <button class="btn btn-primary" onclick="requestPayout()">Request Payout</button>
+        </div>
+    </div>
+
+    <!-- VEHICLES SCREEN (separate full screen) -->
+    <div id="vehiclesScreen" class="screen">
+        <div class="booking-header">
+            <i class="fas fa-arrow-left back-btn" onclick="showScreen('dashboardScreen')"></i>
+            <h3>My Vehicles</h3>
+        </div>
+        <div class="vehicle-grid" id="vehicleListFull" style="padding:20px;"></div>
+        <div style="padding:20px;">
+            <button class="btn btn-primary" onclick="showAddVehicle()">+ Add New Vehicle</button>
+        </div>
+    </div>
+
+    <!-- PROFILE SCREEN (separate full screen) -->
+    <div id="profileScreen" class="screen">
+        <div class="booking-header">
+            <i class="fas fa-arrow-left back-btn" onclick="showScreen('dashboardScreen')"></i>
+            <h3>My Profile</h3>
+        </div>
+        <div class="profile-card" style="padding:20px; margin:20px;">
+            <div style="text-align:center; margin-bottom:20px;">
+                <div style="font-size:80px; color:#00f3ff;">👤</div>
+                <h3 id="profileNameFull">Demo Driver</h3>
+                <p id="profilePhoneFull">+1 212-555-1234</p>
+            </div>
+            <div style="margin:15px 0;">
+                <p><strong>Status:</strong> <span style="color:#4caf50;">Active</span></p>
+                <p><strong>Member Since:</strong> Feb 2024</p>
+                <p><strong>Total Trips:</strong> 47</p>
+            </div>
+            <button class="btn btn-primary" onclick="showScreen('registrationScreen')" style="margin-bottom:10px;">📝 Complete Registration</button>
+            <button class="btn btn-secondary" onclick="toggleOnlineStatus()" style="margin-top:10px;">
+                <span id="statusToggleTextFull">Go Online</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- BOTTOM NAVIGATION -->
+    <div class="bottom-nav">
+        <div class="nav-item active" onclick="showScreen('dashboardScreen')"><i class="fas fa-home"></i>Home</div>
+        <div class="nav-item" onclick="showScreen('earningsScreen')"><i class="fas fa-dollar-sign"></i>Earnings</div>
+        <div class="nav-item" onclick="showScreen('vehiclesScreen')"><i class="fas fa-truck"></i>Vehicles</div>
+        <div class="nav-item" onclick="showScreen('profileScreen')"><i class="fas fa-user"></i>Profile</div>
+    </div>
+
+    <!-- Loading -->
+    <div id="loading" class="loading"><div class="spinner"></div><p>Loading...</p></div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-storage-compat.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script>
+        // ---------- FIREBASE CONFIG ----------
+        const firebaseConfig = {
+            apiKey: "AIzaSyByh4tT4zcUpjjQ_ebaYzpSulGtsDHjbw0",
+            authDomain: "truckease-cb961.firebaseapp.com",
+            projectId: "truckease-cb961",
+            storageBucket: "truckease-cb961.firebasestorage.app",
+            messagingSenderId: "558046020925",
+            appId: "1:558046020925:web:573533af4bbf93841e3154"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+        const storage = firebase.storage();
+
+        // ---------- GLOBAL VARIABLES ----------
+        let currentDriver = null;
+        let earningsChart = null;
+        let loadsListener = null;
+        let driverStatus = 'pending'; // 'pending', 'approved', 'new'
+
+        // ---------- SCREEN MANAGEMENT ----------
+        window.showScreen = function(screenId) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(screenId).classList.add('active');
+            // Update bottom nav active state
+            document.querySelectorAll('.nav-item').forEach((item, idx) => {
+                const targets = ['dashboardScreen', 'earningsScreen', 'vehiclesScreen', 'profileScreen'];
+                if (screenId === targets[idx]) {
+                    item.classList.add('active');
+                } else {
+                    item.classList.remove('active');
+                }
+            });
+        };
+
+        window.goBack = function() {
+            // If user is logged in, go to appropriate main screen
+            if (currentDriver) {
+                if (driverStatus === 'approved') {
+                    showScreen('dashboardScreen');
+                } else if (driverStatus === 'pending') {
+                    showScreen('pendingScreen');
+                } else {
+                    showScreen('registrationScreen');
+                }
+            } else {
+                // If not logged in, show login modal
+                document.getElementById('loginModal').classList.add('active');
+            }
+        };
+
+        // ---------- CHECK DRIVER STATUS ----------
+        async function checkDriverStatus(uid) {
+            try {
+                // Check if approved in drivers collection
+                const approvedDoc = await db.collection('drivers').doc(uid).get();
+                if (approvedDoc.exists) {
+                    driverStatus = 'approved';
+                    loadDriverData(); // Load real data later
+                    showScreen('dashboardScreen');
+                    return;
+                }
+                
+                // Check if pending in pending_drivers
+                const pendingDoc = await db.collection('pending_drivers').doc(uid).get();
+                if (pendingDoc.exists) {
+                    driverStatus = 'pending';
+                    showScreen('pendingScreen');
+                    return;
+                }
+                
+                // New driver
+                driverStatus = 'new';
+                showScreen('registrationScreen');
+            } catch (e) {
+                console.error('Error checking status:', e);
+                driverStatus = 'new';
+                showScreen('registrationScreen');
+            }
         }
-    });
-});
 
-    // ---------- REAL-TIME LOADS UPDATES (onSnapshot) ----------
-function loadAvailableLoads() {
-    const container = document.getElementById('availableLoadsList');
-    if (!container) return;
+        // ---------- IMAGE PREVIEW FUNCTION ----------
+        window.previewImage = function(input, previewId) {
+            const preview = document.getElementById(previewId);
+            preview.innerHTML = '';
+            
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const div = document.createElement('div');
+                    div.className = 'preview-item';
+                    div.innerHTML = `<img src="${e.target.result}" alt="Preview">`;
+                    preview.appendChild(div);
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        };
 
-    // Clear any previous listener
-    if (window.availableLoadsListener) {
-        window.availableLoadsListener();
-    }
+        // ---------- VALIDATION FUNCTIONS ----------
+        function validateStep1() {
+            let isValid = true;
+            
+            const name = document.getElementById('fullName').value.trim();
+            if (!name) {
+                document.getElementById('error-fullName').style.display = 'block';
+                document.getElementById('error-fullName').innerText = 'Full name is required';
+                document.getElementById('fullName').classList.add('error');
+                isValid = false;
+            } else {
+                document.getElementById('error-fullName').style.display = 'none';
+                document.getElementById('fullName').classList.remove('error');
+            }
+            
+            const phone = document.getElementById('regPhone').value.trim();
+            if (!phone) {
+                document.getElementById('error-regPhone').style.display = 'block';
+                document.getElementById('error-regPhone').innerText = 'Phone number is required';
+                document.getElementById('regPhone').classList.add('error');
+                isValid = false;
+            } else {
+                document.getElementById('error-regPhone').style.display = 'none';
+                document.getElementById('regPhone').classList.remove('error');
+            }
+            
+            const email = document.getElementById('email').value.trim();
+            if (!email || !email.includes('@')) {
+                document.getElementById('error-email').style.display = 'block';
+                document.getElementById('error-email').innerText = 'Valid email is required';
+                document.getElementById('email').classList.add('error');
+                isValid = false;
+            } else {
+                document.getElementById('error-email').style.display = 'none';
+                document.getElementById('email').classList.remove('error');
+            }
+            
+            const ssn = document.getElementById('ssn').value.trim();
+            if (!ssn) {
+                document.getElementById('error-ssn').style.display = 'block';
+                document.getElementById('error-ssn').innerText = 'SSN is required';
+                document.getElementById('ssn').classList.add('error');
+                isValid = false;
+            } else {
+                document.getElementById('error-ssn').style.display = 'none';
+                document.getElementById('ssn').classList.remove('error');
+            }
+            
+            return isValid;
+        }
 
-    window.availableLoadsListener = db.collection('bookings')
-        .where('status', '==', 'pending')
-        .orderBy('timestamp', 'desc')
-        .onSnapshot((snapshot) => {
-            if (snapshot.empty) {
-                container.innerHTML = '<div style="text-align:center; padding:40px;">No loads available</div>';
+        function validateStep2() {
+            let isValid = true;
+            
+            const cdl = document.getElementById('cdlNumber').value.trim();
+            if (!cdl) {
+                document.getElementById('error-cdlNumber').style.display = 'block';
+                document.getElementById('error-cdlNumber').innerText = 'CDL number is required';
+                document.getElementById('cdlNumber').classList.add('error');
+                isValid = false;
+            } else {
+                document.getElementById('error-cdlNumber').style.display = 'none';
+                document.getElementById('cdlNumber').classList.remove('error');
+            }
+            
+            const expiry = document.getElementById('cdlExpiry').value;
+            if (!expiry) {
+                document.getElementById('error-cdlExpiry').style.display = 'block';
+                document.getElementById('error-cdlExpiry').innerText = 'Expiry date is required';
+                document.getElementById('cdlExpiry').classList.add('error');
+                isValid = false;
+            } else {
+                document.getElementById('error-cdlExpiry').style.display = 'none';
+                document.getElementById('cdlExpiry').classList.remove('error');
+            }
+            
+            const medFile = document.getElementById('medCard').files[0];
+            if (!medFile) {
+                document.getElementById('error-medCard').style.display = 'block';
+                document.getElementById('error-medCard').innerText = 'Medical card is required';
+                isValid = false;
+            } else {
+                document.getElementById('error-medCard').style.display = 'none';
+            }
+            
+            const clearing = document.getElementById('clearinghouse').value;
+            if (!clearing) {
+                document.getElementById('error-clearinghouse').style.display = 'block';
+                document.getElementById('error-clearinghouse').innerText = 'Please select an option';
+                isValid = false;
+            } else {
+                document.getElementById('error-clearinghouse').style.display = 'none';
+            }
+            
+            return isValid;
+        }
+
+        function validateStep3() {
+            let isValid = true;
+            
+            const usdot = document.getElementById('usdot').value.trim();
+            if (!usdot) {
+                document.getElementById('error-usdot').style.display = 'block';
+                document.getElementById('error-usdot').innerText = 'USDOT number is required';
+                document.getElementById('usdot').classList.add('error');
+                isValid = false;
+            } else if (!/^\d+$/.test(usdot)) {
+                document.getElementById('error-usdot').style.display = 'block';
+                document.getElementById('error-usdot').innerText = 'Only numbers allowed';
+                document.getElementById('usdot').classList.add('error');
+                isValid = false;
+            } else {
+                document.getElementById('error-usdot').style.display = 'none';
+                document.getElementById('usdot').classList.remove('error');
+            }
+            
+            const vin = document.getElementById('vin').value.trim();
+            if (!vin) {
+                document.getElementById('error-vin').style.display = 'block';
+                document.getElementById('error-vin').innerText = 'VIN is required';
+                document.getElementById('vin').classList.add('error');
+                isValid = false;
+            } else if (vin.length !== 17) {
+                document.getElementById('error-vin').style.display = 'block';
+                document.getElementById('error-vin').innerText = 'VIN must be exactly 17 characters';
+                document.getElementById('vin').classList.add('error');
+                isValid = false;
+            } else {
+                document.getElementById('error-vin').style.display = 'none';
+                document.getElementById('vin').classList.remove('error');
+            }
+            
+            const insFile = document.getElementById('insuranceFile').files[0];
+            if (!insFile) {
+                document.getElementById('error-insuranceFile').style.display = 'block';
+                document.getElementById('error-insuranceFile').innerText = 'Insurance certificate is required';
+                isValid = false;
+            } else {
+                document.getElementById('error-insuranceFile').style.display = 'none';
+            }
+            
+            return isValid;
+        }
+
+        // ---------- REGISTRATION STEP MANAGEMENT ----------
+        let currentStep = 1;
+
+        window.nextStep = function(step) {
+            let isValid = false;
+            if (step === 1) isValid = validateStep1();
+            else if (step === 2) isValid = validateStep2();
+            
+            if (!isValid) return;
+            
+            document.getElementById(`step${step}`).style.display = 'none';
+            document.getElementById(`step${step + 1}`).style.display = 'block';
+            
+            document.querySelectorAll('.step').forEach((s, idx) => {
+                if (idx + 1 <= step) {
+                    s.classList.add('completed');
+                    s.classList.remove('active');
+                }
+                if (idx + 1 === step + 1) {
+                    s.classList.add('active');
+                }
+            });
+            currentStep = step + 1;
+        };
+
+        window.prevStep = function(step) {
+            document.getElementById(`step${step}`).style.display = 'none';
+            document.getElementById(`step${step - 1}`).style.display = 'block';
+            
+            document.querySelectorAll('.step').forEach((s, idx) => {
+                if (idx + 1 < step) {
+                    s.classList.add('completed');
+                }
+                if (idx + 1 === step - 1) {
+                    s.classList.add('active');
+                }
+            });
+            currentStep = step - 1;
+        };
+
+        // ---------- FILE UPLOAD FUNCTION ----------
+        async function uploadFile(file, path) {
+            if (!file) return null;
+            const storageRef = storage.ref();
+            const fileRef = storageRef.child(`drivers/${currentDriver?.uid || 'temp'}/${path}/${Date.now()}_${file.name}`);
+            await fileRef.put(file);
+            return await fileRef.getDownloadURL();
+        }
+
+        // ---------- SUBMIT REGISTRATION ----------
+        window.submitRegistration = async function() {
+            if (!validateStep3()) return;
+            
+            if (!currentDriver) {
+                alert('Please login first');
+                document.getElementById('loginModal').classList.add('active');
                 return;
             }
+
+            const submitBtn = document.getElementById('submitBtn');
+            const originalText = submitBtn.innerText;
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<span class="btn-spinner"></span> Submitting...';
+
+            const fullName = document.getElementById('fullName').value;
+            const phone = document.getElementById('regPhone').value;
+            const email = document.getElementById('email').value;
+            const ssn = document.getElementById('ssn').value;
+            const cdlNumber = document.getElementById('cdlNumber').value;
+            const cdlExpiry = document.getElementById('cdlExpiry').value;
+            const clearinghouse = document.getElementById('clearinghouse').value;
+            const usdot = document.getElementById('usdot').value;
+            const mcNumber = document.getElementById('mcNumber').value;
+            const vin = document.getElementById('vin').value;
+            
+            const medCardFile = document.getElementById('medCard').files[0];
+            const insuranceFile = document.getElementById('insuranceFile').files[0];
+
+            try {
+                const medCardUrl = await uploadFile(medCardFile, 'medical');
+                const insuranceUrl = await uploadFile(insuranceFile, 'insurance');
+
+                await db.collection('pending_drivers').doc(currentDriver.uid).set({
+                    userId: currentDriver.uid,
+                    phoneNumber: currentDriver.phoneNumber,
+                    personal: {
+                        fullName,
+                        phone,
+                        email,
+                        ssn: ssn
+                    },
+                    compliance: {
+                        cdlNumber,
+                        cdlExpiry,
+                        clearinghouse,
+                        medCardUrl
+                    },
+                    authority: {
+                        usdot,
+                        mcNumber,
+                        vin,
+                        insuranceUrl
+                    },
+                    status: 'pending',
+                    submittedAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+
+                driverStatus = 'pending';
+                showScreen('pendingScreen');
+                
+            } catch (error) {
+                alert('Error submitting registration: ' + error.message);
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalText;
+            }
+        };
+
+        // ---------- DEMO LOGIN ----------
+        window.showLoginModal = function() {
+            if (currentDriver) {
+                // Logout
+                currentDriver = null;
+                document.getElementById('userIcon').innerHTML = `<i class="fas fa-user"></i>`;
+                document.getElementById('onlineStatus').innerText = '🔴 Offline';
+                driverStatus = 'new';
+                showScreen('registrationScreen');
+                return;
+            }
+            document.getElementById('loginModal').classList.add('active');
+        };
+
+        document.getElementById('demoLoginBtn').addEventListener('click', function() {
+            const phone = document.getElementById('phoneNumber').value;
+            if (!phone || phone.length !== 10) {
+                document.getElementById('loginError').innerText = 'Enter a 10-digit US number';
+                return;
+            }
+            currentDriver = { 
+                uid: 'driver_' + phone, 
+                phoneNumber: '+1' + phone, 
+                name: 'Demo Driver',
+                online: false
+            };
+            document.getElementById('userIcon').innerHTML = `<i class="fas fa-user-check"></i>`;
+            document.getElementById('loginModal').classList.remove('active');
+            document.getElementById('loginError').innerText = '';
+            
+            checkDriverStatus(currentDriver.uid);
+        });
+
+        // ---------- TAB SWITCHING INSIDE DASHBOARD ----------
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', function() {
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                this.classList.add('active');
+                
+                const tabName = this.dataset.tab;
+                document.querySelectorAll('.tab-content').forEach(c => c.style.display = 'none');
+                if (tabName === 'available') {
+                    document.getElementById('availableTab').style.display = 'block';
+                } else if (tabName === 'myvehicles') {
+                    document.getElementById('vehiclesTab').style.display = 'block';
+                    loadVehicles();
+                } else if (tabName === 'earnings') {
+                    document.getElementById('earningsTab').style.display = 'block';
+                    initEarningsChart();
+                } else if (tabName === 'profile') {
+                    document.getElementById('profileTab').style.display = 'block';
+                }
+            });
+        });
+
+        // ---------- LOAD AVAILABLE LOADS ----------
+        function loadAvailableLoads() {
+            const container = document.getElementById('availableLoadsList');
+            if (!container) return;
+
+            if (loadsListener) loadsListener();
+
+            loadsListener = db.collection('bookings')
+                .where('status', '==', 'pending')
+                .orderBy('timestamp', 'desc')
+                .onSnapshot((snapshot) => {
+                    if (snapshot.empty) {
+                        container.innerHTML = '<div style="text-align:center; padding:40px;">No loads available</div>';
+                        return;
+                    }
+                    let html = '';
+                    snapshot.forEach(doc => {
+                        const b = doc.data();
+                        html += `
+                            <div class="load-card">
+                                <div class="load-header">
+                                    <h4>${b.vehicle || 'Freight'}</h4>
+                                    <span class="load-distance">${b.km || 0} miles</span>
+                                </div>
+                                <div class="load-route">
+                                    <i class="fas fa-map-marker-alt"></i> ${b.pickup?.substring(0,30)}<br>
+                                    <i class="fas fa-flag-checkered"></i> ${b.drop?.substring(0,30)}
+                                </div>
+                                <div class="load-footer">
+                                    <span class="load-price">$${b.fare?.toFixed(2)}</span>
+                                    <div class="load-actions">
+                                        <button class="btn-accept" onclick="acceptBooking('${doc.id}')">Accept</button>
+                                        <button class="btn-decline" onclick="declineBooking('${doc.id}')">Decline</button>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    container.innerHTML = html;
+                });
+        }
+
+        window.acceptBooking = async function(bookingId) {
+            if (!currentDriver) { alert('Please login first'); showLoginModal(); return; }
+            try {
+                await db.collection('bookings').doc(bookingId).update({
+                    status: 'accepted',
+                    driverId: currentDriver.uid,
+                    driverPhone: currentDriver.phoneNumber,
+                    acceptedAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                alert('Booking accepted!');
+            } catch (e) {
+                alert('Error: ' + e.message);
+            }
+        };
+
+        window.declineBooking = function(bookingId) {
+            if (confirm('Decline this load?')) {
+                alert('Load declined');
+            }
+        };
+
+        function loadVehicles() {
+            const containers = ['vehicleList', 'vehicleListFull'];
+            const vehicles = [
+                { icon: '🚛', name: 'Box Truck 16ft', plate: 'ABC-1234', type: 'Box Truck', status: 'Active' },
+                { icon: '🚚', name: 'Semi-Truck 53ft', plate: 'XYZ-5678', type: 'Semi', status: 'Active' },
+                { icon: '🚐', name: 'Cargo Van', plate: 'VAN-9012', type: 'Van', status: 'Inactive' },
+            ];
             let html = '';
-            snapshot.forEach(doc => {
-                const b = doc.data();
+            vehicles.forEach(v => {
                 html += `
-                    <div class="booking-item">
-                        <div class="booking-header">
-                            <span><strong>${b.vehicle || 'Freight'}</strong></span>
-                            <span class="status-badge status-pending">PENDING</span>
+                    <div class="vehicle-card">
+                        <div class="icon">${v.icon}</div>
+                        <div class="vehicle-info">
+                            <h4>${v.name}</h4>
+                            <p>${v.plate} • ${v.type}</p>
                         </div>
-                        <div class="booking-route">${b.pickup?.substring(0,30)} → ${b.drop?.substring(0,30)}</div>
-                        <div class="booking-details">
-                            <span><i class="fas fa-road"></i> ${b.km || 0} miles</span>
-                            <span><i class="fas fa-dollar-sign"></i> $${b.fare?.toFixed(2)}</span>
-                        </div>
-                        <div class="booking-actions">
-                            <button class="btn-accept" onclick="acceptBooking('${doc.id}')">Accept</button>
-                            <button class="btn-decline" onclick="declineBooking('${doc.id}')">Decline</button>
-                        </div>
+                        <div class="vehicle-status">${v.status}</div>
                     </div>
                 `;
             });
-            container.innerHTML = html;
-        }, (error) => {
-            console.error('Error fetching loads:', error);
-            container.innerHTML = '<div style="color:red; padding:40px;">Error loading loads</div>';
-        });
-}
+            containers.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.innerHTML = html;
+            });
+        }
 
-    window.acceptBooking = async function(bookingId) {
-        if (!currentDriver) { alert('Login first'); return; }
-        try {
-            await db.collection('bookings').doc(bookingId).update({ status: 'accepted', driverId: currentDriver.uid, driverPhone: currentDriver.phoneNumber, acceptedAt: firebase.firestore.FieldValue.serverTimestamp() });
-            alert('Booking accepted!');
+        function initEarningsChart() {
+            const ctx = document.getElementById('earningsChart')?.getContext('2d');
+            if (!ctx) return;
             
-        } catch (e) { alert('Error: ' + e.message); }
-    };
+            if (earningsChart) earningsChart.destroy();
+            
+            earningsChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                    datasets: [{
+                        label: 'Earnings',
+                        data: [85, 92, 110, 78, 145, 210, 180],
+                        borderColor: '#00f3ff',
+                        backgroundColor: 'rgba(0,243,255,0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } }
+                }
+            });
+            
+            // Also init full screen chart
+            const ctxFull = document.getElementById('earningsChartFull')?.getContext('2d');
+            if (ctxFull) {
+                new Chart(ctxFull, {
+                    type: 'line',
+                    data: {
+                        labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                        datasets: [{
+                            label: 'Earnings',
+                            data: [85, 92, 110, 78, 145, 210, 180],
+                            borderColor: '#00f3ff',
+                            backgroundColor: 'rgba(0,243,255,0.1)',
+                            tension: 0.4,
+                            fill: true
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { display: false } }
+                    }
+                });
+            }
+        }
 
-    window.declineBooking = function(bookingId) { if (confirm('Decline?')) alert('Declined'); };
+        window.toggleOnlineStatus = function() {
+            if (!currentDriver) return;
+            currentDriver.online = !currentDriver.online;
+            const status = currentDriver.online ? '🟢 Online' : '🔴 Offline';
+            document.getElementById('onlineStatus').innerText = status;
+            document.getElementById('statusToggleText').innerText = currentDriver.online ? 'Go Offline' : 'Go Online';
+            if (document.getElementById('statusToggleTextFull')) {
+                document.getElementById('statusToggleTextFull').innerText = currentDriver.online ? 'Go Offline' : 'Go Online';
+            }
+            
+            db.collection('drivers').doc(currentDriver.uid).set({
+                online: currentDriver.online,
+                lastSeen: firebase.firestore.FieldValue.serverTimestamp()
+            }, { merge: true });
+        };
 
-    function loadDriverData() {
-        document.getElementById('todayEarnings').innerText = '$124.50';
-        document.getElementById('totalTrips').innerText = '47';
-        document.getElementById('acceptanceRate').innerText = '94%';
-        document.getElementById('rating').innerText = '4.92';
-        document.getElementById('availableBalance').innerText = '$1,247.80';
+        window.showAddVehicle = function() {
+            alert('Add vehicle feature coming soon!');
+        };
+
+        window.requestPayout = function() {
+            alert('Payout request submitted!');
+        };
+
+        function loadDriverData() {
+            document.getElementById('todayEarnings').innerText = '$124.50';
+            document.getElementById('totalTrips').innerText = '47';
+            document.getElementById('acceptanceRate').innerText = '94%';
+            document.getElementById('rating').innerText = '4.92';
+            document.getElementById('availableBalance').innerText = '$1,247.80';
+            document.getElementById('profileName').innerText = currentDriver?.name || 'Demo Driver';
+            document.getElementById('profilePhone').innerText = currentDriver?.phoneNumber || '+1 212-555-1234';
+            document.getElementById('profileNameFull').innerText = currentDriver?.name || 'Demo Driver';
+            document.getElementById('profilePhoneFull').innerText = currentDriver?.phoneNumber || '+1 212-555-1234';
+            document.getElementById('totalBalanceFull').innerText = '$1,247.80';
+        }
+
+        // ---------- INITIALIZE ----------
+        // On page load, if no user, show login modal
+        if (!currentDriver) {
+            document.getElementById('loginModal').classList.add('active');
+            // Ensure at least one screen is active (registrationScreen for new users? but no user)
+            // We'll just show login modal, no screen needed
+        } else {
+            // If there was a stored session, we would check status, but we don't have persistence
+        }
+
+        // Pre-load some data for demo
+        loadDriverData();
+        loadAvailableLoads();
+        loadVehicles();
         initEarningsChart();
-    }
 
-    function initEarningsChart() {
-        const ctx = document.getElementById('earningsChart')?.getContext('2d');
-        if (!ctx) return;
-        if (earningsChart) earningsChart.destroy();
-        earningsChart = new Chart(ctx, {
-            type: 'line',
-            data: { labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'], datasets: [{ label: 'Earnings', data: [85, 92, 110, 78, 145, 210, 180], borderColor: '#2854ff', backgroundColor: 'rgba(40,84,255,0.1)', tension: 0.4, fill: true }] },
-            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+        // Close modal on outside click
+        document.getElementById('loginModal').addEventListener('click', function(e) {
+            if (e.target === this) this.classList.remove('active');
         });
-    }
-
-    document.querySelectorAll('.tab').forEach(tab => {
-        tab.addEventListener('click', function() {
-            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-            this.classList.add('active');
-            document.querySelectorAll('.tab-content').forEach(c => c.style.display = 'none');
-            if (this.dataset.tab === 'available') document.getElementById('availableTab').style.display = 'block';
-            if (this.dataset.tab === 'myvehicles') document.getElementById('vehiclesTab').style.display = 'block';
-            if (this.dataset.tab === 'earnings') document.getElementById('earningsTab').style.display = 'block';
-        });
-    });
-
-    document.getElementById('loginModal').addEventListener('click', function(e) { if (e.target === this) this.classList.remove('active'); });
-
-    loadDriverData();
-    loadAvailableLoads();
-</script>
+    </script>
 </body>
 </html>
