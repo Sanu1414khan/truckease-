@@ -242,9 +242,8 @@
                 <span>🌀 Your Referral Code: <strong id="referralCode">TRUCK123</strong></span>
                 <button class="wormhole-btn" onclick="copyReferral()">Copy</button>
             </div>
-            <div class="view-all" onclick="loadVehicleGrid('trucks')">View All Transports</div>
-            
-                
+            <div class="view-all" onclick="loadAllVehicles()">
+                View All Transports
             </div>
         </div>
 
@@ -407,10 +406,10 @@
     <!-- BOTTOM NAVIGATION -->
     <div class="bottom-nav">
         <div class="nav-item active" onclick="showScreen('homeScreen')"><i class="fas fa-home"></i>Home</div>
-         <div class="nav-item" onclick="showScreen('historyScreen')"><i class="fas fa-history"></i>Trips</div>
-<div class="nav-item" onclick="alert('Wallet coming soon!')"><i class="fas fa-wallet"></i>Wallet</div>
-        <div class="nav-item" onclick="showScreen('historyScreen')"><i class="fas fa-user"></i>Account</div>
-        
+        <div class="nav-item" onclick="showScreen('historyScreen')"><i class="fas fa-truck"></i>Services</div>
+        <div class="nav-item" onclick="showActivities()"><i class="fas fa-calendar"></i>Activities</div>
+        <div class="nav-item" onclick="showScreen('historyScreen')"><i class="fas fa-chart-line"></i>Activity</div>
+        <div class="nav-item" onclick="showProfile()"><i class="fas fa-user"></i>Account</div>
     </div>
 
     <!-- Loading -->
@@ -419,7 +418,11 @@
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-storage-compat.js"></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.js"></script>
+
     <script>
         // ---------- FIREBASE CONFIG ----------
         const firebaseConfig = {
@@ -432,8 +435,12 @@
         };
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
+        const auth = firebase.auth();
+        const storage = firebase.storage();
 
         // ---------- GLOBAL VARIABLES ----------
+        let currentUser = null;
+        let currentVehicle = null;
         let basePrice = 0, perKmRate = 0;
         let finalFare = 0;
         let map = null, trackingMap = null;
@@ -479,6 +486,7 @@
             document.getElementById('userIcon').innerHTML = `<i class="fas fa-user-check"></i>`;
             document.getElementById('loginModal').classList.remove('active');
             document.getElementById('loginError').innerText = '';
+            loadUserProfile();
         });
 
         // ---------- SCREEN MANAGEMENT ----------
@@ -832,7 +840,7 @@
                 snapshot.forEach(doc => {
                     const b = doc.data();
                     const time = b.timestamp ? new Date(b.timestamp.toDate()).toLocaleString('en-US') : '';
-                    html += '<div class="history-item">';
+                    html += `<div class="history-item" onclick="viewTripDetails('${doc.id}')">
                         <div class="row"><span>${b.vehicle}</span><span class="status-badge status-${b.status}">${b.status}</span></div>
                         <div class="row"><small>${b.pickup.substring(0,20)} → ${b.drop.substring(0,20)}</small></div>
                         <div class="row"><span>$${b.fare?.toFixed(2)}</span><small>${time}</small></div>
