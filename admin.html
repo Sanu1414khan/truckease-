@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>TRUCKEASE • Admin Remote</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+        body {
+            background: #0a0c14;
+            color: #fff;
+            padding: 20px;
+        }
+        /* Starfield background (same as other panels) */
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-image: 
+                linear-gradient(rgba(0, 243, 255, 0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 243, 255, 0.05) 1px, transparent 1px);
+            background-size: 50px 50px;
+            pointer-events: none;
+            z-index: 0;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 10;
+        }
+        h1 {
+            color: #00f3ff;
+            margin-bottom: 30px;
+            font-size: 28px;
+            text-shadow: 0 0 15px #00f3ff;
+        }
+        .card {
+            background: rgba(20, 30, 50, 0.4);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(0, 243, 255, 0.2);
+            border-radius: 24px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+        }
+        .card h2 {
+            color: #00f3ff;
+            font-size: 20px;
+            margin-bottom: 20px;
+            border-bottom: 1px solid rgba(0,243,255,0.3);
+            padding-bottom: 10px;
+        }
+        .setting-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+        .setting-row:last-child {
+            border-bottom: none;
+        }
+        .setting-label {
+            font-weight: 500;
+            color: #ccc;
+        }
+        /* Toggle Switch */
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 34px;
+        }
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(255,255,255,0.1);
+            transition: .2s;
+            border-radius: 34px;
+            border: 1px solid rgba(0,243,255,0.3);
+        }
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 26px;
+            width: 26px;
+            left: 4px;
+            bottom: 3px;
+            background-color: #00f3ff;
+            transition: .2s;
+            border-radius: 50%;
+        }
+        input:checked + .slider {
+            background-color: #00f3ff;
+            box-shadow: 0 0 20px #00f3ff;
+        }
+        input:checked + .slider:before {
+            transform: translateX(26px);
+            background-color: #0a0c14;
+        }
+        /* Number inputs */
+        .number-input {
+            width: 100px;
+            padding: 8px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(0,243,255,0.3);
+            border-radius: 20px;
+            color: #fff;
+            text-align: center;
+        }
+        .number-input:focus {
+            border-color: #00f3ff;
+            outline: none;
+            box-shadow: 0 0 20px #00f3ff;
+        }
+        .save-btn {
+            background: #00f3ff;
+            color: #0a0c14;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 40px;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 0 30px #00f3ff;
+            width: 100%;
+            font-size: 16px;
+            margin-top: 20px;
+        }
+        .save-btn:hover {
+            transform: scale(1.02);
+        }
+        .demo-hint {
+            color: #ffc107;
+            font-size: 12px;
+            margin-top: 5px;
+        }
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 40px;
+            font-size: 12px;
+            background: rgba(0,243,255,0.1);
+            border: 1px solid #00f3ff;
+            color: #00f3ff;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 TRUCKEASE Remote Control</h1>
+        <div class="status-badge" id="connectionStatus">Connected to Firebase</div>
+
+        <!-- Feature Toggles -->
+        <div class="card">
+            <h2>🔘 Driver Panel Features</h2>
+            <div class="setting-row">
+                <span class="setting-label">Accept Load Button</span>
+                <label class="switch">
+                    <input type="checkbox" id="enableAcceptLoad">
+                    <span class="slider"></span>
+                </label>
+            </div>
+            <div class="setting-row">
+                <span class="setting-label">Show Earnings Section</span>
+                <label class="switch">
+                    <input type="checkbox" id="showEarnings">
+                    <span class="slider"></span>
+                </label>
+            </div>
+            <div class="setting-row">
+                <span class="setting-label">Enable Chat with Customer</span>
+                <label class="switch">
+                    <input type="checkbox" id="enableChat">
+                    <span class="slider"></span>
+                </label>
+            </div>
+            <div class="setting-row">
+                <span class="setting-label">Enable Rating System</span>
+                <label class="switch">
+                    <input type="checkbox" id="enableRating">
+                    <span class="slider"></span>
+                </label>
+            </div>
+            <div class="setting-row">
+                <span class="setting-label">Enable Referral Program</span>
+                <label class="switch">
+                    <input type="checkbox" id="enableReferral">
+                    <span class="slider"></span>
+                </label>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>🛒 Customer Panel Features</h2>
+            <div class="setting-row">
+                <span class="setting-label">Show Promo Banner</span>
+                <label class="switch">
+                    <input type="checkbox" id="showPromoBanner">
+                    <span class="slider"></span>
+                </label>
+            </div>
+            <div class="setting-row">
+                <span class="setting-label">Enable Multi-stop Routing</span>
+                <label class="switch">
+                    <input type="checkbox" id="enableMultiStop">
+                    <span class="slider"></span>
+                </label>
+            </div>
+            <div class="setting-row">
+                <span class="setting-label">Enable Payment Gateway</span>
+                <label class="switch">
+                    <input type="checkbox" id="enablePayment">
+                    <span class="slider"></span>
+                </label>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>💰 Pricing & Calculations</h2>
+            <div class="setting-row">
+                <span class="setting-label">Base Rate ($)</span>
+                <input type="number" id="baseRate" class="number-input" value="65" step="0.1">
+            </div>
+            <div class="setting-row">
+                <span class="setting-label">Per Mile Rate ($)</span>
+                <input type="number" id="perMileRate" class="number-input" value="1.2" step="0.1">
+            </div>
+            <div class="setting-row">
+                <span class="setting-label">Weight Multiplier (5000+ lbs)</span>
+                <input type="number" id="weightMultiplier" class="number-input" value="1.2" step="0.1">
+            </div>
+            <div class="setting-row">
+                <span class="setting-label">Surge Multiplier (Night)</span>
+                <input type="number" id="surgeMultiplier" class="number-input" value="1.25" step="0.1">
+            </div>
+            <div class="setting-row">
+                <span class="setting-label">Tax Rate (%)</span>
+                <input type="number" id="taxRate" class="number-input" value="10" step="0.1">
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>⚠️ Emergency Controls</h2>
+            <div class="setting-row">
+                <span class="setting-label">Maintenance Mode</span>
+                <label class="switch">
+                    <input type="checkbox" id="maintenanceMode">
+                    <span class="slider"></span>
+                </label>
+            </div>
+            <div class="demo-hint">If ON, users will see "Under Maintenance" message.</div>
+            <div class="setting-row">
+                <span class="setting-label">Force App Update</span>
+                <label class="switch">
+                    <input type="checkbox" id="forceAppUpdate">
+                    <span class="slider"></span>
+                </label>
+            </div>
+            <div class="demo-hint">If ON, users will be prompted to refresh the app.</div>
+        </div>
+
+        <button class="save-btn" onclick="saveSettings()">💾 Save All Settings</button>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+
+    <script>
+        // Firebase Config (same as other panels)
+        const firebaseConfig = {
+            apiKey: "AIzaSyByh4tT4zcUpjjQ_ebaYzpSulGtsDHjbw0",
+            authDomain: "truckease-cb961.firebaseapp.com",
+            projectId: "truckease-cb961",
+            storageBucket: "truckease-cb961.firebasestorage.app",
+            messagingSenderId: "558046020925",
+            appId: "1:558046020925:web:573533af4bbf93841e3154"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+        const settingsDoc = db.collection('settings').doc('global');
+
+        // Load current settings on page load
+        async function loadSettings() {
+            try {
+                const doc = await settingsDoc.get();
+                if (doc.exists) {
+                    const data = doc.data();
+                    document.getElementById('enableAcceptLoad').checked = data.enableAcceptLoad ?? true;
+                    document.getElementById('showEarnings').checked = data.showEarnings ?? true;
+                    document.getElementById('enableChat').checked = data.enableChat ?? true;
+                    document.getElementById('enableRating').checked = data.enableRating ?? true;
+                    document.getElementById('enableReferral').checked = data.enableReferral ?? true;
+                    document.getElementById('showPromoBanner').checked = data.showPromoBanner ?? true;
+                    document.getElementById('enableMultiStop').checked = data.enableMultiStop ?? false;
+                    document.getElementById('enablePayment').checked = data.enablePayment ?? false;
+                    document.getElementById('baseRate').value = data.baseRate ?? 65;
+                    document.getElementById('perMileRate').value = data.perMileRate ?? 1.2;
+                    document.getElementById('weightMultiplier').value = data.weightMultiplier ?? 1.2;
+                    document.getElementById('surgeMultiplier').value = data.surgeMultiplier ?? 1.25;
+                    document.getElementById('taxRate').value = data.taxRate ?? 10;
+                    document.getElementById('maintenanceMode').checked = data.maintenanceMode ?? false;
+                    document.getElementById('forceAppUpdate').checked = data.forceAppUpdate ?? false;
+                }
+            } catch (e) {
+                console.error('Error loading settings:', e);
+            }
+        }
+
+        // Save settings to Firestore
+        window.saveSettings = async function() {
+            const settings = {
+                enableAcceptLoad: document.getElementById('enableAcceptLoad').checked,
+                showEarnings: document.getElementById('showEarnings').checked,
+                enableChat: document.getElementById('enableChat').checked,
+                enableRating: document.getElementById('enableRating').checked,
+                enableReferral: document.getElementById('enableReferral').checked,
+                showPromoBanner: document.getElementById('showPromoBanner').checked,
+                enableMultiStop: document.getElementById('enableMultiStop').checked,
+                enablePayment: document.getElementById('enablePayment').checked,
+                baseRate: parseFloat(document.getElementById('baseRate').value) || 65,
+                perMileRate: parseFloat(document.getElementById('perMileRate').value) || 1.2,
+                weightMultiplier: parseFloat(document.getElementById('weightMultiplier').value) || 1.2,
+                surgeMultiplier: parseFloat(document.getElementById('surgeMultiplier').value) || 1.25,
+                taxRate: parseFloat(document.getElementById('taxRate').value) || 10,
+                maintenanceMode: document.getElementById('maintenanceMode').checked,
+                forceAppUpdate: document.getElementById('forceAppUpdate').checked,
+                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+            };
+
+            try {
+                await settingsDoc.set(settings, { merge: true });
+                alert('✅ Settings saved successfully! They will reflect in apps within seconds.');
+            } catch (e) {
+                alert('Error saving: ' + e.message);
+            }
+        };
+
+        // Load on start
+        loadSettings();
+    </script>
+</body>
+</html>
