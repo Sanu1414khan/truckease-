@@ -20,7 +20,6 @@
             height: 100vh;
             overflow: hidden;
         }
-        /* Starfield Background */
         body::before {
             content: "";
             position: fixed;
@@ -32,7 +31,6 @@
             pointer-events: none;
             z-index: 0;
         }
-        /* Glassmorphism Base */
         .glass {
             background: rgba(20, 30, 50, 0.3);
             backdrop-filter: blur(12px);
@@ -41,7 +39,6 @@
             border-radius: 24px;
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
         }
-        /* Login Screen */
         #loginScreen {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -79,14 +76,12 @@
             box-shadow: 0 0 20px #00f3ff;
         }
         .error { color: #ff4444; font-size: 12px; margin-top: 5px; display: none; }
-        /* Main Dashboard */
         #dashboard {
             display: none;
             height: 100vh;
             position: relative;
             z-index: 10;
         }
-        /* Sidebar */
         .sidebar {
             position: fixed;
             left: 20px;
@@ -131,7 +126,6 @@
             color: #ff4444;
         }
         .logout-btn:hover { background: rgba(255,68,68,0.1); }
-        /* Main Content Area */
         .main-content {
             margin-left: 320px;
             margin-right: 20px;
@@ -141,7 +135,6 @@
             overflow-y: auto;
             height: calc(100vh - 40px);
         }
-        /* Stats Cards */
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
@@ -156,7 +149,6 @@
         .stat-card .label { font-size: 14px; color: #ccc; margin-bottom: 5px; }
         .stat-card .value { font-size: 32px; font-weight: 800; color: #00f3ff; }
         .stat-card .change { font-size: 13px; color: #4caf50; margin-top: 5px; }
-        /* Map Container */
         .map-container {
             height: 250px;
             margin-bottom: 30px;
@@ -165,7 +157,6 @@
             overflow: hidden;
             box-shadow: 0 0 30px #00f3ff;
         }
-        /* Chart Row */
         .chart-row {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -177,19 +168,13 @@
         }
         .chart-card h3 { color: #00f3ff; margin-bottom: 15px; font-size: 16px; }
         canvas { max-height: 200px; width: 100% !important; }
-        /* Tabs Content */
-        .section {
-            display: none;
-        }
-        .section.active {
-            display: block;
-        }
+        .section { display: none; }
+        .section.active { display: block; }
         .section-title {
             color: #00f3ff;
             margin-bottom: 20px;
             font-size: 22px;
         }
-        /* Tables */
         .table-container {
             padding: 20px;
             overflow-x: auto;
@@ -236,7 +221,6 @@
             font-weight: 600;
             cursor: pointer;
         }
-        /* Dynamic Pricing */
         .pricing-slider {
             display: flex;
             align-items: center;
@@ -263,7 +247,6 @@
             cursor: pointer;
             width: 100%;
         }
-        /* Loading */
         .loader {
             border: 4px solid rgba(0,243,255,0.1);
             border-top: 4px solid #00f3ff;
@@ -324,18 +307,13 @@
             <!-- Dashboard Tab -->
             <div id="tab-dashboard" class="section active">
                 <h2 class="section-title">📊 Business Overview</h2>
-                <!-- Stats Cards -->
                 <div class="stats-grid" id="statsContainer">
                     <div class="stat-card glass"><span class="label">Total Revenue</span><span class="value" id="totalRevenue">$0</span><span class="change">↑12%</span></div>
                     <div class="stat-card glass"><span class="label">Active Bookings</span><span class="value" id="activeBookings">0</span><span class="change">+8 today</span></div>
                     <div class="stat-card glass"><span class="label">Registered Drivers</span><span class="value" id="totalDrivers">0</span><span class="change">+3 this week</span></div>
                     <div class="stat-card glass"><span class="label">Total Fleet</span><span class="value" id="totalFleet">0</span><span class="change">12 types</span></div>
                 </div>
-
-                <!-- Live Map Placeholder -->
                 <div class="map-container" id="mapPlaceholder"></div>
-
-                <!-- Charts -->
                 <div class="chart-row">
                     <div class="chart-card glass">
                         <h3>📈 Weekly Earnings</h3>
@@ -359,7 +337,7 @@
                 </div>
             </div>
 
-            <!-- Driver Verification Tab (Fixed to match actual Firestore structure) -->
+            <!-- Driver Verification Tab -->
             <div id="tab-drivers" class="section">
                 <h2 class="section-title">🆔 Driver Verification</h2>
                 <div class="table-container glass">
@@ -396,7 +374,7 @@
         </div>
     </div>
 
-    <!-- Firebase SDK (Compat) -->
+    <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
@@ -427,7 +405,7 @@
                 .then(() => {
                     document.getElementById('loginScreen').style.display = 'none';
                     document.getElementById('dashboard').style.display = 'block';
-                    loadAllData();
+                    initRealTimeListeners();
                     initMapPlaceholder();
                 })
                 .catch(error => {
@@ -443,12 +421,11 @@
             });
         };
 
-        // Check if already logged in
         auth.onAuthStateChanged(user => {
             if (user) {
                 document.getElementById('loginScreen').style.display = 'none';
                 document.getElementById('dashboard').style.display = 'block';
-                loadAllData();
+                initRealTimeListeners();
                 initMapPlaceholder();
             } else {
                 document.getElementById('loginScreen').style.display = 'flex';
@@ -467,39 +444,31 @@
             });
         });
 
-        // ---------- LOAD ALL DATA ----------
-        function loadAllData() {
-            loadStats();
-            loadBookings();
-            loadDrivers();
-            loadFleet();
-            initCharts();
-        }
+        // ---------- REAL-TIME LISTENERS (यही सबसे जरूरी बदलाव है) ----------
+        function initRealTimeListeners() {
+            // Active Bookings Count
+            db.collection('bookings').where('status', '==', 'accepted').onSnapshot(snap => {
+                document.getElementById('activeBookings').innerText = snap.size;
+            });
 
-        // ---------- STATS ----------
-        function loadStats() {
-            // Revenue from completed bookings
-            db.collection('bookings').where('status', '==', 'completed').get().then(snap => {
+            // Total Drivers Count
+            db.collection('drivers').onSnapshot(snap => {
+                document.getElementById('totalDrivers').innerText = snap.size;
+            });
+
+            // Total Fleet Count
+            db.collection('vehicles').onSnapshot(snap => {
+                document.getElementById('totalFleet').innerText = snap.size;
+            });
+
+            // Total Revenue (only completed)
+            db.collection('bookings').where('status', '==', 'completed').onSnapshot(snap => {
                 let total = 0;
                 snap.forEach(doc => total += doc.data().fare || 0);
                 document.getElementById('totalRevenue').innerText = '$' + total.toFixed(2);
-            }).catch(() => {});
-            // Active bookings (accepted)
-            db.collection('bookings').where('status', '==', 'accepted').onSnapshot(snap => {
-                document.getElementById('activeBookings').innerText = snap.size;
-            }, () => {});
-            // Total drivers (from drivers collection)
-            db.collection('drivers').onSnapshot(snap => {
-                document.getElementById('totalDrivers').innerText = snap.size;
-            }, () => {});
-            // Total fleet (vehicles collection)
-            db.collection('vehicles').onSnapshot(snap => {
-                document.getElementById('totalFleet').innerText = snap.size;
-            }, () => {});
-        }
+            });
 
-        // ---------- BOOKINGS ----------
-        function loadBookings() {
+            // Bookings List
             db.collection('bookings').orderBy('timestamp', 'desc').onSnapshot(snap => {
                 let html = '';
                 snap.forEach(doc => {
@@ -518,20 +487,13 @@
                     </tr>`;
                 });
                 document.getElementById('bookingsBody').innerHTML = html;
-            }, () => {});
-        }
+            });
 
-        window.updateBooking = function(id, status) {
-            db.collection('bookings').doc(id).update({ status });
-        };
-
-        // ---------- DRIVERS (Corrected to match nested structure) ----------
-        function loadDrivers() {
+            // Drivers List (with nested data)
             db.collection('drivers').onSnapshot(snap => {
                 let html = '';
                 snap.forEach(doc => {
                     const d = doc.data();
-                    // Driver data may be nested under personal/compliance/authority
                     const fullName = d.personal?.fullName || d.name || 'N/A';
                     const phone = d.personal?.phone || d.phone || 'N/A';
                     const cdl = d.compliance?.cdlNumber || d.cdlNumber || 'N/A';
@@ -550,18 +512,9 @@
                     </tr>`;
                 });
                 document.getElementById('driversBody').innerHTML = html;
-            }, () => {});
-        }
+            });
 
-        window.approveDriver = function(id) {
-            db.collection('drivers').doc(id).update({ status: 'approved' });
-        };
-        window.rejectDriver = function(id) {
-            db.collection('drivers').doc(id).update({ status: 'rejected' });
-        };
-
-        // ---------- FLEET ----------
-        function loadFleet() {
+            // Fleet List
             db.collection('vehicles').onSnapshot(snap => {
                 let html = '';
                 snap.forEach(doc => {
@@ -575,8 +528,20 @@
                     </tr>`;
                 });
                 document.getElementById('fleetBody').innerHTML = html;
-            }, () => {});
+            });
         }
+
+        // ---------- ACTIONS ----------
+        window.updateBooking = function(id, status) {
+            db.collection('bookings').doc(id).update({ status });
+        };
+
+        window.approveDriver = function(id) {
+            db.collection('drivers').doc(id).update({ status: 'approved' });
+        };
+        window.rejectDriver = function(id) {
+            db.collection('drivers').doc(id).update({ status: 'rejected' });
+        };
 
         window.addVehicle = function() {
             const type = prompt('Enter vehicle type (e.g., Box Truck):');
@@ -591,7 +556,6 @@
             db.collection('vehicles').doc(id).update({ baseRate: parseFloat(newBase), perMile: parseFloat(newPerMile) });
         };
 
-        // ---------- PRICING ----------
         window.savePricing = function() {
             const base = document.getElementById('baseRate').value;
             const perMile = document.getElementById('perMileRate').value;
@@ -608,7 +572,6 @@
 
         // ---------- CHARTS ----------
         function initCharts() {
-            // Weekly chart
             const ctxWeekly = document.getElementById('weeklyChart').getContext('2d');
             weeklyChart = new Chart(ctxWeekly, {
                 type: 'line',
@@ -625,7 +588,6 @@
                 },
                 options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
             });
-            // Monthly chart
             const ctxMonthly = document.getElementById('monthlyChart').getContext('2d');
             monthlyChart = new Chart(ctxMonthly, {
                 type: 'bar',
@@ -642,15 +604,14 @@
             });
         }
 
-        // ---------- MAP PLACEHOLDER ----------
+        // ---------- MAP ----------
         function initMapPlaceholder() {
             if (mapInitialized) return;
             mapInitialized = true;
-            const map = L.map('mapPlaceholder').setView([39.8283, -98.5795], 4); // USA center
+            const map = L.map('mapPlaceholder').setView([39.8283, -98.5795], 4);
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 attribution: '© OpenStreetMap'
             }).addTo(map);
-            // Mock active trucks
             const trucks = [
                 [40.7128, -74.0060], [34.0522, -118.2437], [41.8781, -87.6298], [29.7604, -95.3698], [33.7490, -84.3880]
             ];
@@ -658,6 +619,9 @@
                 L.marker(pos).addTo(map).bindPopup('Active Truck');
             });
         }
+
+        // Initialize charts on page load
+        initCharts();
     </script>
 </body>
 </html>
