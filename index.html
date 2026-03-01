@@ -889,26 +889,43 @@
 
         // ---------- LOAD HISTORY ----------
         window.loadHistory = async function() {
-            if (!currentUser) { document.getElementById('historyList').innerHTML = '<p>Please login</p>'; return; }
-            try {
-                const snapshot = await db.collection('bookings')
-                    .where('userId', '==', currentUser.uid)
-                    .orderBy('timestamp', 'desc')
-                    .get();
-                if (snapshot.empty) { document.getElementById('historyList').innerHTML = '<p>No trips yet</p>'; return; }
-                let html = '';
-                snapshot.forEach(doc => {
-                    const b = doc.data();
-                    const time = b.timestamp ? new Date(b.timestamp.toDate()).toLocaleString('en-US') : '';
-                    html += `<div class="history-item">
-                        <div class="row"><span>${b.vehicle}</span><span class="status-badge status-${b.status}">${b.status}</span></div>
-                        <div class="row"><small>${b.pickup.substring(0,20)} → ${b.drop.substring(0,20)}</small></div>
-                        <div class="row"><span>$${b.fare?.toFixed(2)}</span><small>${time}</small></div>
-                    </div>`;
-                });
-                document.getElementById('historyList').innerHTML = html;
-            } catch(e) { document.getElementById('historyList').innerHTML = '<p>Error loading</p>'; }
-        };
+    if (!currentUser) { 
+        document.getElementById('historyList').innerHTML = '<p>Please login</p>'; 
+        return; 
+    }
+    
+    // Loading state
+    document.getElementById('historyList').innerHTML = '<div style="text-align:center;"><div class="spinner"></div><p>Loading trips...</p></div>';
+    
+    try {
+        // ✅ Index के लिए सही क्वेरी (userId + timestamp)
+        const snapshot = await db.collection('bookings')
+            .where('userId', '==', currentUser.uid)
+            .orderBy('timestamp', 'desc')
+            .get();
+            
+        if (snapshot.empty) { 
+            document.getElementById('historyList').innerHTML = '<p>No trips yet</p>'; 
+            return; 
+        }
+        
+        let html = '';
+        snapshot.forEach(doc => {
+            const b = doc.data();
+            const time = b.timestamp ? new Date(b.timestamp.toDate()).toLocaleString('en-US') : '';
+            html += `<div class="history-item">
+                <div class="row"><span>${b.vehicle}</span><span class="status-badge status-${b.status}">${b.status}</span></div>
+                <div class="row"><small>${b.pickup.substring(0,20)} → ${b.drop.substring(0,20)}</small></div>
+                <div class="row"><span>$${b.fare?.toFixed(2)}</span><small>${time}</small></div>
+            </div>`;
+        });
+        document.getElementById('historyList').innerHTML = html;
+        
+    } catch(e) { 
+        console.error('🔥 Error loading history:', e);
+        document.getElementById('historyList').innerHTML = `<p style="color:#ff4444;">Error loading trips: ${e.message}</p>`; 
+    }
+};
 
         // ---------- TRACKING SIMULATION ----------
         window.startTracking = function() {
