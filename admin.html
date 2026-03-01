@@ -202,7 +202,7 @@
         }
         .badge.pending { background: rgba(255,193,7,0.2); color: #ffc107; border: 1px solid #ffc107; }
         .badge.approved { background: rgba(40,167,69,0.2); color: #4caf50; border: 1px solid #4caf50; }
-        .badge.cancelled { background: rgba(220,53,69,0.2); color: #dc3545; border: 1px solid #dc3545; }
+        .badge.rejected { background: rgba(220,53,69,0.2); color: #dc3545; border: 1px solid #dc3545; }
         .btn-approve {
             background: #00f3ff;
             color: #0a0c14;
@@ -310,7 +310,7 @@
                 <div class="stats-grid" id="statsContainer">
                     <div class="stat-card glass"><span class="label">Total Revenue</span><span class="value" id="totalRevenue">$0</span><span class="change">↑12%</span></div>
                     <div class="stat-card glass"><span class="label">Active Bookings</span><span class="value" id="activeBookings">0</span><span class="change">+8 today</span></div>
-                    <div class="stat-card glass"><span class="label">Registered Drivers</span><span class="value" id="totalDrivers">0</span><span class="change">+3 this week</span></div>
+                    <div class="stat-card glass"><span class="label">Pending Drivers</span><span class="value" id="pendingDrivers">0</span><span class="change">waiting</span></div>
                     <div class="stat-card glass"><span class="label">Total Fleet</span><span class="value" id="totalFleet">0</span><span class="change">12 types</span></div>
                 </div>
                 <div class="map-container" id="mapPlaceholder"></div>
@@ -337,9 +337,9 @@
                 </div>
             </div>
 
-            <!-- Driver Verification Tab -->
+            <!-- Driver Verification Tab (Pending Drivers) -->
             <div id="tab-drivers" class="section">
-                <h2 class="section-title">🆔 Driver Verification</h2>
+                <h2 class="section-title">🆔 Pending Driver Verification</h2>
                 <div class="table-container glass">
                     <table id="driversTable">
                         <thead><tr><th>Name</th><th>Phone</th><th>CDL</th><th>USDOT</th><th>Status</th><th>Actions</th></tr></thead>
@@ -444,16 +444,16 @@
             });
         });
 
-        // ---------- REAL-TIME LISTENERS (यही सबसे जरूरी बदलाव है) ----------
+        // ---------- REAL-TIME LISTENERS ----------
         function initRealTimeListeners() {
-            // Active Bookings Count
+            // Active Bookings Count (accepted)
             db.collection('bookings').where('status', '==', 'accepted').onSnapshot(snap => {
                 document.getElementById('activeBookings').innerText = snap.size;
             });
 
-            // Total Drivers Count
-            db.collection('drivers').onSnapshot(snap => {
-                document.getElementById('totalDrivers').innerText = snap.size;
+            // Pending Drivers Count
+            db.collection('pending_drivers').onSnapshot(snap => {
+                document.getElementById('pendingDrivers').innerText = snap.size;
             });
 
             // Total Fleet Count
@@ -461,7 +461,7 @@
                 document.getElementById('totalFleet').innerText = snap.size;
             });
 
-            // Total Revenue (only completed)
+            // Total Revenue (only completed bookings)
             db.collection('bookings').where('status', '==', 'completed').onSnapshot(snap => {
                 let total = 0;
                 snap.forEach(doc => total += doc.data().fare || 0);
@@ -489,8 +489,8 @@
                 document.getElementById('bookingsBody').innerHTML = html;
             });
 
-            // Drivers List (with nested data)
-            db.collection('drivers').onSnapshot(snap => {
+            // Pending Drivers List (from pending_drivers collection)
+            db.collection('pending_drivers').onSnapshot(snap => {
                 let html = '';
                 snap.forEach(doc => {
                     const d = doc.data();
@@ -498,15 +498,14 @@
                     const phone = d.personal?.phone || d.phone || 'N/A';
                     const cdl = d.compliance?.cdlNumber || d.cdlNumber || 'N/A';
                     const usdot = d.authority?.usdot || d.usdot || 'N/A';
-                    const status = d.status || 'pending';
                     html += `<tr>
                         <td>${fullName}</td>
                         <td>${phone}</td>
                         <td>${cdl}</td>
                         <td>${usdot}</td>
-                        <td><span class="badge ${status}">${status}</span></td>
+                        <td><span class="badge pending">pending</span></td>
                         <td>
-                            ${status !== 'approved' ? `<button class="btn-approve" onclick="approveDriver('${doc.id}')">Approve</button>` : ''}
+                            <button class="btn-approve" onclick="approveDriver('${doc.id}')">Approve</button>
                             <button class="btn-reject" onclick="rejectDriver('${doc.id}')">Reject</button>
                         </td>
                     </tr>`;
@@ -536,13 +535,44 @@
             db.collection('bookings').doc(id).update({ status });
         };
 
-        window.approveDriver = function(id) {
-            db.collection('drivers').doc(id).update({ status: 'approved' });
-        };
-        window.rejectDriver = function(id) {
-            db.collection('drivers').doc(id).update({ status: 'rejected' });
+        // ---------- APPROVE DRIVER (move from pending_drivers to drivers) ----------
+        window.approveDriver = async function(docId) {
+            try {
+                const pendingDoc = await db.collection('pending_drivers').doc(docId).get();
+                if (!pendingDoc.exists) {
+                    alert('Driver not found in pending list.');
+                    return;
+                }
+                const driverData = pendingDoc.data();
+
+                // Add to drivers collection with approved status
+                await db.collection('drivers').doc(docId).set({
+                    ...driverData,
+                    status: 'approved',
+                    approvedAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+
+                // Remove from pending_drivers
+                await db.collection('pending_drivers').doc(docId).delete();
+
+                alert('Driver approved successfully!');
+            } catch (error) {
+                alert('Error approving driver: ' + error.message);
+            }
         };
 
+        // ---------- REJECT DRIVER (delete from pending_drivers) ----------
+        window.rejectDriver = async function(docId) {
+            if (!confirm('Are you sure you want to reject this driver?')) return;
+            try {
+                await db.collection('pending_drivers').doc(docId).delete();
+                alert('Driver rejected successfully!');
+            } catch (error) {
+                alert('Error rejecting driver: ' + error.message);
+            }
+        };
+
+        // ---------- FLEET MANAGEMENT ----------
         window.addVehicle = function() {
             const type = prompt('Enter vehicle type (e.g., Box Truck):');
             if (!type) return;
@@ -550,12 +580,14 @@
             const perMile = prompt('Per mile rate ($):');
             db.collection('vehicles').doc(type).set({ type, baseRate: parseFloat(base), perMile: parseFloat(perMile), status: 'active' });
         };
+
         window.editVehicle = function(id) {
             const newBase = prompt('New base rate:');
             const newPerMile = prompt('New per mile rate:');
             db.collection('vehicles').doc(id).update({ baseRate: parseFloat(newBase), perMile: parseFloat(newPerMile) });
         };
 
+        // ---------- PRICING ----------
         window.savePricing = function() {
             const base = document.getElementById('baseRate').value;
             const perMile = document.getElementById('perMileRate').value;
