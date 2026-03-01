@@ -742,28 +742,49 @@
 
         // ---------- LOAD AVAILABLE LOADS ----------
         function loadAvailableLoads() {
-            const container = document.getElementById('availableLoadsList');
-            if (!container) return;
-            if (loadsListener) loadsListener();
-            loadsListener = db.collection('bookings').where('status', '==', 'pending').orderBy('timestamp', 'desc').onSnapshot((snapshot) => {
-                if (snapshot.empty) {
-                    container.innerHTML = '<div style="text-align:center; padding:40px;">No loads available</div>';
-                    return;
-                }
-                let html = '';
-                snapshot.forEach(doc => {
-                    const b = doc.data();
-                    html += `
-                        <div class="load-card">
-                            <div class="load-header"><h4>${b.vehicle || 'Freight'}</h4><span class="load-distance">${b.km || 0} miles</span></div>
-                            <div class="load-route"><i class="fas fa-map-marker-alt"></i> ${b.pickup?.substring(0,30)}<br><i class="fas fa-flag-checkered"></i> ${b.drop?.substring(0,30)}</div>
-                            <div class="load-footer"><span class="load-price">$${b.fare?.toFixed(2)}</span><div class="load-actions"><button class="btn-accept" onclick="acceptBooking('${doc.id}')">Accept</button><button class="btn-decline" onclick="declineBooking('${doc.id}')">Decline</button></div></div>
-                        </div>`;
-                });
-                container.innerHTML = html;
+    const container = document.getElementById('availableLoadsList');
+    if (!container) return;
+    
+    // Loading state दिखाएँ
+    container.innerHTML = '<div style="text-align:center; padding:20px;"><div class="spinner"></div><p>Loading loads...</p></div>';
+    
+    if (loadsListener) loadsListener();
+    
+    loadsListener = db.collection('bookings')
+        .where('status', '==', 'pending')
+        .orderBy('timestamp', 'desc')
+        .onSnapshot((snapshot) => {
+            if (snapshot.empty) {
+                container.innerHTML = '<div style="text-align:center; padding:40px;">No loads available</div>';
+                return;
+            }
+            let html = '';
+            snapshot.forEach(doc => {
+                const b = doc.data();
+                html += `
+                    <div class="load-card">
+                        <div class="load-header"><h4>${b.vehicle || 'Freight'}</h4><span class="load-distance">${b.km || 0} miles</span></div>
+                        <div class="load-route"><i class="fas fa-map-marker-alt"></i> ${b.pickup?.substring(0,30)}<br><i class="fas fa-flag-checkered"></i> ${b.drop?.substring(0,30)}</div>
+                        <div class="load-footer"><span class="load-price">$${b.fare?.toFixed(2)}</span>
+                            <div class="load-actions">
+                                <button class="btn-accept" onclick="acceptBooking('${doc.id}')">Accept</button>
+                                <button class="btn-decline" onclick="declineBooking('${doc.id}')">Decline</button>
+                            </div>
+                        </div>
+                    </div>`;
             });
+            container.innerHTML = html;
+        }, (error) => {
+            // 🔥 Error callback जोड़ा गया
+            console.error('🔥 Error in loadAvailableLoads:', error);
+            container.innerHTML = `<div style="color:#ff4444; text-align:center; padding:40px;">
+                Error loading loads: ${error.message}<br>
+                <button onclick="loadAvailableLoads()" class="btn btn-primary">Retry</button>
+            </div>`;
+        });
         }
 
+        
         window.acceptBooking = async function(bookingId) {
             if (!currentDriver) { alert('Please login first'); showLoginModal(); return; }
             try {
