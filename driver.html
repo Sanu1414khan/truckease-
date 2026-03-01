@@ -125,8 +125,6 @@
         .form-group label { display: block; margin-bottom: 8px; color: #00f3ff; font-weight: 600; font-size: 14px; }
         .form-group input, .form-group select { width: 100%; padding: 16px; background: rgba(255,255,255,0.05); border: 1px solid rgba(0,243,255,0.3); border-radius: 20px; color: #fff; }
         .form-group input:focus { border-color: #00f3ff; outline: none; box-shadow: 0 0 20px #00f3ff; }
-        .form-group input.error { border-color: #ff4444; }
-        .error-message { color: #ff4444; font-size: 12px; margin-top: 5px; display: none; }
         .file-upload { border: 2px dashed rgba(0,243,255,0.3); border-radius: 20px; padding: 20px; text-align: center; cursor: pointer; transition: 0.2s; margin-bottom: 10px; }
         .file-upload:hover { border-color: #00f3ff; background: rgba(0,243,255,0.05); }
         .file-upload i { font-size: 24px; color: #00f3ff; margin-bottom: 10px; }
@@ -243,22 +241,18 @@
                 <div class="form-group">
                     <label>Full Legal Name (as per ID)</label>
                     <input type="text" id="fullName" placeholder="John A. Doe">
-                    <div class="error-message" id="error-fullName"></div>
                 </div>
                 <div class="form-group">
                     <label>Phone Number</label>
                     <input type="tel" id="regPhone" placeholder="+1 (212) 555-1234">
-                    <div class="error-message" id="error-regPhone"></div>
                 </div>
                 <div class="form-group">
                     <label>Email Address</label>
                     <input type="email" id="email" placeholder="driver@example.com">
-                    <div class="error-message" id="error-email"></div>
                 </div>
                 <div class="form-group">
                     <label>Social Security Number (SSN) • Last 4 digits</label>
                     <input type="text" id="ssn" placeholder="XXX-XX-1234" maxlength="11">
-                    <div class="error-message" id="error-ssn"></div>
                     <small style="color:#aaa;">For background check and tax purposes</small>
                 </div>
                 <div class="nav-buttons">
@@ -272,12 +266,10 @@
                 <div class="form-group">
                     <label>CDL License Number (Commercial)</label>
                     <input type="text" id="cdlNumber" placeholder="e.g. CDL123456789">
-                    <div class="error-message" id="error-cdlNumber"></div>
                 </div>
                 <div class="form-group">
                     <label>License Expiry Date</label>
                     <input type="date" id="cdlExpiry">
-                    <div class="error-message" id="error-cdlExpiry"></div>
                 </div>
                 <div class="form-group">
                     <label>Medical Examiner's Certificate (DOT Card)</label>
@@ -287,7 +279,6 @@
                         <input type="file" id="medCard" hidden accept="image/*,application/pdf" onchange="previewImage(this, 'medPreview')">
                     </div>
                     <div class="image-preview" id="medPreview"></div>
-                    <div class="error-message" id="error-medCard"></div>
                 </div>
                 <div class="form-group">
                     <label>Drug & Alcohol Clearinghouse Consent</label>
@@ -296,7 +287,6 @@
                         <option value="yes">I consent to background check</option>
                         <option value="no">I do not consent</option>
                     </select>
-                    <div class="error-message" id="error-clearinghouse"></div>
                 </div>
                 <div class="nav-buttons">
                     <button class="btn btn-secondary" onclick="prevStep(2)">← Back</button>
@@ -309,9 +299,7 @@
                 <h4 style="color:#00f3ff; margin-bottom:20px;">📄 Authority & Vehicle</h4>
                 <div class="form-group">
                     <label>USDOT Number (Numbers only)</label>
-                    <input type="text" id="usdot" placeholder="e.g. 1234567" pattern="[0-9]*" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
-                    <div class="error-message" id="error-usdot"></div>
-                    <small style="color:#aaa;">Required for interstate operation - numbers only</small>
+                    <input type="text" id="usdot" placeholder="e.g. 1234567">
                 </div>
                 <div class="form-group">
                     <label>MC Number (if applicable)</label>
@@ -319,9 +307,7 @@
                 </div>
                 <div class="form-group">
                     <label>VIN Number (17 characters)</label>
-                    <input type="text" id="vin" placeholder="17-character VIN" maxlength="17" minlength="17">
-                    <div class="error-message" id="error-vin"></div>
-                    <small style="color:#aaa;">Must be exactly 17 characters</small>
+                    <input type="text" id="vin" placeholder="17-character VIN" maxlength="17">
                 </div>
                 <div class="form-group">
                     <label>Certificate of Insurance (COI)</label>
@@ -331,7 +317,6 @@
                         <input type="file" id="insuranceFile" hidden accept="image/*,application/pdf" onchange="previewImage(this, 'insurancePreview')">
                     </div>
                     <div class="image-preview" id="insurancePreview"></div>
-                    <div class="error-message" id="error-insuranceFile"></div>
                 </div>
                 <div class="nav-buttons">
                     <button class="btn btn-secondary" onclick="prevStep(3)">← Back</button>
@@ -546,7 +531,7 @@
             }
         };
 
-        // ---------- FILL DEMO DATA (टेस्टिंग के लिए) ----------
+        // ---------- FILL DEMO DATA (optional) ----------
         window.fillDemoData = function() {
             document.getElementById('fullName').value = 'John Demo Driver';
             document.getElementById('regPhone').value = '+1 (212) 555-1234';
@@ -607,77 +592,11 @@
             }
         };
 
-        // ---------- VALIDATION FUNCTIONS ----------
-        function validateStep1() {
-            let isValid = true;
-            const name = document.getElementById('fullName').value.trim();
-            if (!name) { document.getElementById('error-fullName').style.display = 'block'; document.getElementById('error-fullName').innerText = 'Full name is required'; document.getElementById('fullName').classList.add('error'); isValid = false; } 
-            else { document.getElementById('error-fullName').style.display = 'none'; document.getElementById('fullName').classList.remove('error'); }
-            
-            const phone = document.getElementById('regPhone').value.trim();
-            if (!phone) { document.getElementById('error-regPhone').style.display = 'block'; document.getElementById('error-regPhone').innerText = 'Phone number is required'; document.getElementById('regPhone').classList.add('error'); isValid = false; } 
-            else { document.getElementById('error-regPhone').style.display = 'none'; document.getElementById('regPhone').classList.remove('error'); }
-            
-            const email = document.getElementById('email').value.trim();
-            if (!email || !email.includes('@')) { document.getElementById('error-email').style.display = 'block'; document.getElementById('error-email').innerText = 'Valid email is required'; document.getElementById('email').classList.add('error'); isValid = false; } 
-            else { document.getElementById('error-email').style.display = 'none'; document.getElementById('email').classList.remove('error'); }
-            
-            const ssn = document.getElementById('ssn').value.trim();
-            if (!ssn) { document.getElementById('error-ssn').style.display = 'block'; document.getElementById('error-ssn').innerText = 'SSN is required'; document.getElementById('ssn').classList.add('error'); isValid = false; } 
-            else { document.getElementById('error-ssn').style.display = 'none'; document.getElementById('ssn').classList.remove('error'); }
-            
-            return isValid;
-        }
-
-        function validateStep2() {
-            let isValid = true;
-            const cdl = document.getElementById('cdlNumber').value.trim();
-            if (!cdl) { document.getElementById('error-cdlNumber').style.display = 'block'; document.getElementById('error-cdlNumber').innerText = 'CDL number is required'; document.getElementById('cdlNumber').classList.add('error'); isValid = false; } 
-            else { document.getElementById('error-cdlNumber').style.display = 'none'; document.getElementById('cdlNumber').classList.remove('error'); }
-            
-            const expiry = document.getElementById('cdlExpiry').value;
-            if (!expiry) { document.getElementById('error-cdlExpiry').style.display = 'block'; document.getElementById('error-cdlExpiry').innerText = 'Expiry date is required'; document.getElementById('cdlExpiry').classList.add('error'); isValid = false; } 
-            else { document.getElementById('error-cdlExpiry').style.display = 'none'; document.getElementById('cdlExpiry').classList.remove('error'); }
-            
-            const medFile = document.getElementById('medCard').files[0];
-            if (!medFile) { document.getElementById('error-medCard').style.display = 'block'; document.getElementById('error-medCard').innerText = 'Medical card is required'; isValid = false; } 
-            else { document.getElementById('error-medCard').style.display = 'none'; }
-            
-            const clearing = document.getElementById('clearinghouse').value;
-            if (!clearing) { document.getElementById('error-clearinghouse').style.display = 'block'; document.getElementById('error-clearinghouse').innerText = 'Please select an option'; isValid = false; } 
-            else { document.getElementById('error-clearinghouse').style.display = 'none'; }
-            
-            return isValid;
-        }
-
-        function validateStep3() {
-            let isValid = true;
-            const usdot = document.getElementById('usdot').value.trim();
-            if (!usdot) { document.getElementById('error-usdot').style.display = 'block'; document.getElementById('error-usdot').innerText = 'USDOT number is required'; document.getElementById('usdot').classList.add('error'); isValid = false; } 
-            else if (!/^\d+$/.test(usdot)) { document.getElementById('error-usdot').style.display = 'block'; document.getElementById('error-usdot').innerText = 'Only numbers allowed'; document.getElementById('usdot').classList.add('error'); isValid = false; } 
-            else { document.getElementById('error-usdot').style.display = 'none'; document.getElementById('usdot').classList.remove('error'); }
-            
-            const vin = document.getElementById('vin').value.trim();
-            if (!vin) { document.getElementById('error-vin').style.display = 'block'; document.getElementById('error-vin').innerText = 'VIN is required'; document.getElementById('vin').classList.add('error'); isValid = false; } 
-            else if (vin.length !== 17) { document.getElementById('error-vin').style.display = 'block'; document.getElementById('error-vin').innerText = 'VIN must be exactly 17 characters'; document.getElementById('vin').classList.add('error'); isValid = false; } 
-            else { document.getElementById('error-vin').style.display = 'none'; document.getElementById('vin').classList.remove('error'); }
-            
-            const insFile = document.getElementById('insuranceFile').files[0];
-            if (!insFile) { document.getElementById('error-insuranceFile').style.display = 'block'; document.getElementById('error-insuranceFile').innerText = 'Insurance certificate is required'; isValid = false; } 
-            else { document.getElementById('error-insuranceFile').style.display = 'none'; }
-            
-            return isValid;
-        }
-
-        // ---------- REGISTRATION STEP MANAGEMENT ----------
+        // ---------- REGISTRATION STEP MANAGEMENT (बिना वैलिडेशन के) ----------
         let currentStep = 1;
 
         window.nextStep = function(step) {
-            let isValid = false;
-            if (step === 1) isValid = validateStep1();
-            else if (step === 2) isValid = validateStep2();
-            if (!isValid) return;
-            
+            // बिना वैलिडेशन के सीधे अगले स्टेप पर जाएँ
             document.getElementById(`step${step}`).style.display = 'none';
             document.getElementById(`step${step + 1}`).style.display = 'block';
             
@@ -717,10 +636,8 @@
             return await fileRef.getDownloadURL();
         }
 
-        // ---------- SUBMIT REGISTRATION ----------
+        // ---------- SUBMIT REGISTRATION (पूरी तरह डेमो - बिना डेटा चेक) ----------
         window.submitRegistration = async function() {
-            if (!validateStep3()) return;
-            
             if (!currentDriver) {
                 alert('Please login first');
                 document.getElementById('loginModal').classList.add('active');
@@ -732,24 +649,24 @@
             submitBtn.disabled = true;
             submitBtn.innerHTML = '<span class="btn-spinner"></span> Submitting...';
 
-            const fullName = document.getElementById('fullName').value;
-            const phone = document.getElementById('regPhone').value;
-            const email = document.getElementById('email').value;
-            const ssn = document.getElementById('ssn').value;
-            const cdlNumber = document.getElementById('cdlNumber').value;
-            const cdlExpiry = document.getElementById('cdlExpiry').value;
-            const clearinghouse = document.getElementById('clearinghouse').value;
-            const usdot = document.getElementById('usdot').value;
-            const mcNumber = document.getElementById('mcNumber').value;
-            const vin = document.getElementById('vin').value;
+            // डिफॉल्ट डेमो डेटा (अगर फॉर्म खाली है तो यह सेव होगा)
+            const fullName = document.getElementById('fullName').value || 'Demo Driver';
+            const phone = document.getElementById('regPhone').value || '+1 212-555-1234';
+            const email = document.getElementById('email').value || 'demo@example.com';
+            const ssn = document.getElementById('ssn').value || '123-45-6789';
+            const cdlNumber = document.getElementById('cdlNumber').value || 'CDL123456';
+            const cdlExpiry = document.getElementById('cdlExpiry').value || '2028-12-31';
+            const clearinghouse = document.getElementById('clearinghouse').value || 'yes';
+            const usdot = document.getElementById('usdot').value || '1234567';
+            const mcNumber = document.getElementById('mcNumber').value || 'MC-123456';
+            const vin = document.getElementById('vin').value || '1HGCM82633A123456';
             
-            const medCardFile = document.getElementById('medCard').files[0];
-            const insuranceFile = document.getElementById('insuranceFile').files[0];
+            // डमी फाइल URL (बिना अपलोड के)
+            const medCardUrl = 'demo_med_card_url';
+            const insuranceUrl = 'demo_insurance_url';
 
             try {
-                const medCardUrl = medCardFile ? await uploadFile(medCardFile, 'medical') : 'demo_med_card_url';
-                const insuranceUrl = insuranceFile ? await uploadFile(insuranceFile, 'insurance') : 'demo_insurance_url';
-
+                // सीधे pending_drivers में सेव करें (बिना फाइल अपलोड)
                 await db.collection('pending_drivers').doc(currentDriver.uid).set({
                     userId: currentDriver.uid,
                     phoneNumber: currentDriver.phoneNumber,
