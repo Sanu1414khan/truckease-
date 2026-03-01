@@ -308,10 +308,10 @@
             <div id="tab-dashboard" class="section active">
                 <h2 class="section-title">📊 Business Overview</h2>
                 <div class="stats-grid" id="statsContainer">
-                    <div class="stat-card glass"><span class="label">Total Revenue</span><span class="value" id="totalRevenue">$0</span><span class="change">↑12%</span></div>
-                    <div class="stat-card glass"><span class="label">Active Bookings</span><span class="value" id="activeBookings">0</span><span class="change">+8 today</span></div>
-                    <div class="stat-card glass"><span class="label">Pending Drivers</span><span class="value" id="pendingDrivers">0</span><span class="change">waiting</span></div>
-                    <div class="stat-card glass"><span class="label">Total Fleet</span><span class="value" id="totalFleet">0</span><span class="change">12 types</span></div>
+                  <div class="stat-card glass"><span class="label">Total Revenue</span><span class="value" id="totalRevenue">$0</span><span class="change">↑12%</span></div>
+                 <div class="stat-card glass"><span class="label">Active Bookings</span><span class="value" id="activeBookings">0</span><span class="change">+8 today</span></div>
+                 <div class="stat-card glass"><span class="label">Pending Drivers</span><span class="value" id="pendingDrivers">0</span><span class="change">waiting</span></div>
+                 <div class="stat-card glass"><span class="label">Total Fleet</span><span class="value" id="totalFleet">0</span><span class="change">12 types</span></div>   
                 </div>
                 <div class="map-container" id="mapPlaceholder"></div>
                 <div class="chart-row">
@@ -445,29 +445,50 @@
         });
 
         // ---------- REAL-TIME LISTENERS ----------
+                      // ---------- REAL-TIME LISTENERS (DPI Updated Version) ----------
         function initRealTimeListeners() {
-            // Active Bookings Count (accepted)
-            db.collection('bookings').where('status', '==', 'accepted').onSnapshot(snap => {
-                document.getElementById('activeBookings').innerText = snap.size;
+            // 1. Online Drivers Count (Live)
+            db.collection('drivers').where('status', '==', 'online').onSnapshot(snap => {
+                const el = document.getElementById('onlineDrivers');
+                if(el) el.innerText = snap.size;
+            }, (error) => {
+                console.error('🔥 Error in drivers listener:', error);
+                if(document.getElementById('onlineDrivers')) document.getElementById('onlineDrivers').innerText = '?';
             });
 
-            // Pending Drivers Count
+            // 2. Active Bookings/Shipments
+            db.collection('bookings').where('status', '==', 'accepted').onSnapshot(snap => {
+                const el = document.getElementById('activeBookings'); // आपकी ID यही है
+                if(el) el.innerText = snap.size;
+            }, (error) => {
+                console.error('🔥 Error in bookings listener:', error);
+                if(document.getElementById('activeBookings')) document.getElementById('activeBookings').innerText = '?';
+            });
+
+            // 3. Pending Drivers (DPI सुधार के साथ)
             db.collection('pending_drivers').onSnapshot(snap => {
                 document.getElementById('pendingDrivers').innerText = snap.size;
+            }, (error) => {
+                console.error('🔥 Error in pending drivers:', error);
+                document.getElementById('pendingDrivers').innerText = '?';
             });
 
-            // Total Fleet Count
-            db.collection('vehicles').onSnapshot(snap => {
-                document.getElementById('totalFleet').innerText = snap.size;
-            });
-
-            // Total Revenue (only completed bookings)
+            // 4. Total Revenue (DPI सुधार के साथ)
             db.collection('bookings').where('status', '==', 'completed').onSnapshot(snap => {
                 let total = 0;
                 snap.forEach(doc => total += doc.data().fare || 0);
                 document.getElementById('totalRevenue').innerText = '$' + total.toFixed(2);
+            }, (error) => {
+                console.error('🔥 Error in revenue:', error);
+                document.getElementById('totalRevenue').innerText = '$?';
             });
-
+            
+            // 5. Total Fleet
+            db.collection('vehicles').onSnapshot(snap => {
+                document.getElementById('totalFleet').innerText = snap.size;
+            });
+        }
+        
             // Bookings List
             db.collection('bookings').orderBy('timestamp', 'desc').onSnapshot(snap => {
                 let html = '';
