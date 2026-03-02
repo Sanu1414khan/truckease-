@@ -1131,7 +1131,7 @@
         }, error => console.error('🔥 Error in active shipments listener:', error));
 
         // ---------- लॉगिन मोडल बंद करने के लिए ----------
-        document.getElementById('loginModal').addEventListener('click', function(e) {
+        document.getElementById('loginModal').('click', function(e) {
             if (e.target === this) this.classList.remove('active');
         });
     </script>
