@@ -4,12 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>TruckEase • Master Admin</title>
-    <!-- Fonts & Icons -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- Leaflet for Map -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <style>
@@ -137,8 +134,8 @@
         }
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 20px;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 15px;
             margin-bottom: 30px;
         }
         .stat-card {
@@ -147,7 +144,7 @@
             flex-direction: column;
         }
         .stat-card .label { font-size: 14px; color: #ccc; margin-bottom: 5px; }
-        .stat-card .value { font-size: 32px; font-weight: 800; color: #00f3ff; }
+        .stat-card .value { font-size: 28px; font-weight: 800; color: #00f3ff; }
         .stat-card .change { font-size: 13px; color: #4caf50; margin-top: 5px; }
         .map-container {
             height: 250px;
@@ -260,7 +257,6 @@
     </style>
 </head>
 <body>
-    <!-- Login Screen -->
     <div id="loginScreen">
         <div class="login-card glass">
             <h2>🔐 Admin Access</h2>
@@ -271,9 +267,7 @@
         </div>
     </div>
 
-    <!-- Main Dashboard -->
     <div id="dashboard">
-        <!-- Sidebar -->
         <div class="sidebar glass">
             <div class="logo">🚀 TRUCKEASE</div>
             <div class="nav-item active" data-tab="dashboard">
@@ -302,16 +296,15 @@
             </div>
         </div>
 
-        <!-- Main Content -->
         <div class="main-content glass">
-            <!-- Dashboard Tab -->
             <div id="tab-dashboard" class="section active">
                 <h2 class="section-title">📊 Business Overview</h2>
                 <div class="stats-grid" id="statsContainer">
                   <div class="stat-card glass"><span class="label">Total Revenue</span><span class="value" id="totalRevenue">$0</span><span class="change">↑12%</span></div>
-                 <div class="stat-card glass"><span class="label">Active Bookings</span><span class="value" id="activeBookings">0</span><span class="change">+8 today</span></div>
+                 <div class="stat-card glass"><span class="label">Active Bookings</span><span class="value" id="activeBookings">0</span><span class="change">Live</span></div>
+                 <div class="stat-card glass"><span class="label">Online Drivers</span><span class="value" id="onlineDrivers">0</span><span class="change">DPI Live</span></div>
                  <div class="stat-card glass"><span class="label">Pending Drivers</span><span class="value" id="pendingDrivers">0</span><span class="change">waiting</span></div>
-                 <div class="stat-card glass"><span class="label">Total Fleet</span><span class="value" id="totalFleet">0</span><span class="change">12 types</span></div>   
+                 <div class="stat-card glass"><span class="label">Total Fleet</span><span class="value" id="totalFleet">0</span><span class="change">System</span></div>   
                 </div>
                 <div class="map-container" id="mapPlaceholder"></div>
                 <div class="chart-row">
@@ -326,7 +319,6 @@
                 </div>
             </div>
 
-            <!-- Booking Management Tab -->
             <div id="tab-bookings" class="section">
                 <h2 class="section-title">📋 Booking Management</h2>
                 <div class="table-container glass">
@@ -337,7 +329,6 @@
                 </div>
             </div>
 
-            <!-- Driver Verification Tab (Pending Drivers) -->
             <div id="tab-drivers" class="section">
                 <h2 class="section-title">🆔 Pending Driver Verification</h2>
                 <div class="table-container glass">
@@ -348,7 +339,6 @@
                 </div>
             </div>
 
-            <!-- Fleet Control Tab -->
             <div id="tab-fleet" class="section">
                 <h2 class="section-title">🚛 Fleet Control</h2>
                 <div class="table-container glass">
@@ -360,7 +350,6 @@
                 <button class="save-pricing" onclick="addVehicle()" style="margin-top:20px;">+ Add New Vehicle</button>
             </div>
 
-            <!-- Dynamic Pricing Tab -->
             <div id="tab-pricing" class="section">
                 <h2 class="section-title">💰 Dynamic Pricing</h2>
                 <div class="glass" style="padding:20px;">
@@ -374,7 +363,6 @@
         </div>
     </div>
 
-    <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
@@ -407,6 +395,7 @@
                     document.getElementById('dashboard').style.display = 'block';
                     initRealTimeListeners();
                     initMapPlaceholder();
+                    initCharts();
                 })
                 .catch(error => {
                     document.getElementById('loginError').style.display = 'block';
@@ -416,8 +405,7 @@
 
         window.adminLogout = function() {
             auth.signOut().then(() => {
-                document.getElementById('loginScreen').style.display = 'flex';
-                document.getElementById('dashboard').style.display = 'none';
+                location.reload();
             });
         };
 
@@ -427,9 +415,7 @@
                 document.getElementById('dashboard').style.display = 'block';
                 initRealTimeListeners();
                 initMapPlaceholder();
-            } else {
-                document.getElementById('loginScreen').style.display = 'flex';
-                document.getElementById('dashboard').style.display = 'none';
+                initCharts();
             }
         });
 
@@ -444,51 +430,39 @@
             });
         });
 
-        // ---------- REAL-TIME LISTENERS ----------
+        // ---------- REAL-TIME LISTENERS (FIXED) ----------
         function initRealTimeListeners() {
-            // 1. Online Drivers Count (Live)
+            // 1. Online Drivers Count (DPI)
             db.collection('drivers').where('status', '==', 'online').onSnapshot(snap => {
                 const el = document.getElementById('onlineDrivers');
                 if(el) el.innerText = snap.size;
-            }, (error) => {
-                console.error('🔥 Error in drivers listener:', error);
-                if(document.getElementById('onlineDrivers')) document.getElementById('onlineDrivers').innerText = '?';
             });
 
-            // 2. Active Bookings/Shipments
+            // 2. Active Bookings
             db.collection('bookings').where('status', '==', 'accepted').onSnapshot(snap => {
-                const el = document.getElementById('activeBookings'); // आपकी ID यही है
+                const el = document.getElementById('activeBookings');
                 if(el) el.innerText = snap.size;
-            }, (error) => {
-                console.error('🔥 Error in bookings listener:', error);
-                if(document.getElementById('activeBookings')) document.getElementById('activeBookings').innerText = '?';
             });
 
-            // 3. Pending Drivers (DPI सुधार के साथ)
+            // 3. Pending Drivers
             db.collection('pending_drivers').onSnapshot(snap => {
-                document.getElementById('pendingDrivers').innerText = snap.size;
-            }, (error) => {
-                console.error('🔥 Error in pending drivers:', error);
-                document.getElementById('pendingDrivers').innerText = '?';
+                const el = document.getElementById('pendingDrivers');
+                if(el) el.innerText = snap.size;
             });
 
-            // 4. Total Revenue (DPI सुधार के साथ)
+            // 4. Total Revenue
             db.collection('bookings').where('status', '==', 'completed').onSnapshot(snap => {
                 let total = 0;
                 snap.forEach(doc => total += doc.data().fare || 0);
                 document.getElementById('totalRevenue').innerText = '$' + total.toFixed(2);
-            }, (error) => {
-                console.error('🔥 Error in revenue:', error);
-                document.getElementById('totalRevenue').innerText = '$?';
             });
             
             // 5. Total Fleet
             db.collection('vehicles').onSnapshot(snap => {
                 document.getElementById('totalFleet').innerText = snap.size;
             });
-        }
-        
-            // Bookings List
+
+            // 6. Bookings Table List
             db.collection('bookings').orderBy('timestamp', 'desc').onSnapshot(snap => {
                 let html = '';
                 snap.forEach(doc => {
@@ -509,7 +483,7 @@
                 document.getElementById('bookingsBody').innerHTML = html;
             });
 
-            // Pending Drivers List (from pending_drivers collection)
+            // 7. Pending Drivers Table List
             db.collection('pending_drivers').onSnapshot(snap => {
                 let html = '';
                 snap.forEach(doc => {
@@ -533,7 +507,7 @@
                 document.getElementById('driversBody').innerHTML = html;
             });
 
-            // Fleet List
+            // 8. Fleet Table List
             db.collection('vehicles').onSnapshot(snap => {
                 let html = '';
                 snap.forEach(doc => {
@@ -548,132 +522,93 @@
                 });
                 document.getElementById('fleetBody').innerHTML = html;
             });
-        }
+        } // <--- यहाँ ब्रैकेट सही बंद हुआ है, जिससे टेबल लोड होगी।
 
         // ---------- ACTIONS ----------
         window.updateBooking = function(id, status) {
             db.collection('bookings').doc(id).update({ status });
         };
 
-        // ---------- APPROVE DRIVER (move from pending_drivers to drivers) ----------
         window.approveDriver = async function(docId) {
             try {
                 const pendingDoc = await db.collection('pending_drivers').doc(docId).get();
-                if (!pendingDoc.exists) {
-                    alert('Driver not found in pending list.');
-                    return;
-                }
+                if (!pendingDoc.exists) return;
                 const driverData = pendingDoc.data();
-
-                // Add to drivers collection with approved status
                 await db.collection('drivers').doc(docId).set({
                     ...driverData,
                     status: 'approved',
                     approvedAt: firebase.firestore.FieldValue.serverTimestamp()
                 });
-
-                // Remove from pending_drivers
                 await db.collection('pending_drivers').doc(docId).delete();
-
-                alert('Driver approved successfully!');
-            } catch (error) {
-                alert('Error approving driver: ' + error.message);
-            }
+                alert('Driver approved!');
+            } catch (error) { alert(error.message); }
         };
 
-        // ---------- REJECT DRIVER (delete from pending_drivers) ----------
         window.rejectDriver = async function(docId) {
-            if (!confirm('Are you sure you want to reject this driver?')) return;
-            try {
+            if (confirm('Reject this driver?')) {
                 await db.collection('pending_drivers').doc(docId).delete();
-                alert('Driver rejected successfully!');
-            } catch (error) {
-                alert('Error rejecting driver: ' + error.message);
             }
         };
 
-        // ---------- FLEET MANAGEMENT ----------
         window.addVehicle = function() {
-            const type = prompt('Enter vehicle type (e.g., Box Truck):');
-            if (!type) return;
-            const base = prompt('Base rate ($):');
-            const perMile = prompt('Per mile rate ($):');
-            db.collection('vehicles').doc(type).set({ type, baseRate: parseFloat(base), perMile: parseFloat(perMile), status: 'active' });
+            const type = prompt('Vehicle type:');
+            const base = prompt('Base rate:');
+            const mile = prompt('Per mile:');
+            if(type && base && mile) {
+                db.collection('vehicles').doc(type).set({
+                    type, baseRate: parseFloat(base), perMile: parseFloat(mile), status: 'active'
+                });
+            }
         };
 
         window.editVehicle = function(id) {
-            const newBase = prompt('New base rate:');
-            const newPerMile = prompt('New per mile rate:');
-            db.collection('vehicles').doc(id).update({ baseRate: parseFloat(newBase), perMile: parseFloat(newPerMile) });
+            const base = prompt('New base rate:');
+            const mile = prompt('New per mile:');
+            if(base && mile) {
+                db.collection('vehicles').doc(id).update({
+                    baseRate: parseFloat(base), perMile: parseFloat(mile)
+                });
+            }
         };
 
-        // ---------- PRICING ----------
         window.savePricing = function() {
             const base = document.getElementById('baseRate').value;
             const perMile = document.getElementById('perMileRate').value;
-            const weight = document.getElementById('weightMult').value;
-            const surge = document.getElementById('surgeMult').value;
             db.collection('settings').doc('pricing').set({
                 baseRate: parseFloat(base),
                 perMileRate: parseFloat(perMile),
-                weightMultiplier: parseFloat(weight),
-                surgeMultiplier: parseFloat(surge)
+                weightMultiplier: parseFloat(document.getElementById('weightMult').value),
+                surgeMultiplier: parseFloat(document.getElementById('surgeMult').value)
             });
             alert('Pricing updated!');
         };
 
-        // ---------- CHARTS ----------
+        // ---------- MAP & CHARTS ----------
         function initCharts() {
-            const ctxWeekly = document.getElementById('weeklyChart').getContext('2d');
-            weeklyChart = new Chart(ctxWeekly, {
+            const ctxW = document.getElementById('weeklyChart').getContext('2d');
+            new Chart(ctxW, {
                 type: 'line',
                 data: {
-                    labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
-                    datasets: [{
-                        label: 'Earnings ($)',
-                        data: [1200, 1900, 1500, 2200, 2800, 3500, 4000],
-                        borderColor: '#00f3ff',
-                        backgroundColor: 'rgba(0,243,255,0.1)',
-                        tension: 0.4,
-                        fill: true
-                    }]
-                },
-                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+                    labels: ['M', 'T', 'W', 'T', 'F', 'S', 'S'],
+                    datasets: [{ label: 'Earnings', data: [1200, 1900, 1500, 2200, 2800, 3500, 4000], borderColor: '#00f3ff', tension: 0.4 }]
+                }
             });
-            const ctxMonthly = document.getElementById('monthlyChart').getContext('2d');
-            monthlyChart = new Chart(ctxMonthly, {
+            const ctxM = document.getElementById('monthlyChart').getContext('2d');
+            new Chart(ctxM, {
                 type: 'bar',
                 data: {
                     labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
-                    datasets: [{
-                        label: 'Revenue',
-                        data: [42000, 48000, 53000, 61000, 67000, 72000],
-                        backgroundColor: '#00f3ff',
-                        borderRadius: 8
-                    }]
-                },
-                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+                    datasets: [{ label: 'Revenue', data: [42, 48, 53, 61, 67, 72], backgroundColor: '#00f3ff' }]
+                }
             });
         }
 
-        // ---------- MAP ----------
         function initMapPlaceholder() {
             if (mapInitialized) return;
             mapInitialized = true;
-            const map = L.map('mapPlaceholder').setView([39.8283, -98.5795], 4);
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '© OpenStreetMap'
-            }).addTo(map);
-            const trucks = [
-                [40.7128, -74.0060], [34.0522, -118.2437], [41.8781, -87.6298], [29.7604, -95.3698], [33.7490, -84.3880]
-            ];
-            trucks.forEach(pos => {
-                L.marker(pos).addTo(map).bindPopup('Active Truck');
-            });
+            const map = L.map('mapPlaceholder').setView([39.8, -98.5], 4);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
         }
-
-        // Initialize charts on page load
-        initCharts();
     </script>
 </body>
 </html>
