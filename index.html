@@ -306,7 +306,7 @@
             <div id="map"></div>
             <button class="btn btn-secondary" onclick="getCurrentLocation()"><i class="fas fa-location-dot"></i> Use my location</button>
             <!-- Get Route button -->
-            <button class="btn btn-primary" onclick="calculateRoute()" style="margin-top:10px;">🛣️ Get Route & Calculate Fare</button>
+            <button class="btn btn-primary" onclick="confirmAddress()">
             <datalist id="pickupSuggestions"></datalist>
             <datalist id="dropSuggestions"></datalist>
             
@@ -643,82 +643,40 @@
         };
 
         // ---------- ROUTE CALCULATION ----------
-        async function geocodeAddress(address) {
-            const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}`;
-            try {
-                const res = await fetch(url);
-                const data = await res.json();
-                if (data && data.length > 0) {
-                    return { lat: parseFloat(data[0].lat), lng: parseFloat(data[0].lon) };
-                } else {
-                    throw new Error('Address not found');
-                }
-            } catch (e) {
-                alert('Geocoding failed: ' + e.message);
-                return null;
-            }
-        }
+        window.confirmAddress = async function() {
+    const pickup = document.getElementById('pickupAddr').value;
+    const drop = document.getElementById('dropAddr').value;
+    
+    if (!pickup || !drop) {
+        alert('Please enter both pickup and drop addresses');
+        return;
+    }
 
-        window.calculateRoute = async function() {
-            const pickup = document.getElementById('pickupAddr').value;
-            const drop = document.getElementById('dropAddr').value;
-            
-            if (!pickup || !drop) {
-                alert('Please enter both pickup and drop addresses');
-                return;
-            }
+    // --- BYPASS MODE: सीधे मैप और फेयर दिखाओ ---
+    // डेमो के लिए फिक्स दूरी और फेयर सेट करें
+    distanceMiles = 10; // मान लिया 10 मील
+    finalFare = basePrice + (distanceMiles * perKmRate);
+    
+    // मैप दिखाने के लिए बस एक डमी मैप बना दें
+    const mapDiv = document.getElementById('map');
+    mapDiv.style.display = 'block';
 
-            document.getElementById('loading').classList.add('active');
+    // पुराना मैप हटाकर नया बनाएँ (बिना रूटिंग के)
+    if (map) {
+        map.remove();
+    }
+    map = L.map('map').setView([40.7128, -74.0060], 12); // NYC के कुछ लैट-लॉन्ग
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+    L.marker([40.7128, -74.0060]).addTo(map).bindPopup('Pickup').openPopup();
+    L.marker([40.7580, -73.9855]).addTo(map).bindPopup('Drop').openPopup();
 
-            const pickupCoords = await geocodeAddress(pickup);
-            const dropCoords = await geocodeAddress(drop);
+    // फेयर डिस्प्ले अपडेट करें
+    document.getElementById('fareAmount').innerText = '$' + finalFare.toFixed(2);
 
-            if (!pickupCoords || !dropCoords) {
-                document.getElementById('loading').classList.remove('active');
-                return;
-            }
-
-            const mapDiv = document.getElementById('map');
-            mapDiv.style.display = 'block';
-
-            if (!map) {
-                map = L.map('map').setView([pickupCoords.lat, pickupCoords.lng], 10);
-                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
-            } else {
-                map.setView([pickupCoords.lat, pickupCoords.lng], 10);
-            }
-
-            if (routingControl) {
-                map.removeControl(routingControl);
-            }
-
-            routingControl = L.Routing.control({
-                waypoints: [
-                    L.latLng(pickupCoords.lat, pickupCoords.lng),
-                    L.latLng(dropCoords.lat, dropCoords.lng)
-                ],
-                routeWhileDragging: false,
-                showAlternatives: false,
-                lineOptions: {
-                    styles: [{ color: '#00f3ff', opacity: 0.8, weight: 6 }]
-                },
-                createMarker: function() { return null; }
-            }).addTo(map);
-
-            routingControl.on('routesfound', function(e) {
-                const routes = e.routes;
-                const summary = routes[0].summary;
-                const distanceMiles = summary.totalDistance * 0.000621371;
-                document.getElementById('kmInput').value = distanceMiles.toFixed(1);
-                calculateFare();
-                document.getElementById('loading').classList.remove('active');
-            });
-
-            routingControl.on('routingerror', function(e) {
-                alert('Could not find route: ' + e.error.message);
-                document.getElementById('loading').classList.remove('active');
-            });
-        };
+    // अब मैप स्टेप दिखाएँ, एड्रेस स्टेप छुपाएँ
+    document.getElementById('addressStep').style.display = 'none';
+    document.getElementById('mapStep').style.display = 'block';
+};
 
         // ---------- PAYMENT PLACEHOLDER ----------
         window.processPayment = function() {
