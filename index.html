@@ -570,41 +570,170 @@
             });
         });
 
-        // ---------- ADDRESS CONFIRMATION AND ROUTE CALCULATION ----------
-       window.confirmAddress = async function() {
-    const pickup = document.getElementById('pickupAddr').value;
-    const drop = document.getElementById('dropAddr').value;
+       // ========== PRO-LEVEL: REAL-TIME GEOCODING & ROUTING (USA READY) ==========
+window.confirmAddress = async function() {
+    const pickup = document.getElementById('pickupAddr').value.trim();
+    const drop = document.getElementById('dropAddr').value.trim();
     
     if (!pickup || !drop) {
         alert('Please enter both pickup and drop addresses');
         return;
     }
 
-    // --- BYPASS MODE: सीधे मैप और फेयर दिखाओ ---
-    // डेमो के लिए फिक्स दूरी और फेयर सेट करें
-    distanceMiles = 10; // मान लिया 10 मील
+    // लोडिंग दिखाएँ
+    document.getElementById('loading').classList.add('active');
+
+    try {
+        // ----- STEP 1: GEOCODE PICKUP ADDRESS (Nominatim - Free, but add User-Agent) -----
+        const pickupUrl = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(pickup)}&countrycodes=us&limit=1`;
+        const pickupRes = await fetch(pickupUrl, {
+            headers: { 'User-Agent': 'TruckEase-App/1.0' }
+        });
+        const pickupData = await pickupRes.json();
+
+        if (!pickupData || pickupData.length === 0) {
+            throw new Error('Pickup address not found');
+        }
+
+        const pickupCoords = {
+            lat: parseFloat(pickupData[0].lat),
+            lng: parseFloat(pickupData[0].lon)
+        };
+
+        // ----- STEP 2: GEOCODE DROP ADDRESS -----
+        const dropUrl = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(drop)}&countrycodes=us&limit=1`;
+        const dropRes = await fetch(dropUrl, {
+            headers: { 'User-Agent': 'TruckEase-App/1.0' }
+        });
+        const dropData = await dropRes.json();
+
+        if (!dropData || dropData.length === 0) {
+            throw new Error('Drop address not found');
+        }
+
+        const dropCoords = {
+            lat: parseFloat(dropData[0].lat),
+            lng: parseFloat(dropData[0].lon)
+        };
+
+        // ----- STEP 3: GET ROUTE USING OSRM (FREE, FAST, USA COVERAGE) -----
+        // OSRM expects coordinates in lon,lat format
+        const osrmUrl = `https://router.project-osrm.org/route/v1/driving/${pickupCoords.lng},${pickupCoords.lat};${dropCoords.lng},${dropCoords.lat}?overview=full&geometries=geojson`;
+        
+        const routeRes = await fetch(osrmUrl);
+        const routeData = await routeRes.json();
+
+        if (!routeData.routes || routeData.routes.length === 0) {
+            throw new Error('Could not calculate route');
+        }
+
+        // Distance in meters, convert to miles
+        const distanceMeters = routeData.routes[0].distance;
+        distanceMiles = distanceMeters * 0.000621371; // 1 meter = 0.000621371 miles
+
+        // Get route geometry for drawing
+        const routeGeometry = routeData.routes[0].geometry;
+
+        // ----- STEP 4: CALCULATE FARE -----
+        finalFare = basePrice + (distanceMiles * perKmRate);
+        
+        // Apply promo discount if any
+        if (promoDiscount > 0) {
+            finalFare -= promoDiscount;
+            if (finalFare < 0) finalFare = 0;
+        }
+
+        // ----- STEP 5: DISPLAY MAP WITH ROUTE -----
+        const mapDiv = document.getElementById('map');
+        mapDiv.style.display = 'block';
+
+        // Remove old map if exists
+        if (map) {
+            map.remove();
+        }
+
+        // Create new map centered between pickup and drop
+        const centerLat = (pickupCoords.lat + dropCoords.lat) / 2;
+        const centerLng = (pickupCoords.lng + dropCoords.lng) / 2;
+        
+        map = L.map('map').setView([centerLat, centerLng], 12);
+        
+        // Add tile layer
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors'
+        }).addTo(map);
+
+        // Add markers for pickup and drop
+        L.marker([pickupCoords.lat, pickupCoords.lng])
+            .addTo(map)
+            .bindPopup('📍 Pickup: ' + pickup.substring(0, 30))
+            .openPopup();
+
+        L.marker([dropCoords.lat, dropCoords.lng])
+            .addTo(map)
+            .bindPopup('🏁 Drop: ' + drop.substring(0, 30));
+
+        // Draw the route line
+        if (routeGeometry && routeGeometry.coordinates) {
+            // OSRM returns [lng, lat] coordinates, need to flip to [lat, lng] for Leaflet
+            const latLngs = routeGeometry.coordinates.map(coord => [coord[1], coord[0]]);
+            
+            L.polyline(latLngs, {
+                color: '#00f3ff',
+                weight: 5,
+                opacity: 0.8,
+                lineJoin: 'round'
+            }).addTo(map);
+
+            // Fit map to show entire route
+            map.fitBounds(latLngs);
+        }
+
+        // ----- STEP 6: UPDATE UI -----
+        document.getElementById('fareAmount').innerText = '$' + finalFare.toFixed(2);
+        
+        // Hide address step, show map step
+        document.getElementById('addressStep').style.display = 'none';
+        document.getElementById('mapStep').style.display = 'block';
+
+        // लोडिंग बंद करें
+        document.getElementById('loading').classList.remove('active');
+
+    } catch (error) {
+        console.error('🔥 Route calculation error:', error);
+        alert('Error: ' + error.message);
+        document.getElementById('loading').classList.remove('active');
+        
+        // Optional: Fallback to bypass mode for testing if API fails
+        // आप चाहें तो यहाँ बाइपास कोड रख सकते हैं
+        useBypassMode(pickup, drop);
+    }
+};
+
+// Optional fallback bypass function (अगर API फेल हो जाए तो)
+function useBypassMode(pickup, drop) {
+    console.log('Using bypass mode for testing');
+    distanceMiles = 12.5; // Example distance
     finalFare = basePrice + (distanceMiles * perKmRate);
     
-    // मैप दिखाने के लिए बस एक डमी मैप बना दें
     const mapDiv = document.getElementById('map');
     mapDiv.style.display = 'block';
 
-    // पुराना मैप हटाकर नया बनाएँ (बिना रूटिंग के)
     if (map) {
         map.remove();
     }
-    map = L.map('map').setView([40.7128, -74.0060], 12); // NYC के कुछ लैट-लॉन्ग
+    
+    // NYC default view
+    map = L.map('map').setView([40.7128, -74.0060], 12);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
-    L.marker([40.7128, -74.0060]).addTo(map).bindPopup('Pickup').openPopup();
-    L.marker([40.7580, -73.9855]).addTo(map).bindPopup('Drop').openPopup();
+    L.marker([40.7128, -74.0060]).addTo(map).bindPopup('Pickup: ' + pickup.substring(0,30));
+    L.marker([40.7580, -73.9855]).addTo(map).bindPopup('Drop: ' + drop.substring(0,30));
 
-    // फेयर डिस्प्ले अपडेट करें
     document.getElementById('fareAmount').innerText = '$' + finalFare.toFixed(2);
-
-    // अब मैप स्टेप दिखाएँ, एड्रेस स्टेप छुपाएँ
     document.getElementById('addressStep').style.display = 'none';
     document.getElementById('mapStep').style.display = 'block';
-};
+    document.getElementById('loading').classList.remove('active');
+}
         // ---------- CONFIRM BOOKING ----------
         window.confirmBooking = async function() {
             if (!currentUser) { alert('Please login first'); showLoginModal(); return; }
