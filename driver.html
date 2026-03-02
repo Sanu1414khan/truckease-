@@ -328,14 +328,14 @@
 
     <!-- DASHBOARD SCREEN (Home) -->
     <div id="dashboardScreen" class="screen">
-        <!-- Stats Grid -->
+        <!-- Stats Grid (अब Real-time) -->
         <div class="stats-grid">
             <div class="stats-card">
-                <div class="value" id="totalTrips">47</div>
+                <div class="value" id="totalTrips">0</div>
                 <div class="label">Total Trips</div>
             </div>
             <div class="stats-card">
-                <div class="value" id="acceptanceRate">94%</div>
+                <div class="value" id="acceptanceRate">0%</div>
                 <div class="label">Acceptance</div>
             </div>
             <div class="stats-card">
@@ -348,7 +348,7 @@
         <div class="earnings-card">
             <div class="earnings-left">
                 <h3>Today's Earnings</h3>
-                <div class="amount" id="todayEarnings">$124.50</div>
+                <div class="amount" id="todayEarnings">$0.00</div>
             </div>
             <i class="fas fa-chart-line" style="font-size: 48px; color: #00f3ff; opacity: 0.5;"></i>
         </div>
@@ -400,7 +400,7 @@
                 <div style="margin:15px 0;">
                     <p><strong>Status:</strong> <span style="color:#4caf50;">Active</span></p>
                     <p><strong>Member Since:</strong> Feb 2024</p>
-                    <p><strong>Total Trips:</strong> 47</p>
+                    <p><strong>Total Trips:</strong> <span id="profileTotalTrips">0</span></p>
                 </div>
                 <button class="btn btn-primary" onclick="showScreen('registrationScreen')" style="margin-bottom:10px;">📝 Complete Registration</button>
                 <button class="btn btn-secondary" onclick="toggleOnlineStatus()" style="margin-top:10px;">
@@ -456,7 +456,7 @@
             <div style="margin:15px 0;">
                 <p><strong>Status:</strong> <span style="color:#4caf50;">Active</span></p>
                 <p><strong>Member Since:</strong> Feb 2024</p>
-                <p><strong>Total Trips:</strong> 47</p>
+                <p><strong>Total Trips:</strong> <span id="profileTotalTripsFull">0</span></p>
             </div>
             <button class="btn btn-primary" onclick="showScreen('registrationScreen')" style="margin-bottom:10px;">📝 Complete Registration</button>
             <button class="btn btn-secondary" onclick="toggleOnlineStatus()" style="margin-top:10px;">
@@ -500,7 +500,7 @@
         let currentDriver = null;
         let earningsChart = null;
         let loadsListener = null;
-        let driverStatus = 'pending'; // 'pending', 'approved', 'new'
+        let driverStatus = 'new'; // 'pending', 'approved', 'new'
 
         // ---------- SCREEN MANAGEMENT ----------
         window.showScreen = function(screenId) {
@@ -555,7 +555,13 @@
                 const approvedDoc = await db.collection('drivers').doc(uid).get();
                 if (approvedDoc.exists) {
                     driverStatus = 'approved';
-                    loadDriverData();
+                    // Firestore से online status भी लें
+                    if (approvedDoc.data().online !== undefined) {
+                        currentDriver.online = approvedDoc.data().online;
+                        document.getElementById('onlineStatus').innerText = currentDriver.online ? '🟢 Online' : '🔴 Offline';
+                        document.getElementById('statusToggleText').innerText = currentDriver.online ? 'Go Offline' : 'Go Online';
+                    }
+                    loadDriverStats(); // Real-time stats लोड करें
                     showScreen('dashboardScreen');
                     return;
                 }
@@ -592,11 +598,10 @@
             }
         };
 
-        // ---------- REGISTRATION STEP MANAGEMENT (बिना वैलिडेशन के) ----------
+        // ---------- REGISTRATION STEP MANAGEMENT ----------
         let currentStep = 1;
 
         window.nextStep = function(step) {
-            // बिना वैलिडेशन के सीधे अगले स्टेप पर जाएँ
             document.getElementById(`step${step}`).style.display = 'none';
             document.getElementById(`step${step + 1}`).style.display = 'block';
             
@@ -627,16 +632,13 @@
             currentStep = step - 1;
         };
 
-        // ---------- FILE UPLOAD ----------
+        // ---------- FILE UPLOAD (डमी URL) ----------
         async function uploadFile(file, path) {
-            if (!file) return null;
-            const storageRef = storage.ref();
-            const fileRef = storageRef.child(`drivers/${currentDriver?.uid || 'temp'}/${path}/${Date.now()}_${file.name}`);
-            await fileRef.put(file);
-            return await fileRef.getDownloadURL();
+            // Demo के लिए – बिना असली अपलोड के डमी URL लौटाएँ
+            return 'https://via.placeholder.com/150?text=' + path;
         }
 
-        // ---------- SUBMIT REGISTRATION (पूरी तरह डेमो - बिना डेटा चेक) ----------
+        // ---------- SUBMIT REGISTRATION (डमी डॉक्यूमेंट्स) ----------
         window.submitRegistration = async function() {
             if (!currentDriver) {
                 alert('Please login first');
@@ -649,7 +651,6 @@
             submitBtn.disabled = true;
             submitBtn.innerHTML = '<span class="btn-spinner"></span> Submitting...';
 
-            // डिफॉल्ट डेमो डेटा (अगर फॉर्म खाली है तो यह सेव होगा)
             const fullName = document.getElementById('fullName').value || 'Demo Driver';
             const phone = document.getElementById('regPhone').value || '+1 212-555-1234';
             const email = document.getElementById('email').value || 'demo@example.com';
@@ -662,11 +663,10 @@
             const vin = document.getElementById('vin').value || '1HGCM82633A123456';
             
             // डमी फाइल URL (बिना अपलोड के)
-            const medCardUrl = 'demo_med_card_url';
-            const insuranceUrl = 'demo_insurance_url';
+            const medCardUrl = 'https://via.placeholder.com/150?text=Medical+Card';
+            const insuranceUrl = 'https://via.placeholder.com/150?text=Insurance';
 
             try {
-                // सीधे pending_drivers में सेव करें (बिना फाइल अपलोड)
                 await db.collection('pending_drivers').doc(currentDriver.uid).set({
                     userId: currentDriver.uid,
                     phoneNumber: currentDriver.phoneNumber,
@@ -690,6 +690,7 @@
         // ---------- DEMO LOGIN ----------
         window.showLoginModal = function() {
             if (currentDriver) {
+                // Logout
                 currentDriver = null;
                 document.getElementById('userIcon').innerHTML = `<i class="fas fa-user"></i>`;
                 document.getElementById('onlineStatus').innerText = '🔴 Offline';
@@ -742,49 +743,46 @@
 
         // ---------- LOAD AVAILABLE LOADS ----------
         function loadAvailableLoads() {
-    const container = document.getElementById('availableLoadsList');
-    if (!container) return;
-    
-    // Loading state दिखाएँ
-    container.innerHTML = '<div style="text-align:center; padding:20px;"><div class="spinner"></div><p>Loading loads...</p></div>';
-    
-    if (loadsListener) loadsListener();
-    
-    loadsListener = db.collection('bookings')
-        .where('status', '==', 'pending')
-        .orderBy('timestamp', 'desc')
-        .onSnapshot((snapshot) => {
-            if (snapshot.empty) {
-                container.innerHTML = '<div style="text-align:center; padding:40px;">No loads available</div>';
-                return;
-            }
-            let html = '';
-            snapshot.forEach(doc => {
-                const b = doc.data();
-                html += `
-                    <div class="load-card">
-                        <div class="load-header"><h4>${b.vehicle || 'Freight'}</h4><span class="load-distance">${b.km || 0} miles</span></div>
-                        <div class="load-route"><i class="fas fa-map-marker-alt"></i> ${b.pickup?.substring(0,30)}<br><i class="fas fa-flag-checkered"></i> ${b.drop?.substring(0,30)}</div>
-                        <div class="load-footer"><span class="load-price">$${b.fare?.toFixed(2)}</span>
-                            <div class="load-actions">
-                                <button class="btn-accept" onclick="acceptBooking('${doc.id}')">Accept</button>
-                                <button class="btn-decline" onclick="declineBooking('${doc.id}')">Decline</button>
-                            </div>
-                        </div>
+            const container = document.getElementById('availableLoadsList');
+            if (!container) return;
+            
+            container.innerHTML = '<div style="text-align:center; padding:20px;"><div class="spinner"></div><p>Loading loads...</p></div>';
+            
+            if (loadsListener) loadsListener();
+            
+            loadsListener = db.collection('bookings')
+                .where('status', '==', 'pending')
+                .orderBy('timestamp', 'desc')
+                .onSnapshot((snapshot) => {
+                    if (snapshot.empty) {
+                        container.innerHTML = '<div style="text-align:center; padding:40px;">No loads available</div>';
+                        return;
+                    }
+                    let html = '';
+                    snapshot.forEach(doc => {
+                        const b = doc.data();
+                        html += `
+                            <div class="load-card">
+                                <div class="load-header"><h4>${b.vehicle || 'Freight'}</h4><span class="load-distance">${b.km || 0} miles</span></div>
+                                <div class="load-route"><i class="fas fa-map-marker-alt"></i> ${b.pickup?.substring(0,30)}<br><i class="fas fa-flag-checkered"></i> ${b.drop?.substring(0,30)}</div>
+                                <div class="load-footer"><span class="load-price">$${b.fare?.toFixed(2)}</span>
+                                    <div class="load-actions">
+                                        <button class="btn-accept" onclick="acceptBooking('${doc.id}')">Accept</button>
+                                        <button class="btn-decline" onclick="declineBooking('${doc.id}')">Decline</button>
+                                    </div>
+                                </div>
+                            </div>`;
+                    });
+                    container.innerHTML = html;
+                }, (error) => {
+                    console.error('🔥 Error in loadAvailableLoads:', error);
+                    container.innerHTML = `<div style="color:#ff4444; text-align:center; padding:40px;">
+                        Error loading loads: ${error.message}<br>
+                        <button onclick="loadAvailableLoads()" class="btn btn-primary">Retry</button>
                     </div>`;
-            });
-            container.innerHTML = html;
-        }, (error) => {
-            // 🔥 Error callback जोड़ा गया
-            console.error('🔥 Error in loadAvailableLoads:', error);
-            container.innerHTML = `<div style="color:#ff4444; text-align:center; padding:40px;">
-                Error loading loads: ${error.message}<br>
-                <button onclick="loadAvailableLoads()" class="btn btn-primary">Retry</button>
-            </div>`;
-        });
+                });
         }
 
-        
         window.acceptBooking = async function(bookingId) {
             if (!currentDriver) { alert('Please login first'); showLoginModal(); return; }
             try {
@@ -821,35 +819,87 @@
             }
         }
 
+        // ---------- TOGGLE ONLINE STATUS (Firestore में सेव करें) ----------
         window.toggleOnlineStatus = function() {
             if (!currentDriver) return;
             currentDriver.online = !currentDriver.online;
             const status = currentDriver.online ? '🟢 Online' : '🔴 Offline';
             document.getElementById('onlineStatus').innerText = status;
             document.getElementById('statusToggleText').innerText = currentDriver.online ? 'Go Offline' : 'Go Online';
-            if (document.getElementById('statusToggleTextFull')) { document.getElementById('statusToggleTextFull').innerText = currentDriver.online ? 'Go Offline' : 'Go Online'; }
+            if (document.getElementById('statusToggleTextFull')) { 
+                document.getElementById('statusToggleTextFull').innerText = currentDriver.online ? 'Go Offline' : 'Go Online'; 
+            }
             db.collection('drivers').doc(currentDriver.uid).set({ online: currentDriver.online, lastSeen: firebase.firestore.FieldValue.serverTimestamp() }, { merge: true });
         };
 
         window.showAddVehicle = function() { alert('Add vehicle feature coming soon!'); };
         window.requestPayout = function() { alert('Payout request submitted!'); };
 
-        function loadDriverData() {
-            document.getElementById('todayEarnings').innerText = '$124.50';
-            document.getElementById('totalTrips').innerText = '47';
-            document.getElementById('acceptanceRate').innerText = '94%';
-            document.getElementById('rating').innerText = '4.92';
-            document.getElementById('availableBalance').innerText = '$1,247.80';
-            document.getElementById('profileName').innerText = currentDriver?.name || 'Demo Driver';
-            document.getElementById('profilePhone').innerText = currentDriver?.phoneNumber || '+1 212-555-1234';
-            document.getElementById('profileNameFull').innerText = currentDriver?.name || 'Demo Driver';
-            document.getElementById('profilePhoneFull').innerText = currentDriver?.phoneNumber || '+1 212-555-1234';
-            document.getElementById('totalBalanceFull').innerText = '$1,247.80';
+        // ---------- REAL-TIME STATS LOADER ----------
+        function loadDriverStats() {
+            if (!currentDriver) return;
+
+            // Total Trips (completed + accepted? आप जैसे चाहें)
+            db.collection('bookings')
+                .where('driverId', '==', currentDriver.uid)
+                .onSnapshot(snap => {
+                    document.getElementById('totalTrips').innerText = snap.size;
+                    document.getElementById('profileTotalTrips').innerText = snap.size;
+                    document.getElementById('profileTotalTripsFull').innerText = snap.size;
+                }, error => console.error('Error loading total trips:', error));
+
+            // Today's Earnings
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            db.collection('bookings')
+                .where('driverId', '==', currentDriver.uid)
+                .where('status', '==', 'completed')
+                .where('timestamp', '>=', today)
+                .onSnapshot(snap => {
+                    let total = 0;
+                    snap.forEach(doc => total += doc.data().fare || 0);
+                    document.getElementById('todayEarnings').innerText = '$' + total.toFixed(2);
+                }, error => console.error('Error loading today earnings:', error));
+
+            // Acceptance Rate
+            db.collection('bookings')
+                .where('driverId', '==', currentDriver.uid)
+                .onSnapshot(snap => {
+                    let total = 0, accepted = 0;
+                    snap.forEach(doc => {
+                        total++;
+                        if (doc.data().status === 'accepted' || doc.data().status === 'completed') accepted++;
+                    });
+                    const rate = total === 0 ? 0 : Math.round(accepted / total * 100);
+                    document.getElementById('acceptanceRate').innerText = rate + '%';
+                }, error => console.error('Error loading acceptance rate:', error));
         }
 
         // ---------- INITIALIZE ----------
-        if (!currentDriver) { document.getElementById('loginModal').classList.add('active'); }
-        loadDriverData();
+        // Auth State Change – सबसे पहले यह चलेगा
+        auth.onAuthStateChanged(user => {
+            if (user) {
+                // पहले से लॉगिन है (पेज रिफ्रेश पर)
+                currentDriver = { 
+                    uid: user.uid, 
+                    phoneNumber: user.phoneNumber, 
+                    name: user.displayName || 'Driver',
+                    online: false // असली स्टेटस Firestore से लेंगे
+                };
+                document.getElementById('userIcon').innerHTML = `<i class="fas fa-user-check"></i>`;
+                // Firestore से ड्राइवर का स्टेटस और स्टेटस चेक करें
+                checkDriverStatus(user.uid);
+            } else {
+                // लॉगिन नहीं है
+                currentDriver = null;
+                document.getElementById('userIcon').innerHTML = `<i class="fas fa-user"></i>`;
+                document.getElementById('onlineStatus').innerText = '🔴 Offline';
+                driverStatus = 'new';
+                document.getElementById('loginModal').classList.add('active');
+            }
+        });
+
+        // बाकी इनिशियलाइज़ेशन (लोडिंग स्टेट्स आदि)
         loadAvailableLoads();
         loadVehicles();
         initEarningsChart();
