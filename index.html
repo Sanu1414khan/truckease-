@@ -663,12 +663,60 @@ window.confirmAddress = async function() {
             attribution: '© OpenStreetMap contributors'
         }).addTo(map);
 
-        // Add markers for pickup and drop
-        L.marker([pickupCoords.lat, pickupCoords.lng])
-            .addTo(map)
-            .bindPopup('📍 Pickup: ' + pickup.substring(0, 30))
-            .openPopup();
+         // ----- STEP 5.1: DRAGGABLE PICKUP MARKER (PRO LEVEL) -----
+// Create a draggable marker for pickup
+const pickupMarker = L.marker([pickupCoords.lat, pickupCoords.lng], {
+    draggable: true,
+    autoPan: true,
+    riseOnHover: true
+}).addTo(map);
 
+pickupMarker.bindPopup('📍 Drag me to adjust pickup location').openPopup();
+
+// Add dragend event listener
+pickupMarker.on('dragend', async function(event) {
+    const marker = event.target;
+    const position = marker.getLatLng();
+    
+    // Show loading indicator
+    document.getElementById('loading').classList.add('active');
+    
+    try {
+        // Reverse geocode the new position to get address
+        const newAddress = await reverseGeocode(position.lat, position.lng);
+        
+        if (newAddress) {
+            // Update the pickup address input field
+            document.getElementById('pickupAddr').value = newAddress;
+            
+            // Update pickupCoords for route calculation
+            pickupCoords.lat = position.lat;
+            pickupCoords.lng = position.lng;
+            
+            // Show success message
+            marker.bindPopup('📍 Pickup location updated!').openPopup();
+            
+            // Optional: Automatically recalculate route if both addresses are present
+            const dropAddr = document.getElementById('dropAddr').value.trim();
+            if (dropAddr) {
+                // You can call a function to recalculate the route here
+                // For now, just show a message
+                console.log('Route recalculation would happen here');
+            }
+        }
+    } catch (error) {
+        console.error('Reverse geocoding error:', error);
+        alert('Could not get address for this location');
+    } finally {
+        document.getElementById('loading').classList.remove('active');
+    }
+});
+
+// ----- STEP 5.2: Drop marker (non-draggable, but we'll keep it as is) -----
+L.marker([dropCoords.lat, dropCoords.lng])
+    .addTo(map)
+    .bindPopup('🏁 Drop: ' + drop.substring(0, 30));
+        
         L.marker([dropCoords.lat, dropCoords.lng])
             .addTo(map)
             .bindPopup('🏁 Drop: ' + drop.substring(0, 30));
@@ -1126,6 +1174,36 @@ function useBypassMode(pickup, drop) {
         // Load active shipments
         db.collection('bookings').where('status', '==', 'accepted').onSnapshot(snap => {
             document.getElementById('activeShipments').innerText = snap.size;
+            // ========== REVERSE GEOCODING FUNCTION (LAT/LNG to ADDRESS) ==========
+async function reverseGeocode(lat, lng) {
+    try {
+        // Using Nominatim for reverse geocoding (free, but add proper headers)
+        const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1`;
+        
+        const response = await fetch(url, {
+            headers: {
+                'User-Agent': 'TruckEase-App/1.0 (contact@truckease.com)'
+            }
+        });
+        
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        
+        if (data && data.display_name) {
+            return data.display_name;
+        } else {
+            // Fallback to coordinates if no address found
+            return `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
+        }
+    } catch (error) {
+        console.error('Reverse geocoding failed:', error);
+        // Return coordinates as fallback
+        return `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
+    }
+}
         });
     </script>
 </body>
