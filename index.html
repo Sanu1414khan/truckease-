@@ -695,6 +695,13 @@ window.confirmAddress = async function() {
         // Hide address step, show map step
         document.getElementById('addressStep').style.display = 'none';
         document.getElementById('mapStep').style.display = 'block';
+        // मैप को पूरा लोड करने के लिए ये लाइनें जरूरी हैं
+setTimeout(() => {
+    if (map) {
+        map.invalidateSize();
+    }
+}, 400);
+        
 
         // लोडिंग बंद करें
         document.getElementById('loading').classList.remove('active');
