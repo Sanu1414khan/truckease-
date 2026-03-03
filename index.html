@@ -11,20 +11,6 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.css" />
     
-    <!-- API Configuration (खरीदने वाला अपनी कुंजी डालेगा) -->
-    <script>
-        window.APP_CONFIG = {
-            // Google Maps API (Geocoding + Directions के लिए)
-            GOOGLE_MAPS_API_KEY: '',
-            
-            // Stripe/PayPal (Payment के लिए)
-            STRIPE_PUBLIC_KEY: '',
-            
-            // DAT RateView (Real-time spot rates के लिए)
-            DAT_API_KEY: ''
-        };
-    </script>
-    
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
         body {
@@ -34,7 +20,6 @@
             position: relative;
             overflow-x: hidden;
         }
-        /* Starfield / Grid Background */
         body::before {
             content: "";
             position: fixed;
@@ -47,7 +32,7 @@
             z-index: 0;
         }
         /* Glassmorphism base */
-        .service-item, .vehicle-card, .rewards-card, .quantum-grid, .booking-header, .fare-box, .history-item, .modal-content {
+        .service-item, .vehicle-card, .rewards-card, .quantum-grid, .booking-header, .fare-box, .history-item, .modal-content, .wallet-card, .profile-card {
             background: rgba(20, 30, 50, 0.4);
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
@@ -59,7 +44,8 @@
         .header { padding: 20px 20px 10px; display: flex; flex-direction: column; gap: 15px; z-index: 10; background: transparent; }
         .logo-area { display: flex; justify-content: space-between; align-items: center; }
         .logo { font-size: 28px; font-weight: 800; color: #00f3ff; text-shadow: 0 0 15px #00f3ff; letter-spacing: 2px; }
-        .user-icon { width: 48px; height: 48px; border-radius: 50%; background: rgba(255,255,255,0.05); border: 1px solid rgba(0,243,255,0.3); display: flex; align-items: center; justify-content: center; cursor: pointer; color: #00f3ff; font-size: 24px; }
+        .user-icon { width: 48px; height: 48px; border-radius: 50%; background: rgba(255,255,255,0.05); border: 1px solid rgba(0,243,255,0.3); display: flex; align-items: center; justify-content: center; cursor: pointer; color: #00f3ff; font-size: 24px; transition: 0.2s; }
+        .user-icon:hover { border-color: #00f3ff; background: rgba(0,243,255,0.1); }
         .location-bar { background: rgba(0, 243, 255, 0.05); backdrop-filter: blur(5px); padding: 16px 20px; border-radius: 40px; font-size: 16px; color: #aaa; border: 1px solid rgba(0,243,255,0.3); cursor: pointer; display: flex; align-items: center; gap: 10px; }
         .location-bar i { color: #00f3ff; }
         .location-bar span { color: #fff; font-weight: 500; }
@@ -73,29 +59,25 @@
         .sos-btn:hover { transform: scale(1.1); }
         /* Section Titles */
         .section-title { padding: 20px 20px 10px; font-size: 18px; font-weight: 600; color: #00f3ff; text-transform: uppercase; letter-spacing: 2px; }
-        /* Service Grid */
+        /* Service Grid – 4 items, properly spaced */
         .service-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; padding: 0 20px 20px; }
-        .service-item { padding: 12px 0; text-align: center; color: #fff; font-weight: 500; font-size: 14px; cursor: pointer; transition: 0.2s; }
+        .service-item { padding: 12px 0; text-align: center; color: #fff; font-weight: 500; font-size: 14px; cursor: pointer; transition: 0.2s; background: rgba(0,243,255,0.05); border: 1px solid rgba(0,243,255,0.3); border-radius: 24px; }
         .service-item.active { background: rgba(0, 243, 255, 0.2); border-color: #00f3ff; box-shadow: 0 0 20px #00f3ff; }
         .service-item i { color: #00f3ff; margin-right: 5px; }
         /* Rewards Card */
         .rewards-card { margin: 10px 20px 20px; padding: 20px; display: flex; justify-content: space-between; align-items: center; border-color: #00f3ff; }
         .rewards-left h4 { color: #00f3ff; font-size: 20px; font-weight: 700; margin-bottom: 5px; }
         .rewards-left p { color: #ccc; font-size: 14px; }
-        .get-started-btn { background: #00f3ff; color: #0a0c14; padding: 12px 24px; border-radius: 40px; font-weight: 700; border: none; cursor: pointer; box-shadow: 0 0 30px #00f3ff; }
-        /* Quantum Grid */
+        .get-started-btn { background: #00f3ff; color: #0a0c14; padding: 12px 24px; border-radius: 40px; font-weight: 700; border: none; cursor: pointer; box-shadow: 0 0 30px #00f3ff; transition: 0.2s; }
+        .get-started-btn:hover { background: #fff; }
+        /* Quantum Grid – cleaned, no extra clutter */
         .quantum-grid { margin: 20px; padding: 20px; }
         .grid-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
         .grid-header h3 { color: #00f3ff; font-size: 18px; }
-        .latest-updates { margin: 15px 0; }
-        .update-item { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.05); color: #ddd; font-size: 14px; }
-        .anomaly-detected { background: rgba(255, 0, 0, 0.1); border: 1px solid #ff4444; border-radius: 20px; padding: 15px; margin: 15px 0; display: flex; justify-content: space-between; color: #ff8888; }
         .cosmic-manifests { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 20px 0; }
-        .manifest-item { background: rgba(0,243,255,0.05); border: 1px solid rgba(0,243,255,0.2); border-radius: 20px; padding: 15px 5px; text-align: center; font-size: 12px; color: #00f3ff; cursor: pointer; }
-        .wormhole-section { display: flex; justify-content: space-between; align-items: center; margin: 15px 0; padding: 15px; background: rgba(0,243,255,0.02); border-radius: 30px; }
-        .wormhole-btn { background: #00f3ff; color: #0a0c14; padding: 10px 20px; border-radius: 40px; font-weight: 700; border: none; cursor: pointer; }
-        .view-all { text-align: center; margin: 20px 0; color: #00f3ff; font-weight: 600; cursor: pointer; }
-        /* Vehicle Grid */
+        .manifest-item { background: rgba(0,243,255,0.05); border: 1px solid rgba(0,243,255,0.2); border-radius: 20px; padding: 15px 5px; text-align: center; font-size: 12px; color: #00f3ff; cursor: pointer; transition: 0.2s; }
+        .manifest-item:hover { background: rgba(0,243,255,0.15); border-color: #00f3ff; }
+        /* Vehicle Grid – only one truck now */
         .vehicle-grid { display: flex; flex-direction: column; gap: 12px; padding: 0 20px 20px; }
         .vehicle-card { padding: 16px; display: flex; align-items: center; gap: 16px; cursor: pointer; }
         .vehicle-card:hover { border-color: #00f3ff; box-shadow: 0 0 20px #00f3ff; }
@@ -120,8 +102,10 @@
         .fare-box { padding: 20px; border-radius: 24px; text-align: center; margin: 20px 0; border-color: #00f3ff; }
         .fare-box .fare { font-size: 48px; font-weight: 800; color: #00f3ff; }
         .btn { width: 100%; padding: 18px; border-radius: 40px; font-weight: 700; cursor: pointer; margin-top: 10px; border: none; }
-        .btn-primary { background: #00f3ff; color: #0a0c14; box-shadow: 0 0 30px #00f3ff; }
+        .btn-primary { background: #00f3ff; color: #0a0c14; box-shadow: 0 0 30px #00f3ff; transition: 0.2s; }
+        .btn-primary:hover { background: #fff; }
         .btn-secondary { background: rgba(255,255,255,0.05); border: 1px solid rgba(0,243,255,0.3); color: #00f3ff; }
+        .btn-secondary:hover { background: rgba(0,243,255,0.1); }
         #map { height: 240px; border-radius: 24px; margin: 20px 0; display: none; border: 2px solid #00f3ff; box-shadow: 0 0 30px #00f3ff; }
         /* History Items */
         .history-item { padding: 16px; margin-bottom: 12px; }
@@ -146,9 +130,15 @@
         .modal-content h3 { color: #00f3ff; margin-bottom: 20px; }
         .modal-content input { width: 100%; padding: 16px; margin: 10px 0; background: rgba(255,255,255,0.05); border: 1px solid rgba(0,243,255,0.3); border-radius: 30px; color: #fff; }
         .demo-hint { background: rgba(255,193,7,0.1); color: #ffc107; padding: 15px; border-radius: 20px; margin-bottom: 20px; border: 1px solid #ffc107; }
+        /* Wallet & Account screens */
+        .wallet-card, .profile-card { padding: 25px; margin: 20px; }
+        .balance { font-size: 48px; font-weight: 800; color: #00f3ff; margin: 15px 0; }
+        .transaction-item { display: flex; justify-content: space-between; padding: 15px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .profile-detail { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .logout-btn { background: #ff4444; color: white; border: none; padding: 15px; border-radius: 40px; font-weight: 700; margin-top: 30px; cursor: pointer; }
         /* Bottom Navigation */
         .bottom-nav { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); width: calc(100% - 40px); max-width: 450px; background: rgba(10,12,20,0.8); backdrop-filter: blur(20px); display: flex; justify-content: space-around; padding: 12px 0; border: 1px solid rgba(0,243,255,0.3); border-radius: 50px; z-index: 1000; }
-        .nav-item { text-align: center; color: #aaa; font-size: 12px; cursor: pointer; }
+        .nav-item { text-align: center; color: #aaa; font-size: 12px; cursor: pointer; flex: 1; }
         .nav-item.active { color: #00f3ff; text-shadow: 0 0 10px #00f3ff; }
         .nav-item i { font-size: 22px; display: block; margin-bottom: 4px; }
         /* Loading */
@@ -195,6 +185,19 @@
         </div>
     </div>
 
+    <!-- Referral Modal -->
+    <div id="referralModal" class="modal">
+        <div class="modal-content">
+            <h3>🎁 TruckRewards</h3>
+            <div style="font-size: 50px; margin: 10px 0;">🏆</div>
+            <p style="font-size: 24px; font-weight: 700; color: #00f3ff;" id="referralCodeDisplay">TRUCK123</p>
+            <p>Your points: <strong id="userPoints">250</strong></p>
+            <p style="color: #ccc; margin: 15px 0;">Share this code with friends to earn $10 each!</p>
+            <button class="btn btn-primary" onclick="copyReferralFromModal()">Copy Code</button>
+            <button class="btn btn-secondary" onclick="closeModal('referralModal')">Close</button>
+        </div>
+    </div>
+
     <!-- Header -->
     <div class="header">
         <div class="logo-area">
@@ -208,65 +211,44 @@
         </div>
     </div>
 
-    <!-- HOME SCREEN -->
+    <!-- HOME SCREEN (cleaned) -->
     <div id="homeScreen" class="screen active">
         <div class="section-title">OUR SERVICES</div>
         <div class="service-grid" id="tabContainer">
             <div class="service-item active" data-category="trucks"><i class="fas fa-truck"></i> Trucks</div>
             <div class="service-item" data-category="vans"><i class="fas fa-truck-moving"></i> Vans</div>
-            <div class="service-item" data-category="special"><i class="fas fa-cog"></i> Special</div>
+            <div class="service-item" data-category="special"><i class="fas fa-truck-monster"></i> Special</div>
             <div class="service-item" data-category="rentals"><i class="fas fa-key"></i> Rentals</div>
         </div>
 
-        <!-- Rewards Card -->
-        <div class="rewards-card">
+        <!-- Rewards Card (opens referral modal) -->
+        <div class="rewards-card" onclick="showReferralModal()">
             <div class="rewards-left">
                 <h4>🚀 TruckRewards</h4>
                 <p>Earn points on every trip</p>
             </div>
-            <button class="get-started-btn" onclick="showReferral()">Get Started</button>
+            <button class="get-started-btn" onclick="event.stopPropagation(); showReferralModal()">Get Started</button>
         </div>
 
-        <!-- Quantum Tracking Grid -->
+        <!-- Quantum Grid – clean, no clutter -->
         <div class="quantum-grid">
             <div class="grid-header">
-                <h3>⚡ QuantumTrackingGrid</h3>
+                <h3>⚡ Instant Booking</h3>
                 <span>🛰️ <span id="onlineDrivers">0</span> drivers online</span>
-            </div>
-            <div class="latest-updates">
-                <div class="update-item">
-                    <span>🚚 Active shipments</span>
-                    <span id="activeShipments">0</span>
-                </div>
-                <div class="update-item">
-                    <span>⭐ Avg driver rating</span>
-                    <span id="avgRating">4.92</span>
-                </div>
-            </div>
-            <div class="anomaly-detected">
-                <span>⚠️ Referral Bonus:</span>
-                <span id="referralBonus">$10 credit</span>
             </div>
             <div class="cosmic-manifests">
                 <div class="manifest-item" onclick="showAddressBook()">📍<br>Address Book</div>
                 <div class="manifest-item" onclick="showPromo()">🎟️<br>Promo Code</div>
                 <div class="manifest-item" onclick="scheduleRide()">📅<br>Schedule</div>
             </div>
-            <div class="wormhole-section">
-                <span>🌀 Your Referral Code: <strong id="referralCode">TRUCK123</strong></span>
-                <button class="wormhole-btn" onclick="copyReferral()">Copy</button>
-            </div>
-            <div class="view-all" onclick="loadVehicleGrid('trucks')">
-                View All Transports
-            </div>
         </div>
 
-        <!-- Vehicle Grid -->
+        <!-- Vehicle Grid (only one truck for testing) -->
         <h3 class="section-title" id="vehicleCategoryTitle"><i class="fas fa-truck"></i> Available Trucks</h3>
         <div class="vehicle-grid" id="vehicleGrid"></div>
     </div>
 
-    <!-- ========== MODIFIED BOOKING SCREEN ========== -->
+    <!-- BOOKING SCREEN -->
     <div id="bookingScreen" class="screen">
         <div class="booking-header">
             <i class="fas fa-arrow-left back-btn" onclick="goBack()"></i>
@@ -274,8 +256,6 @@
         </div>
         <div class="booking-content">
             <div id="selectedVehicleInfo" style="margin-bottom:20px; font-weight:600; color:#00f3ff;"></div>
-            
-            <!-- Step 1: Only Pickup & Drop Addresses -->
             <div id="addressStep">
                 <div class="input-group">
                     <label>📍 Pickup</label>
@@ -287,8 +267,6 @@
                 </div>
                 <button class="btn btn-primary" id="confirmAddressBtn" onclick="confirmAddress()">Confirm Address</button>
             </div>
-
-            <!-- Step 2: Map & Fare (initially hidden) -->
             <div id="mapStep" style="display:none;">
                 <div id="map"></div>
                 <div class="fare-box">
@@ -296,7 +274,6 @@
                 </div>
                 <button class="btn btn-primary" id="confirmBookingBtn" onclick="confirmBooking()">Confirm Booking</button>
             </div>
-
             <datalist id="pickupSuggestions"></datalist>
             <datalist id="dropSuggestions"></datalist>
         </div>
@@ -322,7 +299,6 @@
             <div id="trackingDetails" style="background:rgba(0,243,255,0.05); backdrop-filter:blur(10px); padding:20px; border-radius:20px; margin-bottom:20px; border:1px solid #00f3ff;">
                 <p><i class="fas fa-circle-notch fa-spin"></i> Waiting for driver...</p>
             </div>
-            <!-- Driver Profile Card -->
             <div id="driverProfile" style="display:none; background:rgba(0,243,255,0.05); padding:15px; border-radius:20px; margin-bottom:20px;">
                 <div style="display:flex; align-items:center; gap:15px;">
                     <div style="font-size:50px;">👤</div>
@@ -334,7 +310,6 @@
                 </div>
                 <button class="btn btn-secondary" onclick="openChat()" style="margin-top:10px;">💬 Chat with Driver</button>
             </div>
-            <!-- Rating after completion -->
             <div id="ratingSection" style="display:none; margin-bottom:20px;">
                 <h4>Rate your driver</h4>
                 <div class="rating-stars" id="ratingStars">
@@ -364,6 +339,44 @@
                 <input type="text" id="chatInput" placeholder="Type a message..." style="flex:1; padding:15px; border-radius:40px;">
                 <button class="btn btn-primary" onclick="sendMessage()" style="width:auto; margin-top:0;">Send</button>
             </div>
+        </div>
+    </div>
+
+    <!-- WALLET SCREEN -->
+    <div id="walletScreen" class="screen">
+        <div class="booking-header">
+            <i class="fas fa-arrow-left back-btn" onclick="goBack()"></i>
+            <h3>Your Wallet</h3>
+        </div>
+        <div class="wallet-card" style="margin:20px;">
+            <div style="text-align:center;">
+                <i class="fas fa-wallet" style="font-size:60px; color:#00f3ff;"></i>
+                <div class="balance" id="walletBalance">$125.50</div>
+                <button class="btn btn-primary" style="margin-top:0;" onclick="alert('Add money coming soon')">Add Money</button>
+            </div>
+            <h4 style="margin:25px 0 15px; color:#00f3ff;">Recent Transactions</h4>
+            <div id="transactionList"></div>
+        </div>
+    </div>
+
+    <!-- ACCOUNT SCREEN -->
+    <div id="accountScreen" class="screen">
+        <div class="booking-header">
+            <i class="fas fa-arrow-left back-btn" onclick="goBack()"></i>
+            <h3>Your Account</h3>
+        </div>
+        <div class="profile-card" style="margin:20px;">
+            <div style="text-align:center;">
+                <div style="font-size:80px; color:#00f3ff;">👤</div>
+                <h2 id="profileName">Demo User</h2>
+                <p id="profilePhone">+1 2125551234</p>
+            </div>
+            <div style="margin-top:30px;">
+                <div class="profile-detail"><span>Member since</span><span id="memberSince">Mar 2025</span></div>
+                <div class="profile-detail"><span>Total trips</span><span id="totalTrips">3</span></div>
+                <div class="profile-detail"><span>Reward points</span><span id="rewardPoints">250</span></div>
+            </div>
+            <button class="logout-btn" onclick="logout()">Logout</button>
         </div>
     </div>
 
@@ -399,18 +412,18 @@
         </div>
     </div>
 
-    <!-- BOTTOM NAVIGATION -->
+    <!-- BOTTOM NAVIGATION (all active screens) -->
     <div class="bottom-nav">
         <div class="nav-item active" onclick="showScreen('homeScreen')"><i class="fas fa-home"></i>Home</div>
         <div class="nav-item" onclick="showScreen('historyScreen')"><i class="fas fa-history"></i>Trips</div>
-        <div class="nav-item" onclick="alert('Coming soon')"><i class="fas fa-wallet"></i>Wallet</div>
-        <div class="nav-item" onclick="alert('Coming soon')"><i class="fas fa-user"></i>Account</div>
+        <div class="nav-item" onclick="showScreen('walletScreen')"><i class="fas fa-wallet"></i>Wallet</div>
+        <div class="nav-item" onclick="showScreen('accountScreen')"><i class="fas fa-user"></i>Account</div>
     </div>
 
     <!-- Loading -->
     <div id="loading" class="loading"><div class="spinner"></div><p>Loading...</p></div>
 
-    <!-- Firebase SDK (केवल Firestore) -->
+    <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -430,24 +443,19 @@
         const db = firebase.firestore();
 
         // ---------- GLOBAL VARIABLES ----------
-        let currentUser = null;
+        let currentUser = JSON.parse(localStorage.getItem('truckUser')) || null;
         let currentVehicle = null;
         let basePrice = 0, perKmRate = 0;
         let finalFare = 0;
         let map = null, trackingMap = null;
         let routingControl = null;
         let currentBookingId = null;
-        let driverListener = null;
         let promoDiscount = 0;
         let selectedRating = 0;
         let chatListener = null;
-        let distanceMiles = 0;  // calculated distance
-
-        // Variables for tracking simulation
-        let trackingInterval = null;
-        let driverMarker = null;
-        let routeCoordinates = [];
-        let currentStep = 0;
+        let distanceMiles = 0;
+        let trackingInterval = null, driverMarker = null, routeCoordinates = [], currentStep = 0;
+        let savedPlaces = [];
 
         // ---------- ONBOARDING ----------
         if (!localStorage.getItem('onboardingSeen')) {
@@ -458,11 +466,21 @@
             localStorage.setItem('onboardingSeen', 'true');
         };
 
-        // ---------- DEMO LOGIN ----------
+        // ---------- LOGIN PERSISTENCE ----------
+        function updateUserUI() {
+            if (currentUser) {
+                document.getElementById('userIcon').innerHTML = `<i class="fas fa-user-check"></i>`;
+                document.getElementById('profileName').innerText = currentUser.name || 'Demo User';
+                document.getElementById('profilePhone').innerText = currentUser.phoneNumber || '+1 2125551234';
+            } else {
+                document.getElementById('userIcon').innerHTML = `<i class="fas fa-user"></i>`;
+            }
+        }
+        updateUserUI();
+
         window.showLoginModal = function() {
             if (currentUser) {
-                currentUser = null;
-                document.getElementById('userIcon').innerHTML = `<i class="fas fa-user"></i>`;
+                showScreen('accountScreen');
                 return;
             }
             document.getElementById('loginModal').classList.add('active');
@@ -475,47 +493,53 @@
                 return;
             }
             currentUser = { uid: 'demo_' + phone, phoneNumber: '+1' + phone, name: 'Demo User' };
+            localStorage.setItem('truckUser', JSON.stringify(currentUser));
             document.getElementById('userIcon').innerHTML = `<i class="fas fa-user-check"></i>`;
             document.getElementById('loginModal').classList.remove('active');
             document.getElementById('loginError').innerText = '';
+            document.getElementById('profileName').innerText = currentUser.name;
+            document.getElementById('profilePhone').innerText = currentUser.phoneNumber;
         });
+
+        // ---------- LOGOUT ----------
+        window.logout = function() {
+            currentUser = null;
+            localStorage.removeItem('truckUser');
+            document.getElementById('userIcon').innerHTML = `<i class="fas fa-user"></i>`;
+            showScreen('homeScreen');
+        };
 
         // ---------- SCREEN MANAGEMENT ----------
         window.showScreen = function(screenId) {
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
             document.getElementById(screenId).classList.add('active');
-            // Update bottom nav active state
             document.querySelectorAll('.nav-item').forEach((item, idx) => {
-                if (screenId === 'homeScreen' && idx === 0) item.classList.add('active');
-                else if (screenId === 'historyScreen' && idx === 1) item.classList.add('active');
-                else item.classList.remove('active');
+                if ((screenId === 'homeScreen' && idx === 0) ||
+                    (screenId === 'historyScreen' && idx === 1) ||
+                    (screenId === 'walletScreen' && idx === 2) ||
+                    (screenId === 'accountScreen' && idx === 3)) {
+                    item.classList.add('active');
+                } else {
+                    item.classList.remove('active');
+                }
             });
             if (screenId === 'historyScreen') loadHistory();
             if (screenId === 'homeScreen') loadVehicleGrid('trucks');
+            if (screenId === 'walletScreen') loadWalletData();
+            if (screenId === 'accountScreen') loadAccountData();
         };
 
         window.goBack = () => showScreen('homeScreen');
         window.goHome = () => showScreen('homeScreen');
 
-        // ---------- VEHICLE DATA ----------
+        // ---------- VEHICLE DATA (only one truck) ----------
         const vehicleData = {
             trucks: [
-                { icon: '🚚', name: 'Box Truck 16ft', desc: 'Ideal for local deliveries', base: 65, perKm: 1.2, eta: 8 },
-                { icon: '🚛', name: 'Semi-Truck 53ft', desc: 'Long-haul freight', base: 120, perKm: 2.0, eta: 15 },
-                { icon: '🚛', name: 'Refrigerated Truck', desc: 'Temperature controlled', base: 150, perKm: 2.5, eta: 12 }
+                { icon: '🚚', name: 'Box Truck 16ft', desc: 'Ideal for local deliveries', base: 65, perKm: 1.2, eta: 8 }
             ],
-            vans: [
-                { icon: '🚐', name: 'Cargo Van', desc: 'Perfect for parcels', base: 35, perKm: 0.7, eta: 4 },
-                { icon: '🚐', name: 'Sprinter Van', desc: 'Extra space', base: 50, perKm: 1.0, eta: 6 }
-            ],
-            special: [
-                { icon: '🏗️', name: 'Crane Truck', desc: 'For heavy lifting', base: 200, perKm: 3.0, eta: 25 },
-                { icon: '🚛', name: 'Hazmat Truck', desc: 'Certified for dangerous goods', base: 180, perKm: 2.8, eta: 18 }
-            ],
-            rentals: [
-                { icon: '🛻', name: 'Pickup Truck', desc: 'Daily rental', base: 45, perKm: 0.9, eta: 5 },
-                { icon: '🚚', name: 'Box Truck Rental', desc: 'Weekly rental', base: 300, perKm: 0, eta: 10 }
-            ]
+            vans: [],   // empty, but we keep the service buttons for demo
+            special: [],
+            rentals: []
         };
 
         function loadVehicleGrid(category) {
@@ -527,7 +551,7 @@
             else title.innerHTML = '<i class="fas fa-key"></i> Rentals';
 
             let html = '';
-            if (vehicleData[category]) {
+            if (vehicleData[category] && vehicleData[category].length > 0) {
                 vehicleData[category].forEach(v => {
                     html += `<div class="vehicle-card" data-name="${v.name}" data-base="${v.base}" data-perkm="${v.perKm}" data-eta="${v.eta}">
                         <div class="icon">${v.icon}</div>
@@ -541,6 +565,8 @@
                         </div>
                     </div>`;
                 });
+            } else {
+                html = '<p style="text-align:center; color:#aaa;">No vehicles available in this category</p>';
             }
             grid.innerHTML = html;
 
@@ -550,7 +576,6 @@
                     basePrice = parseFloat(card.dataset.base);
                     perKmRate = parseFloat(card.dataset.perkm);
                     document.getElementById('selectedVehicleInfo').innerHTML = `🚘 ${currentVehicle}`;
-                    // Reset booking screen
                     document.getElementById('addressStep').style.display = 'block';
                     document.getElementById('mapStep').style.display = 'none';
                     document.getElementById('pickupAddr').value = '';
@@ -561,7 +586,7 @@
             });
         }
 
-        // Tab switching
+        // Tab switching – still works but only trucks have data
         document.querySelectorAll('.service-item').forEach(tab => {
             tab.addEventListener('click', function() {
                 document.querySelectorAll('.service-item').forEach(t => t.classList.remove('active'));
@@ -570,225 +595,110 @@
             });
         });
 
-       // ========== PRO-LEVEL: REAL-TIME GEOCODING & ROUTING (USA READY) ==========
-window.confirmAddress = async function() {
-    const pickup = document.getElementById('pickupAddr').value.trim();
-    const drop = document.getElementById('dropAddr').value.trim();
-    
-    if (!pickup || !drop) {
-        alert('Please enter both pickup and drop addresses');
-        return;
-    }
-
-    // लोडिंग दिखाएँ
-    document.getElementById('loading').classList.add('active');
-
-    try {
-        // ----- STEP 1: GEOCODE PICKUP ADDRESS (Nominatim - Free, but add User-Agent) -----
-        const pickupUrl = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(pickup)}&countrycodes=us&limit=1`;
-        const pickupRes = await fetch(pickupUrl, {
-            headers: { 'User-Agent': 'TruckEase-App/1.0' }
-        });
-        const pickupData = await pickupRes.json();
-
-        if (!pickupData || pickupData.length === 0) {
-            throw new Error('Pickup address not found');
-        }
-
-        const pickupCoords = {
-            lat: parseFloat(pickupData[0].lat),
-            lng: parseFloat(pickupData[0].lon)
-        };
-
-        // ----- STEP 2: GEOCODE DROP ADDRESS -----
-        const dropUrl = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(drop)}&countrycodes=us&limit=1`;
-        const dropRes = await fetch(dropUrl, {
-            headers: { 'User-Agent': 'TruckEase-App/1.0' }
-        });
-        const dropData = await dropRes.json();
-
-        if (!dropData || dropData.length === 0) {
-            throw new Error('Drop address not found');
-        }
-
-        const dropCoords = {
-            lat: parseFloat(dropData[0].lat),
-            lng: parseFloat(dropData[0].lon)
-        };
-
-        // ----- STEP 3: GET ROUTE USING OSRM (FREE, FAST, USA COVERAGE) -----
-        // OSRM expects coordinates in lon,lat format
-        const osrmUrl = `https://router.project-osrm.org/route/v1/driving/${pickupCoords.lng},${pickupCoords.lat};${dropCoords.lng},${dropCoords.lat}?overview=full&geometries=geojson`;
-        
-        const routeRes = await fetch(osrmUrl);
-        const routeData = await routeRes.json();
-
-        if (!routeData.routes || routeData.routes.length === 0) {
-            throw new Error('Could not calculate route');
-        }
-
-        // Distance in meters, convert to miles
-        const distanceMeters = routeData.routes[0].distance;
-        distanceMiles = distanceMeters * 0.000621371; // 1 meter = 0.000621371 miles
-
-        // Get route geometry for drawing
-        const routeGeometry = routeData.routes[0].geometry;
-
-        // ----- STEP 4: CALCULATE FARE -----
-        finalFare = basePrice + (distanceMiles * perKmRate);
-        
-        // Apply promo discount if any
-        if (promoDiscount > 0) {
-            finalFare -= promoDiscount;
-            if (finalFare < 0) finalFare = 0;
-        }
-
-        // ----- STEP 5: DISPLAY MAP WITH ROUTE -----
-        const mapDiv = document.getElementById('map');
-        mapDiv.style.display = 'block';
-
-        // Remove old map if exists
-        if (map) {
-            map.remove();
-        }
-
-        // Create new map centered between pickup and drop
-        const centerLat = (pickupCoords.lat + dropCoords.lat) / 2;
-        const centerLng = (pickupCoords.lng + dropCoords.lng) / 2;
-        
-        map = L.map('map').setView([centerLat, centerLng], 12);
-        
-        // Add tile layer
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '© OpenStreetMap contributors'
-        }).addTo(map);
-
-         // ----- STEP 5.1: DRAGGABLE PICKUP MARKER (PRO LEVEL) -----
-// Create a draggable marker for pickup
-const pickupMarker = L.marker([pickupCoords.lat, pickupCoords.lng], {
-    draggable: true,
-    autoPan: true,
-    riseOnHover: true
-}).addTo(map);
-
-pickupMarker.bindPopup('📍 Drag me to adjust pickup location').openPopup();
-
-// Add dragend event listener
-pickupMarker.on('dragend', async function(event) {
-    const marker = event.target;
-    const position = marker.getLatLng();
-    
-    // Show loading indicator
-    document.getElementById('loading').classList.add('active');
-    
-    try {
-        // Reverse geocode the new position to get address
-        const newAddress = await reverseGeocode(position.lat, position.lng);
-        
-        if (newAddress) {
-            // Update the pickup address input field
-            document.getElementById('pickupAddr').value = newAddress;
-            
-            // Update pickupCoords for route calculation
-            pickupCoords.lat = position.lat;
-            pickupCoords.lng = position.lng;
-            
-            // Show success message
-            marker.bindPopup('📍 Pickup location updated!').openPopup();
-            
-            // Optional: Automatically recalculate route if both addresses are present
-            const dropAddr = document.getElementById('dropAddr').value.trim();
-            if (dropAddr) {
-                // You can call a function to recalculate the route here
-                // For now, just show a message
-                console.log('Route recalculation would happen here');
+        // ---------- REVERSE GEOCODING (global) ----------
+        async function reverseGeocode(lat, lng) {
+            try {
+                const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1`;
+                const response = await fetch(url, {
+                    headers: { 'User-Agent': 'TruckEase-App/1.0 (contact@truckease.com)' }
+                });
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                const data = await response.json();
+                return data.display_name || `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
+            } catch (error) {
+                console.error('Reverse geocoding failed:', error);
+                return `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
             }
         }
-    } catch (error) {
-        console.error('Reverse geocoding error:', error);
-        alert('Could not get address for this location');
-    } finally {
-        document.getElementById('loading').classList.remove('active');
-    }
-});
 
-// ----- STEP 5.2: Drop marker (non-draggable, but we'll keep it as is) -----
-L.marker([dropCoords.lat, dropCoords.lng])
-    .addTo(map)
-    .bindPopup('🏁 Drop: ' + drop.substring(0, 30));
-        
-        L.marker([dropCoords.lat, dropCoords.lng])
-            .addTo(map)
-            .bindPopup('🏁 Drop: ' + drop.substring(0, 30));
+        // ---------- CONFIRM ADDRESS ----------
+        window.confirmAddress = async function() {
+            const pickup = document.getElementById('pickupAddr').value.trim();
+            const drop = document.getElementById('dropAddr').value.trim();
+            if (!pickup || !drop) { alert('Please enter both pickup and drop addresses'); return; }
+            document.getElementById('loading').classList.add('active');
+            try {
+                const pickupUrl = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(pickup)}&countrycodes=us&limit=1`;
+                const pickupRes = await fetch(pickupUrl, { headers: { 'User-Agent': 'TruckEase-App/1.0' } });
+                const pickupData = await pickupRes.json();
+                if (!pickupData || pickupData.length === 0) throw new Error('Pickup address not found');
+                const pickupCoords = { lat: parseFloat(pickupData[0].lat), lng: parseFloat(pickupData[0].lon) };
 
-        // Draw the route line
-        if (routeGeometry && routeGeometry.coordinates) {
-            // OSRM returns [lng, lat] coordinates, need to flip to [lat, lng] for Leaflet
-            const latLngs = routeGeometry.coordinates.map(coord => [coord[1], coord[0]]);
-            
-            L.polyline(latLngs, {
-                color: '#00f3ff',
-                weight: 5,
-                opacity: 0.8,
-                lineJoin: 'round'
-            }).addTo(map);
+                const dropUrl = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(drop)}&countrycodes=us&limit=1`;
+                const dropRes = await fetch(dropUrl, { headers: { 'User-Agent': 'TruckEase-App/1.0' } });
+                const dropData = await dropRes.json();
+                if (!dropData || dropData.length === 0) throw new Error('Drop address not found');
+                const dropCoords = { lat: parseFloat(dropData[0].lat), lng: parseFloat(dropData[0].lon) };
 
-            // Fit map to show entire route
-            map.fitBounds(latLngs);
+                const osrmUrl = `https://router.project-osrm.org/route/v1/driving/${pickupCoords.lng},${pickupCoords.lat};${dropCoords.lng},${dropCoords.lat}?overview=full&geometries=geojson`;
+                const routeRes = await fetch(osrmUrl);
+                const routeData = await routeRes.json();
+                if (!routeData.routes || routeData.routes.length === 0) throw new Error('Could not calculate route');
+                const distanceMeters = routeData.routes[0].distance;
+                distanceMiles = distanceMeters * 0.000621371;
+                const routeGeometry = routeData.routes[0].geometry;
+
+                finalFare = basePrice + (distanceMiles * perKmRate);
+                if (promoDiscount > 0) finalFare = Math.max(0, finalFare - promoDiscount);
+
+                const mapDiv = document.getElementById('map');
+                mapDiv.style.display = 'block';
+                if (map) map.remove();
+                const centerLat = (pickupCoords.lat + dropCoords.lat) / 2;
+                const centerLng = (pickupCoords.lng + dropCoords.lng) / 2;
+                map = L.map('map').setView([centerLat, centerLng], 12);
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap' }).addTo(map);
+
+                const pickupMarker = L.marker([pickupCoords.lat, pickupCoords.lng], { draggable: true, autoPan: true }).addTo(map);
+                pickupMarker.bindPopup('📍 Drag me').openPopup();
+                pickupMarker.on('dragend', async function(event) {
+                    const marker = event.target;
+                    const pos = marker.getLatLng();
+                    document.getElementById('loading').classList.add('active');
+                    const newAddress = await reverseGeocode(pos.lat, pos.lng);
+                    document.getElementById('pickupAddr').value = newAddress;
+                    pickupCoords.lat = pos.lat; pickupCoords.lng = pos.lng;
+                    marker.bindPopup('📍 Pickup location updated!').openPopup();
+                    document.getElementById('loading').classList.remove('active');
+                });
+
+                L.marker([dropCoords.lat, dropCoords.lng]).addTo(map).bindPopup('🏁 Drop: ' + drop.substring(0, 30));
+
+                if (routeGeometry && routeGeometry.coordinates) {
+                    const latLngs = routeGeometry.coordinates.map(coord => [coord[1], coord[0]]);
+                    L.polyline(latLngs, { color: '#00f3ff', weight: 5 }).addTo(map);
+                    map.fitBounds(latLngs);
+                }
+
+                document.getElementById('fareAmount').innerText = '$' + finalFare.toFixed(2);
+                document.getElementById('addressStep').style.display = 'none';
+                document.getElementById('mapStep').style.display = 'block';
+                setTimeout(() => { if (map) map.invalidateSize(); }, 400);
+                document.getElementById('loading').classList.remove('active');
+            } catch (error) {
+                console.error('🔥 Route calculation error:', error);
+                alert('Error: ' + error.message);
+                document.getElementById('loading').classList.remove('active');
+                useBypassMode(pickup, drop);
+            }
+        };
+
+        function useBypassMode(pickup, drop) {
+            distanceMiles = 12.5;
+            finalFare = basePrice + (distanceMiles * perKmRate);
+            const mapDiv = document.getElementById('map');
+            mapDiv.style.display = 'block';
+            if (map) map.remove();
+            map = L.map('map').setView([40.7128, -74.0060], 12);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+            L.marker([40.7128, -74.0060]).addTo(map).bindPopup('Pickup: ' + pickup.substring(0,30));
+            L.marker([40.7580, -73.9855]).addTo(map).bindPopup('Drop: ' + drop.substring(0,30));
+            document.getElementById('fareAmount').innerText = '$' + finalFare.toFixed(2);
+            document.getElementById('addressStep').style.display = 'none';
+            document.getElementById('mapStep').style.display = 'block';
+            document.getElementById('loading').classList.remove('active');
         }
 
-        // ----- STEP 6: UPDATE UI -----
-        document.getElementById('fareAmount').innerText = '$' + finalFare.toFixed(2);
-        
-        // Hide address step, show map step
-        document.getElementById('addressStep').style.display = 'none';
-        document.getElementById('mapStep').style.display = 'block';
-        // मैप को पूरा लोड करने के लिए ये लाइनें जरूरी हैं
-setTimeout(() => {
-    if (map) {
-        map.invalidateSize();
-    }
-}, 400);
-        
-
-        // लोडिंग बंद करें
-        document.getElementById('loading').classList.remove('active');
-
-    } catch (error) {
-        console.error('🔥 Route calculation error:', error);
-        alert('Error: ' + error.message);
-        document.getElementById('loading').classList.remove('active');
-        
-        // Optional: Fallback to bypass mode for testing if API fails
-        // आप चाहें तो यहाँ बाइपास कोड रख सकते हैं
-        useBypassMode(pickup, drop);
-    }
-};
-
-// Optional fallback bypass function (अगर API फेल हो जाए तो)
-function useBypassMode(pickup, drop) {
-    console.log('Using bypass mode for testing');
-    distanceMiles = 12.5; // Example distance
-    finalFare = basePrice + (distanceMiles * perKmRate);
-    
-    const mapDiv = document.getElementById('map');
-    mapDiv.style.display = 'block';
-
-    if (map) {
-        map.remove();
-    }
-    
-    // NYC default view
-    map = L.map('map').setView([40.7128, -74.0060], 12);
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
-    L.marker([40.7128, -74.0060]).addTo(map).bindPopup('Pickup: ' + pickup.substring(0,30));
-    L.marker([40.7580, -73.9855]).addTo(map).bindPopup('Drop: ' + drop.substring(0,30));
-
-    document.getElementById('fareAmount').innerText = '$' + finalFare.toFixed(2);
-    document.getElementById('addressStep').style.display = 'none';
-    document.getElementById('mapStep').style.display = 'block';
-    document.getElementById('loading').classList.remove('active');
-}
         // ---------- CONFIRM BOOKING ----------
         window.confirmBooking = async function() {
             if (!currentUser) { alert('Please login first'); showLoginModal(); return; }
@@ -796,10 +706,8 @@ function useBypassMode(pickup, drop) {
             const pickup = document.getElementById('pickupAddr').value || 'Unknown';
             const drop = document.getElementById('dropAddr').value || 'Unknown';
             const km = distanceMiles;
-
             const commission = finalFare * 0.15;
             const driverAmount = finalFare - commission;
-
             const booking = {
                 userId: currentUser.uid,
                 userPhone: currentUser.phoneNumber,
@@ -810,7 +718,6 @@ function useBypassMode(pickup, drop) {
                 status: 'pending',
                 timestamp: firebase.firestore.FieldValue.serverTimestamp()
             };
-
             try {
                 document.getElementById('loading').classList.add('active');
                 const docRef = await db.collection('bookings').add(booking);
@@ -836,58 +743,48 @@ function useBypassMode(pickup, drop) {
             navigator.geolocation.getCurrentPosition(async pos => {
                 const lat = pos.coords.latitude;
                 const lng = pos.coords.longitude;
-                document.getElementById('map').style.display = 'block';
-                if (map) map.remove();
-                map = L.map('map').setView([lat, lng], 15);
-                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
-                L.marker([lat, lng]).addTo(map).bindPopup('You are here').openPopup();
                 try {
-                    const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`);
+                    const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`, {
+                        headers: { 'User-Agent': 'TruckEase-App/1.0' }
+                    });
                     const data = await res.json();
                     document.getElementById('pickupAddr').value = data.display_name || 'Location found';
-                } catch(e) { }
+                    document.getElementById('locationPlaceholder').innerText = '📍 ' + (data.display_name?.substring(0,30) || 'Location found');
+                } catch(e) {
+                    document.getElementById('pickupAddr').value = `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
+                }
                 document.getElementById('loading').classList.remove('active');
             }, err => {
-                alert('Unable to get location');
+                alert('Unable to get location: ' + err.message);
                 document.getElementById('loading').classList.remove('active');
             });
         };
 
-        // ---------- LOAD HISTORY ----------
+        // ---------- LOAD HISTORY (client-side sort) ----------
         window.loadHistory = async function() {
-            if (!currentUser) { 
-                document.getElementById('historyList').innerHTML = '<p>Please login</p>'; 
-                return; 
-            }
-            
+            if (!currentUser) { document.getElementById('historyList').innerHTML = '<p>Please login</p>'; return; }
             document.getElementById('historyList').innerHTML = '<div style="text-align:center;"><div class="spinner"></div><p>Loading trips...</p></div>';
-            
             try {
                 const snapshot = await db.collection('bookings')
                     .where('userId', '==', currentUser.uid)
-                    .orderBy('timestamp', 'desc')
                     .get();
-                    
-                if (snapshot.empty) { 
-                    document.getElementById('historyList').innerHTML = '<p>No trips yet</p>'; 
-                    return; 
-                }
-                
+                if (snapshot.empty) { document.getElementById('historyList').innerHTML = '<p>No trips yet</p>'; return; }
+                let bookings = [];
+                snapshot.forEach(doc => bookings.push({ id: doc.id, ...doc.data() }));
+                bookings.sort((a, b) => (b.timestamp?.toDate?.() || 0) - (a.timestamp?.toDate?.() || 0));
                 let html = '';
-                snapshot.forEach(doc => {
-                    const b = doc.data();
+                bookings.forEach(b => {
                     const time = b.timestamp ? new Date(b.timestamp.toDate()).toLocaleString('en-US') : '';
                     html += `<div class="history-item">
                         <div class="row"><span>${b.vehicle}</span><span class="status-badge status-${b.status}">${b.status}</span></div>
-                        <div class="row"><small>${b.pickup.substring(0,20)} → ${b.drop.substring(0,20)}</small></div>
+                        <div class="row"><small>${b.pickup?.substring(0,20)} → ${b.drop?.substring(0,20)}</small></div>
                         <div class="row"><span>$${b.fare?.toFixed(2)}</span><small>${time}</small></div>
                     </div>`;
                 });
                 document.getElementById('historyList').innerHTML = html;
-                
-            } catch(e) { 
+            } catch(e) {
                 console.error('🔥 Error loading history:', e);
-                document.getElementById('historyList').innerHTML = `<p style="color:#ff4444;">Error loading trips: ${e.message}</p>`; 
+                document.getElementById('historyList').innerHTML = `<p style="color:#ff4444;">Error loading trips: ${e.message}</p>`;
             }
         };
 
@@ -899,7 +796,7 @@ function useBypassMode(pickup, drop) {
             suggestionTimeout = setTimeout(async () => {
                 try {
                     const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&addressdetails=1&limit=5`;
-                    const res = await fetch(url);
+                    const res = await fetch(url, { headers: { 'User-Agent': 'TruckEase-App/1.0' } });
                     const data = await res.json();
                     const datalist = document.getElementById(type === 'pickup' ? 'pickupSuggestions' : 'dropSuggestions');
                     datalist.innerHTML = '';
@@ -908,9 +805,7 @@ function useBypassMode(pickup, drop) {
                         option.value = item.display_name;
                         datalist.appendChild(option);
                     });
-                } catch (e) {
-                    console.error('Autocomplete error:', e);
-                }
+                } catch (e) { console.error('Autocomplete error:', e); }
             }, 300);
         }
 
@@ -924,7 +819,6 @@ function useBypassMode(pickup, drop) {
                 promoDiscount = doc.data().discount;
                 alert(`Promo applied! You get $${promoDiscount} off.`);
                 closeModal('promoModal');
-                // Recalculate fare if already confirmed
                 if (distanceMiles > 0) {
                     finalFare = basePrice + (distanceMiles * perKmRate) - promoDiscount;
                     if (finalFare < 0) finalFare = 0;
@@ -934,20 +828,14 @@ function useBypassMode(pickup, drop) {
                 alert('Invalid promo code');
             }
         };
-
-        window.showPromo = function() {
-            document.getElementById('promoModal').classList.add('active');
-        };
+        window.showPromo = () => document.getElementById('promoModal').classList.add('active');
 
         // ---------- ADDRESS BOOK ----------
-        let savedPlaces = [];
         window.showAddressBook = async function() {
             if (!currentUser) { alert('Login first'); return; }
             const userRef = db.collection('users').doc(currentUser.uid);
             const doc = await userRef.get();
-            if (doc.exists && doc.data().savedPlaces) {
-                savedPlaces = doc.data().savedPlaces;
-            }
+            if (doc.exists && doc.data().savedPlaces) savedPlaces = doc.data().savedPlaces;
             let html = '';
             savedPlaces.forEach((place, index) => {
                 html += `<div style="display:flex; justify-content:space-between; padding:10px; border-bottom:1px solid #333;">
@@ -958,7 +846,6 @@ function useBypassMode(pickup, drop) {
             document.getElementById('savedPlacesList').innerHTML = html || '<p>No saved places</p>';
             document.getElementById('addressBookModal').classList.add('active');
         };
-
         window.savePlace = async function() {
             const name = document.getElementById('newPlaceName').value;
             const addr = document.getElementById('newPlaceAddr').value;
@@ -971,61 +858,58 @@ function useBypassMode(pickup, drop) {
             document.getElementById('newPlaceName').value = '';
             document.getElementById('newPlaceAddr').value = '';
         };
-
         window.useAddress = function(addr) {
             document.getElementById('pickupAddr').value = addr;
             closeModal('addressBookModal');
         };
 
         // ---------- SCHEDULING ----------
-        window.scheduleRide = function() {
-            // Just go to booking screen and focus date? We'll keep simple.
-            showScreen('bookingScreen');
-        };
+        window.scheduleRide = () => showScreen('bookingScreen');
 
-        // ---------- REFERRAL ----------
-        window.showReferral = function() {
-            document.getElementById('referralCode').innerText = currentUser ? 'TRUCK' + currentUser.uid.slice(-4) : 'TRUCK123';
-            alert('Referral code: ' + document.getElementById('referralCode').innerText);
+        // ---------- REFERRAL MODAL ----------
+        window.showReferralModal = function() {
+            document.getElementById('referralCodeDisplay').innerText = currentUser ? 'TRUCK' + currentUser.uid.slice(-4) : 'TRUCK123';
+            document.getElementById('userPoints').innerText = '250';
+            document.getElementById('referralModal').classList.add('active');
         };
-
-        window.copyReferral = function() {
-            navigator.clipboard.writeText(document.getElementById('referralCode').innerText);
+        window.copyReferralFromModal = function() {
+            const code = document.getElementById('referralCodeDisplay').innerText;
+            navigator.clipboard.writeText(code);
             alert('Copied!');
         };
+        window.copyReferral = function() { copyReferralFromModal(); };
 
-        // ---------- SOS ----------
-        window.sosAlert = function() {
-            if (!currentUser) { alert('Login first'); return; }
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(pos => {
-                    const lat = pos.coords.latitude;
-                    const lng = pos.coords.longitude;
-                    alert(`🚨 SOS! Your location (${lat},${lng}) has been sent to emergency contacts.`);
-                }, () => {
-                    alert('SOS triggered (location unavailable)');
-                });
-            } else {
-                alert('SOS triggered');
-            }
-        };
+        // ---------- WALLET DATA ----------
+        async function loadWalletData() {
+            document.getElementById('walletBalance').innerText = '$125.50';
+            const transactions = [
+                { date: '2025-03-01', desc: 'Trip #TKE1234', amount: 45.20 },
+                { date: '2025-02-28', desc: 'Trip #TKE5678', amount: 32.50 },
+                { date: '2025-02-27', desc: 'Added funds', amount: 100.00 }
+            ];
+            let html = '';
+            transactions.forEach(t => {
+                html += `<div class="transaction-item"><span>${t.desc}<br><small>${t.date}</small></span><span>$${t.amount.toFixed(2)}</span></div>`;
+            });
+            document.getElementById('transactionList').innerHTML = html;
+        }
 
-        // ---------- TRACKING SIMULATION (unchanged) ----------
+        // ---------- ACCOUNT DATA ----------
+        async function loadAccountData() {
+            if (!currentUser) { showScreen('homeScreen'); alert('Please login'); return; }
+            document.getElementById('memberSince').innerText = 'Mar 2025';
+            document.getElementById('totalTrips').innerText = '3';
+            document.getElementById('rewardPoints').innerText = '250';
+        }
+
+        // ---------- TRACKING SIMULATION ----------
         window.startTracking = function() {
-            if (trackingInterval) {
-                clearInterval(trackingInterval);
-                trackingInterval = null;
-            }
-            
+            if (trackingInterval) { clearInterval(trackingInterval); trackingInterval = null; }
             showScreen('trackingScreen');
-            
             const pickup = document.getElementById('pickupAddr').value || '123 Main St, New York, NY';
             const drop = document.getElementById('dropAddr').value || '456 Broadway, New York, NY';
-            
-            // Demo coordinates (New York)
             const pickupCoords = { lat: 40.7128, lng: -74.0060 };
             const dropCoords = { lat: 40.7580, lng: -73.9855 };
-            
             const mapDiv = document.getElementById('trackingMap');
             if (!trackingMap) {
                 trackingMap = L.map('trackingMap').setView([pickupCoords.lat, pickupCoords.lng], 13);
@@ -1033,12 +917,9 @@ function useBypassMode(pickup, drop) {
             } else {
                 trackingMap.setView([pickupCoords.lat, pickupCoords.lng], 13);
             }
-            
             L.marker([pickupCoords.lat, pickupCoords.lng]).addTo(trackingMap).bindPopup('Pickup').openPopup();
             L.marker([dropCoords.lat, dropCoords.lng]).addTo(trackingMap).bindPopup('Drop').openPopup();
-            
             driverMarker = L.marker([pickupCoords.lat + 0.01, pickupCoords.lng + 0.01]).addTo(trackingMap).bindPopup('Driver').openPopup();
-            
             routeCoordinates = [];
             const steps = 20;
             for (let i = 0; i <= steps; i++) {
@@ -1046,22 +927,18 @@ function useBypassMode(pickup, drop) {
                 const lng = pickupCoords.lng + (dropCoords.lng - pickupCoords.lng) * i / steps;
                 routeCoordinates.push({ lat, lng });
             }
-            
             currentStep = 0;
-            
             document.getElementById('trackingDetails').innerHTML = `
                 <p><i class="fas fa-circle-notch fa-spin"></i> Driver is heading to pickup location...</p>
                 <p><strong>Pickup:</strong> ${pickup.substring(0,30)}</p>
                 <p><strong>Drop:</strong> ${drop.substring(0,30)}</p>
             `;
-            
             trackingInterval = setInterval(() => {
                 if (currentStep < routeCoordinates.length - 1) {
                     currentStep++;
                     const pos = routeCoordinates[currentStep];
                     driverMarker.setLatLng([pos.lat, pos.lng]);
                     trackingMap.panTo([pos.lat, pos.lng]);
-                    
                     if (currentStep < routeCoordinates.length / 2) {
                         document.getElementById('trackingDetails').innerHTML = `
                             <p><i class="fas fa-circle-notch fa-spin"></i> Driver is on the way to pickup...</p>
@@ -1088,14 +965,8 @@ function useBypassMode(pickup, drop) {
         };
 
         window.cancelBooking = function() {
-            if (trackingInterval) {
-                clearInterval(trackingInterval);
-                trackingInterval = null;
-            }
-            if (trackingMap) {
-                trackingMap.remove();
-                trackingMap = null;
-            }
+            if (trackingInterval) { clearInterval(trackingInterval); trackingInterval = null; }
+            if (trackingMap) { trackingMap.remove(); trackingMap = null; }
             goHome();
         };
 
@@ -1160,50 +1031,24 @@ function useBypassMode(pickup, drop) {
             document.getElementById('chatInput').value = '';
         };
 
+        // ---------- SOS ----------
+        window.sosAlert = function() {
+            if (!currentUser) { alert('Login first'); return; }
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(pos => {
+                    alert(`🚨 SOS! Your location (${pos.coords.latitude},${pos.coords.longitude}) has been sent.`);
+                }, () => alert('SOS triggered (location unavailable)'));
+            } else alert('SOS triggered');
+        };
+
         // ---------- UTILITY ----------
-        function closeModal(id) {
-            document.getElementById(id).classList.remove('active');
-        }
+        function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+        window.closeModal = closeModal;
 
         // Initialize
         loadVehicleGrid('trucks');
-        // Load online drivers count
         db.collection('drivers').where('status', '==', 'online').onSnapshot(snap => {
             document.getElementById('onlineDrivers').innerText = snap.size;
-        });
-        // Load active shipments
-        db.collection('bookings').where('status', '==', 'accepted').onSnapshot(snap => {
-            document.getElementById('activeShipments').innerText = snap.size;
-       // ========== REVERSE GEOCODING FUNCTION (LAT/LNG to ADDRESS) ==========
-async function reverseGeocode(lat, lng) {
-    try {
-        // Using Nominatim for reverse geocoding (free, but add proper headers)
-        const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1`;
-        
-        const response = await fetch(url, {
-            headers: {
-                'User-Agent': 'TruckEase-App/1.0 (contact@truckease.com)'
-            }
-        });
-        
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        
-        const data = await response.json();
-        
-        if (data && data.display_name) {
-            return data.display_name;
-        } else {
-            // Fallback to coordinates if no address found
-            return `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
-        }
-    } catch (error) {
-        console.error('Reverse geocoding failed:', error);
-        // Return coordinates as fallback
-        return `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
-    }
-}
         });
     </script>
 </body>
