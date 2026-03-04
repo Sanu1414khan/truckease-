@@ -160,11 +160,7 @@
     </style>
 </head>
 <body>
-    <!-- SOS Button -->
-    <div class="sos-btn" onclick="sosAlert()">
-        <i class="fas fa-exclamation-triangle"></i>
-    </div>
-
+    
     <!-- Onboarding Overlay -->
     <div id="onboarding" class="onboarding-overlay">
         <div class="onboarding-card">
@@ -238,10 +234,7 @@
                     <span id="avgRating">4.92</span>
                 </div>
             </div>
-            <div class="anomaly-detected">
-                <span>⚠️ Referral Bonus:</span>
-                <span id="referralBonus">$10 credit</span>
-            </div>
+            
             <div class="cosmic-manifests">
                 <div class="manifest-item" onclick="showAddressBook()">📍<br>Address Book</div>
                 <div class="manifest-item" onclick="showPromo()">🎟️<br>Promo Code</div>
@@ -258,8 +251,10 @@
 
         <!-- Vehicle Grid -->
         <h3 class="section-title" id="vehicleCategoryTitle"><i class="fas fa-truck"></i> Available Trucks</h3>
-        <div class="vehicle-grid" id="vehicleGrid"></div>
-    </div>
+<div class="vehicle-grid" id="vehicleGrid">
+    <div class="service-item" data-category="special"><i class="fas fa-truck"></i> Special</div>
+</div>
+
 
     <!-- BOOKING SCREEN -->
     <div id="bookingScreen" class="screen">
