@@ -819,29 +819,52 @@
             }
         };
 
-        // ---------- GPS LOCATION ----------
-        window.getCurrentLocation = function() {
-            if (!navigator.geolocation) { alert('Geolocation not supported'); return; }
-            document.getElementById('loading').classList.add('active');
-            navigator.geolocation.getCurrentPosition(async pos => {
-                const lat = pos.coords.latitude;
-                const lng = pos.coords.longitude;
-                document.getElementById('map').style.display = 'block';
-                if (map) map.remove();
-                map = L.map('map').setView([lat, lng], 15);
-                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
-                L.marker([lat, lng]).addTo(map).bindPopup('You are here').openPopup();
-                try {
-                    const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`);
-                    const data = await res.json();
-                    document.getElementById('pickupAddr').value = data.display_name || 'Location found';
-                } catch(e) { }
-                document.getElementById('loading').classList.remove('active');
-            }, err => {
-                alert('Unable to get location');
-                document.getElementById('loading').classList.remove('active');
+        
+        // ---------- GPS LOCATION (FIXED) ----------
+window.getCurrentLocation = function() {
+    if (!navigator.geolocation) { 
+        alert('Geolocation not supported'); 
+        return; 
+    }
+    
+    document.getElementById('loading').classList.add('active');
+    
+    navigator.geolocation.getCurrentPosition(async pos => {
+        const lat = pos.coords.latitude;
+        const lng = pos.coords.longitude;
+        
+        try {
+            // Reverse geocode to get address
+            const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=18`, {
+                headers: { 'User-Agent': 'TruckEase-App/1.0' }
             });
-        };
+            const data = await res.json();
+            
+            const address = data.display_name || `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
+            
+            // Update the location bar
+            document.getElementById('locationPlaceholder').innerText = address.substring(0, 30) + '...';
+            
+            // If we're on booking screen, update pickup address
+            const pickupInput = document.getElementById('pickupAddr');
+            if (pickupInput) {
+                pickupInput.value = address;
+            }
+            
+            console.log('📍 Location found:', address);
+            
+        } catch(e) {
+            console.error('Geocoding error:', e);
+            document.getElementById('locationPlaceholder').innerText = '📍 Location found';
+        }
+        
+        document.getElementById('loading').classList.remove('active');
+        
+    }, err => {
+        alert('Unable to get location: ' + err.message);
+        document.getElementById('loading').classList.remove('active');
+    });
+};
 
         // ---------- LOAD HISTORY ----------
         window.loadHistory = async function() {
