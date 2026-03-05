@@ -42,7 +42,7 @@
             z-index: 0;
         }
         /* Glassmorphism base */
-        .service-item, .vehicle-card, .rewards-card, .quantum-grid, .booking-header, .fare-box, .history-item, .modal-content {
+        .service-item, .vehicle-card, .booking-header, .fare-box, .history-item, .modal-content {
             background: rgba(20, 30, 50, 0.4);
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
@@ -55,28 +55,49 @@
         .logo-area { display: flex; justify-content: space-between; align-items: center; }
         .logo { font-size: 28px; font-weight: 800; color: #00f3ff; text-shadow: 0 0 15px #00f3ff; letter-spacing: 2px; }
         .user-icon { width: 48px; height: 48px; border-radius: 50%; background: rgba(255,255,255,0.05); border: 1px solid rgba(0,243,255,0.3); display: flex; align-items: center; justify-content: center; cursor: pointer; color: #00f3ff; font-size: 24px; }
-        .location-bar { background: rgba(0, 243, 255, 0.05); backdrop-filter: blur(5px); padding: 16px 20px; border-radius: 40px; font-size: 16px; color: #aaa; border: 1px solid rgba(0,243,255,0.3); cursor: pointer; display: flex; align-items: center; gap: 10px; }
+        .location-bar { background: rgba(0, 243, 255, 0.05); backdrop-filter: blur(5px); padding: 16px 20px; border-radius: 40px; font-size: 16px; color: #aaa; border: 1px solid rgba(0,243,255,0.3); cursor: pointer; display: flex; align-items: center; gap: 10px; margin-bottom: 15px; }
         .location-bar i { color: #00f3ff; }
         .location-bar span { color: #fff; font-weight: 500; }
         /* Section Titles */
         .section-title { padding: 20px 20px 10px; font-size: 18px; font-weight: 600; color: #00f3ff; text-transform: uppercase; letter-spacing: 2px; }
-        /* Rewards Card */
-        .rewards-card { margin: 10px 20px 20px; padding: 20px; display: flex; justify-content: space-between; align-items: center; border-color: #00f3ff; }
-        .rewards-left h4 { color: #00f3ff; font-size: 20px; font-weight: 700; margin-bottom: 5px; }
-        .rewards-left p { color: #ccc; font-size: 14px; }
-        .get-started-btn { background: #00f3ff; color: #0a0c14; padding: 12px 24px; border-radius: 40px; font-weight: 700; border: none; cursor: pointer; box-shadow: 0 0 30px #00f3ff; }
-        /* Quantum Grid */
-        .quantum-grid { margin: 20px; padding: 20px; }
-        .grid-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
-        .grid-header h3 { color: #00f3ff; font-size: 18px; }
-        .latest-updates { margin: 15px 0; }
-        .update-item { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.05); color: #ddd; font-size: 14px; }
-        .anomaly-detected { background: rgba(255, 0, 0, 0.1); border: 1px solid #ff4444; border-radius: 20px; padding: 15px; margin: 15px 0; display: flex; justify-content: space-between; color: #ff8888; }
-        .cosmic-manifests { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 20px 0; }
-        .manifest-item { background: rgba(0,243,255,0.05); border: 1px solid rgba(0,243,255,0.2); border-radius: 20px; padding: 15px 5px; text-align: center; font-size: 12px; color: #00f3ff; cursor: pointer; }
-        .wormhole-section { display: flex; justify-content: space-between; align-items: center; margin: 15px 0; padding: 15px; background: rgba(0,243,255,0.02); border-radius: 30px; }
-        .wormhole-btn { background: #00f3ff; color: #0a0c14; padding: 10px 20px; border-radius: 40px; font-weight: 700; border: none; cursor: pointer; }
-        .view-all { text-align: center; margin: 20px 0; color: #00f3ff; font-weight: 600; cursor: pointer; }
+        
+        /* ===== UBER STYLE UTILITY BUTTONS ===== */
+        .utility-row {
+            display: flex;
+            justify-content: space-around;
+            gap: 8px;
+            padding: 0 20px 20px;
+        }
+        
+        .utility-item {
+            background: rgba(30, 40, 60, 0.5);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(0, 243, 255, 0.15);
+            border-radius: 40px;
+            padding: 8px 0;
+            flex: 1;
+            text-align: center;
+            font-size: 11px;
+            font-weight: 500;
+            color: #00f3ff;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .utility-item i {
+            display: block;
+            font-size: 18px;
+            margin-bottom: 4px;
+            color: #fff;
+        }
+        
+        .utility-item:hover {
+            border-color: #00f3ff;
+            box-shadow: 0 0 15px rgba(0, 243, 255, 0.3);
+            transform: translateY(-2px);
+        }
+        /* ===== END UTILITY BUTTONS ===== */
         
         /* ===== UBER STYLE GRID LAYOUT ===== */
         .vehicle-grid {
@@ -249,47 +270,21 @@
         </div>
     </div>
 
-    <!-- HOME SCREEN -->
+    <!-- HOME SCREEN (CLEANED) -->
     <div id="homeScreen" class="screen active">
-        <!-- OUR SERVICES SECTION HATAYA (जैसा तुमने कहा था) -->
-        
-        <!-- Rewards Card -->
-        <div class="rewards-card">
-            <div class="rewards-left">
-                <h4>🚀 TruckRewards</h4>
-                <p>Earn points on every trip</p>
+        <!-- Utility Buttons Row (Address Book, Promo, Schedule) -->
+        <div class="utility-row">
+            <div class="utility-item" onclick="showAddressBook()">
+                <i class="fas fa-map-marker-alt"></i>
+                <span>Address</span>
             </div>
-            <button class="get-started-btn" onclick="showReferral()">Get Started</button>
-        </div>
-
-        <!-- Quantum Tracking Grid -->
-        <div class="quantum-grid">
-            <div class="grid-header">
-                <h3>⚡ QuantumTrackingGrid</h3>
-                <span>🛰️ <span id="onlineDrivers">0</span> drivers online</span>
+            <div class="utility-item" onclick="showPromo()">
+                <i class="fas fa-ticket-alt"></i>
+                <span>Promo</span>
             </div>
-            <div class="latest-updates">
-                <div class="update-item">
-                    <span>🚚 Active shipments</span>
-                    <span id="activeShipments">0</span>
-                </div>
-                <div class="update-item">
-                    <span>⭐ Avg driver rating</span>
-                    <span id="avgRating">4.92</span>
-                </div>
-            </div>
-            
-            <div class="cosmic-manifests">
-                <div class="manifest-item" onclick="showAddressBook()">📍<br>Address Book</div>
-                <div class="manifest-item" onclick="showPromo()">🎟️<br>Promo Code</div>
-                <div class="manifest-item" onclick="scheduleRide()">📅<br>Schedule</div>
-            </div>
-            <div class="wormhole-section">
-                <span>🌀 Your Referral Code: <strong id="referralCode">TRUCK123</strong></span>
-                <button class="wormhole-btn" onclick="copyReferral()">Copy</button>
-            </div>
-            <div class="view-all" onclick="loadVehicleGrid('trucks')">
-                View All Transports
+            <div class="utility-item" onclick="scheduleRide()">
+                <i class="fas fa-calendar-alt"></i>
+                <span>Schedule</span>
             </div>
         </div>
 
@@ -1124,11 +1119,13 @@
 
         // ---------- REFERRAL ----------
         window.showReferral = function() {
+            // This function is kept for compatibility but no longer used in home screen
             document.getElementById('referralCode').innerText = currentUser ? 'TRUCK' + currentUser.uid.slice(-4) : 'TRUCK123';
             alert('Referral code: ' + document.getElementById('referralCode').innerText);
         };
 
         window.copyReferral = function() {
+            // This function is kept for compatibility but no longer used in home screen
             navigator.clipboard.writeText(document.getElementById('referralCode').innerText);
             alert('Copied!');
         };
@@ -1316,19 +1313,19 @@
         // Initialize
         loadVehicleGrid('trucks');
         
-        // Load online drivers count
-        db.collection('drivers').where('status', '==', 'online').onSnapshot(snap => {
-            document.getElementById('onlineDrivers').innerText = snap.size;
-        }, error => {
-            console.error('Drivers snapshot error:', error);
-        });
+        // Load online drivers count - removed as element is no longer in home screen
+        // db.collection('drivers').where('status', '==', 'online').onSnapshot(snap => {
+        //     document.getElementById('onlineDrivers').innerText = snap.size;
+        // }, error => {
+        //     console.error('Drivers snapshot error:', error);
+        // });
         
-        // Load active shipments
-        db.collection('bookings').where('status', '==', 'accepted').onSnapshot(snap => {
-            document.getElementById('activeShipments').innerText = snap.size;
-        }, error => {
-            console.error('Bookings snapshot error:', error);
-        });
+        // Load active shipments - removed as element is no longer in home screen
+        // db.collection('bookings').where('status', '==', 'accepted').onSnapshot(snap => {
+        //     document.getElementById('activeShipments').innerText = snap.size;
+        // }, error => {
+        //     console.error('Bookings snapshot error:', error);
+        // });
 
         // Export functions for global access
         window.fetchSuggestions = fetchSuggestions;
