@@ -363,6 +363,40 @@
         </div>
     </div>
 
+    <!-- WALLET SCREEN -->
+<div id="walletScreen" class="screen">
+    <div class="booking-header">
+        <i class="fas fa-arrow-left back-btn" onclick="goBack()"></i>
+        <h3>Your Wallet</h3>
+    </div>
+    <div class="booking-content">
+        <div style="text-align:center; padding:30px;">
+            <i class="fas fa-wallet" style="font-size:80px; color:#00f3ff;"></i>
+            <h2 style="margin:20px 0;">$0.00</h2>
+            <p style="color:#aaa;">Your wallet is empty</p>
+            <button class="btn btn-primary" onclick="alert('Add money coming soon')">Add Money</button>
+        </div>
+    </div>
+</div>
+
+<!-- ACCOUNT SCREEN -->
+<div id="accountScreen" class="screen">
+    <div class="booking-header">
+        <i class="fas fa-arrow-left back-btn" onclick="goBack()"></i>
+        <h3>Your Account</h3>
+    </div>
+    <div class="booking-content">
+        <div style="text-align:center; padding:20px;">
+            <div style="width:100px; height:100px; background:#00f3ff20; border-radius:50%; margin:0 auto 20px; display:flex; align-items:center; justify-content:center;">
+                <i class="fas fa-user" style="font-size:50px; color:#00f3ff;"></i>
+            </div>
+            <h3 id="accountName">Demo User</h3>
+            <p id="accountPhone" style="color:#aaa;">+1 2125551234</p>
+            <button class="btn btn-secondary" style="margin-top:30px;" onclick="logout()">Logout</button>
+        </div>
+    </div>
+</div>
+
     <!-- ADDRESS BOOK MODAL -->
     <div id="addressBookModal" class="modal">
         <div class="modal-content">
