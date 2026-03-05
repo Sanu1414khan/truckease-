@@ -11,7 +11,7 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.css" />
     
-    <!-- API Configuration (खरीदने वाला अपनी कुंजी डालेगा) -->
+    <!-- API Configuration -->
     <script>
         window.APP_CONFIG = {
             GOOGLE_MAPS_API_KEY: '',
@@ -58,21 +58,8 @@
         .location-bar { background: rgba(0, 243, 255, 0.05); backdrop-filter: blur(5px); padding: 16px 20px; border-radius: 40px; font-size: 16px; color: #aaa; border: 1px solid rgba(0,243,255,0.3); cursor: pointer; display: flex; align-items: center; gap: 10px; }
         .location-bar i { color: #00f3ff; }
         .location-bar span { color: #fff; font-weight: 500; }
-        /* SOS Button */
-        .sos-btn {
-            position: fixed; bottom: 100px; right: 20px; width: 60px; height: 60px;
-            background: #ff4444; border-radius: 50%; display: flex; align-items: center; justify-content: center;
-            color: white; font-size: 30px; box-shadow: 0 0 30px #ff4444; cursor: pointer; z-index: 1000;
-            border: 2px solid #fff; transition: 0.2s;
-        }
-        .sos-btn:hover { transform: scale(1.1); }
         /* Section Titles */
         .section-title { padding: 20px 20px 10px; font-size: 18px; font-weight: 600; color: #00f3ff; text-transform: uppercase; letter-spacing: 2px; }
-        /* Service Grid */
-        .service-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; padding: 0 20px 20px; }
-        .service-item { padding: 12px 0; text-align: center; color: #fff; font-weight: 500; font-size: 14px; cursor: pointer; transition: 0.2s; }
-        .service-item.active { background: rgba(0, 243, 255, 0.2); border-color: #00f3ff; box-shadow: 0 0 20px #00f3ff; }
-        .service-item i { color: #00f3ff; margin-right: 5px; }
         /* Rewards Card */
         .rewards-card { margin: 10px 20px 20px; padding: 20px; display: flex; justify-content: space-between; align-items: center; border-color: #00f3ff; }
         .rewards-left h4 { color: #00f3ff; font-size: 20px; font-weight: 700; margin-bottom: 5px; }
@@ -90,17 +77,80 @@
         .wormhole-section { display: flex; justify-content: space-between; align-items: center; margin: 15px 0; padding: 15px; background: rgba(0,243,255,0.02); border-radius: 30px; }
         .wormhole-btn { background: #00f3ff; color: #0a0c14; padding: 10px 20px; border-radius: 40px; font-weight: 700; border: none; cursor: pointer; }
         .view-all { text-align: center; margin: 20px 0; color: #00f3ff; font-weight: 600; cursor: pointer; }
-        /* Vehicle Grid */
-        .vehicle-grid { display: flex; flex-direction: column; gap: 12px; padding: 0 20px 20px; }
-        .vehicle-card { padding: 16px; display: flex; align-items: center; gap: 16px; cursor: pointer; }
-        .vehicle-card:hover { border-color: #00f3ff; box-shadow: 0 0 20px #00f3ff; }
-        .vehicle-card .icon { font-size: 40px; width: 60px; text-align: center; }
-        .vehicle-info { flex: 1; }
-        .vehicle-info h4 { font-size: 18px; font-weight: 700; color: #fff; }
-        .vehicle-info p { font-size: 14px; color: #aaa; }
-        .vehicle-price { text-align: right; }
-        .vehicle-price .price { font-size: 20px; font-weight: 800; color: #00f3ff; }
-        .vehicle-price .eta { font-size: 13px; color: #4caf50; }
+        
+        /* ===== UBER STYLE GRID LAYOUT ===== */
+        .vehicle-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            padding: 0 20px 20px;
+        }
+        
+        .vehicle-card {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px 10px;
+            background: rgba(30, 40, 60, 0.5);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(0, 243, 255, 0.15);
+            border-radius: 24px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
+            min-height: 120px;
+        }
+        
+        .vehicle-card:hover {
+            border-color: #00f3ff;
+            box-shadow: 0 0 25px rgba(0, 243, 255, 0.3);
+            transform: translateY(-3px);
+        }
+        
+        .vehicle-card .icon {
+            font-size: 42px;
+            margin-bottom: 8px;
+        }
+        
+        .vehicle-card h4 {
+            font-size: 14px;
+            font-weight: 600;
+            color: #fff;
+            text-align: center;
+            margin: 0;
+        }
+        
+        .vehicle-card .promo-tag {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: #ff3366;
+            color: white;
+            font-size: 10px;
+            font-weight: 700;
+            padding: 4px 8px;
+            border-radius: 20px;
+            box-shadow: 0 4px 10px rgba(255, 51, 102, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        
+        .vehicle-card .price-tag {
+            font-size: 12px;
+            color: #00f3ff;
+            margin-top: 4px;
+            font-weight: 600;
+        }
+        
+        .vehicle-card .eta-tag {
+            font-size: 11px;
+            color: #4caf50;
+            margin-top: 2px;
+        }
+        /* ===== END UBER STYLE ===== */
+        
         /* Booking Screen */
         .screen { display: none; padding: 0; }
         .screen.active { display: block; }
@@ -201,13 +251,8 @@
 
     <!-- HOME SCREEN -->
     <div id="homeScreen" class="screen active">
-        <div class="section-title">OUR SERVICES</div>
-        <div class="service-grid" id="tabContainer">
-            <div class="service-item active" data-category="trucks"><i class="fas fa-truck"></i> Trucks</div>
-            <div class="service-item" data-category="vans"><i class="fas fa-truck-moving"></i> Vans</div>
-            <div class="service-item" data-category="special"><i class="fas fa-cog"></i> Special</div>
-        </div>
-
+        <!-- OUR SERVICES SECTION HATAYA (जैसा तुमने कहा था) -->
+        
         <!-- Rewards Card -->
         <div class="rewards-card">
             <div class="rewards-left">
@@ -248,10 +293,10 @@
             </div>
         </div>
 
-        <!-- Vehicle Grid -->
-             <h3 class="section-title" id="vehicleCategoryTitle"><i class="fas fa-truck"></i> Available Trucks</h3>
+        <!-- Vehicle Grid - UBER STYLE -->
+        <h3 class="section-title" id="vehicleCategoryTitle"><i class="fas fa-truck"></i> Available Trucks</h3>
         <div class="vehicle-grid" id="vehicleGrid"></div>
-
+    </div>
 
     <!-- BOOKING SCREEN -->
     <div id="bookingScreen" class="screen">
@@ -365,38 +410,38 @@
     </div>
 
     <!-- WALLET SCREEN -->
-<div id="walletScreen" class="screen">
-    <div class="booking-header">
-        <i class="fas fa-arrow-left back-btn" onclick="goBack()"></i>
-        <h3>Your Wallet</h3>
-    </div>
-    <div class="booking-content">
-        <div style="text-align:center; padding:30px;">
-            <i class="fas fa-wallet" style="font-size:80px; color:#00f3ff;"></i>
-            <h2 style="margin:20px 0;">$0.00</h2>
-            <p style="color:#aaa;">Your wallet is empty</p>
-            <button class="btn btn-primary" onclick="alert('Add money coming soon')">Add Money</button>
+    <div id="walletScreen" class="screen">
+        <div class="booking-header">
+            <i class="fas fa-arrow-left back-btn" onclick="goBack()"></i>
+            <h3>Your Wallet</h3>
         </div>
-    </div>
-</div>
-
-<!-- ACCOUNT SCREEN -->
-<div id="accountScreen" class="screen">
-    <div class="booking-header">
-        <i class="fas fa-arrow-left back-btn" onclick="goBack()"></i>
-        <h3>Your Account</h3>
-    </div>
-    <div class="booking-content">
-        <div style="text-align:center; padding:20px;">
-            <div style="width:100px; height:100px; background:#00f3ff20; border-radius:50%; margin:0 auto 20px; display:flex; align-items:center; justify-content:center;">
-                <i class="fas fa-user" style="font-size:50px; color:#00f3ff;"></i>
+        <div class="booking-content">
+            <div style="text-align:center; padding:30px;">
+                <i class="fas fa-wallet" style="font-size:80px; color:#00f3ff;"></i>
+                <h2 style="margin:20px 0;">$0.00</h2>
+                <p style="color:#aaa;">Your wallet is empty</p>
+                <button class="btn btn-primary" onclick="alert('Add money coming soon')">Add Money</button>
             </div>
-            <h3 id="accountName">Demo User</h3>
-            <p id="accountPhone" style="color:#aaa;">+1 2125551234</p>
-            <button class="btn btn-secondary" style="margin-top:30px;" onclick="logout()">Logout</button>
         </div>
     </div>
-</div>
+
+    <!-- ACCOUNT SCREEN -->
+    <div id="accountScreen" class="screen">
+        <div class="booking-header">
+            <i class="fas fa-arrow-left back-btn" onclick="goBack()"></i>
+            <h3>Your Account</h3>
+        </div>
+        <div class="booking-content">
+            <div style="text-align:center; padding:20px;">
+                <div style="width:100px; height:100px; background:#00f3ff20; border-radius:50%; margin:0 auto 20px; display:flex; align-items:center; justify-content:center;">
+                    <i class="fas fa-user" style="font-size:50px; color:#00f3ff;"></i>
+                </div>
+                <h3 id="accountName">Demo User</h3>
+                <p id="accountPhone" style="color:#aaa;">+1 2125551234</p>
+                <button class="btn btn-secondary" style="margin-top:30px;" onclick="logout()">Logout</button>
+            </div>
+        </div>
+    </div>
 
     <!-- ADDRESS BOOK MODAL -->
     <div id="addressBookModal" class="modal">
@@ -421,16 +466,17 @@
     </div>
 
     <!-- BOTTOM NAVIGATION -->
-<div class="bottom-nav">
-    <div class="nav-item active" onclick="showScreen('homeScreen')"><i class="fas fa-home"></i>Home</div>
-    <div class="nav-item" onclick="showScreen('historyScreen')"><i class="fas fa-history"></i>Trips</div>
-    <div class="nav-item" onclick="showScreen('walletScreen')"><i class="fas fa-wallet"></i>Wallet</div>
-    <div class="nav-item" onclick="showScreen('accountScreen')"><i class="fas fa-user"></i>Account</div>
-</div>
+    <div class="bottom-nav">
+        <div class="nav-item active" onclick="showScreen('homeScreen')"><i class="fas fa-home"></i>Home</div>
+        <div class="nav-item" onclick="showScreen('historyScreen')"><i class="fas fa-history"></i>Trips</div>
+        <div class="nav-item" onclick="showScreen('walletScreen')"><i class="fas fa-wallet"></i>Wallet</div>
+        <div class="nav-item" onclick="showScreen('accountScreen')"><i class="fas fa-user"></i>Account</div>
+    </div>
+    
     <!-- Loading -->
     <div id="loading" class="loading"><div class="spinner"></div><p>Loading...</p></div>
 
-    <!-- Firebase SDK (केवल Firestore) -->
+    <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -540,12 +586,10 @@
                 else item.classList.remove('active');
             });
 
-                        if (screenId === 'historyScreen') loadHistory();
+            if (screenId === 'historyScreen') loadHistory();
             if (screenId === 'homeScreen') loadVehicleGrid('trucks');
             if (screenId === 'walletScreen') loadWalletData();
             if (screenId === 'accountScreen') loadAccountData();
-            
-            
         };
 
         window.goBack = () => showScreen('homeScreen');
@@ -554,54 +598,98 @@
         // ---------- VEHICLE DATA ----------
         const vehicleData = {
             trucks: [
-                { icon: '🚚', name: 'Box Truck 16ft', desc: 'Ideal for local deliveries', base: 65, perKm: 1.2, eta: 8 },
-                { icon: '🚛', name: 'Semi-Truck 53ft', desc: 'Long-haul freight', base: 120, perKm: 2.0, eta: 15 },
-                { icon: '🚛', name: 'Refrigerated Truck', desc: 'Temperature controlled', base: 150, perKm: 2.5, eta: 12 }
-            ],
-            vans: [
-                { icon: '🚐', name: 'Cargo Van', desc: 'Perfect for parcels', base: 35, perKm: 0.7, eta: 4 },
-                { icon: '🚐', name: 'Sprinter Van', desc: 'Extra space', base: 50, perKm: 1.0, eta: 6 }
-            ],
-            special: [
-                { icon: '🏗️', name: 'Crane Truck', desc: 'For heavy lifting', base: 200, perKm: 3.0, eta: 25 },
-                { icon: '🚛', name: 'Hazmat Truck', desc: 'Certified for dangerous goods', base: 180, perKm: 2.8, eta: 18 }
-            ],
-            rentals: [
-                { icon: '🛻', name: 'Pickup Truck', desc: 'Daily rental', base: 45, perKm: 0.9, eta: 5 },
-                { icon: '🚚', name: 'Box Truck Rental', desc: 'Weekly rental', base: 300, perKm: 0, eta: 10 }
+                { 
+                    icon: '🚚', 
+                    name: 'Box Truck', 
+                    desc: 'Ideal for local deliveries', 
+                    base: 65, 
+                    perKm: 1.2, 
+                    eta: 8,
+                    price: '$65',
+                    promo: '75% OFF'
+                },
+                { 
+                    icon: '🚛', 
+                    name: 'Semi-Truck', 
+                    desc: 'Long-haul freight', 
+                    base: 120, 
+                    perKm: 2.0, 
+                    eta: 15,
+                    price: '$120',
+                    promo: null
+                },
+                { 
+                    icon: '🚛', 
+                    name: 'Refrigerated', 
+                    desc: 'Temperature controlled', 
+                    base: 150, 
+                    perKm: 2.5, 
+                    eta: 12,
+                    price: '$150',
+                    promo: '20% OFF'
+                },
+                { 
+                    icon: '🚐', 
+                    name: 'Cargo Van', 
+                    desc: 'Perfect for parcels', 
+                    base: 35, 
+                    perKm: 0.7, 
+                    eta: 4,
+                    price: '$35',
+                    promo: null
+                },
+                { 
+                    icon: '🏗️', 
+                    name: 'Crane Truck', 
+                    desc: 'For heavy lifting', 
+                    base: 200, 
+                    perKm: 3.0, 
+                    eta: 25,
+                    price: '$200',
+                    promo: null
+                },
+                { 
+                    icon: '🛻', 
+                    name: 'Pickup', 
+                    desc: 'Daily rental', 
+                    base: 45, 
+                    perKm: 0.9, 
+                    eta: 5,
+                    price: '$45',
+                    promo: '15% OFF'
+                }
             ]
         };
 
         function loadVehicleGrid(category) {
             const grid = document.getElementById('vehicleGrid');
             const title = document.getElementById('vehicleCategoryTitle');
-            
-            const categoryTitles = {
-                trucks: '<i class="fas fa-truck"></i> Trucks',
-                vans: '<i class="fas fa-truck"></i> Vans',
-                special: '<i class="fas fa-cog"></i> Special',
-                rentals: '<i class="fas fa-key"></i> Rentals'
-            };
-            title.innerHTML = categoryTitles[category] || categoryTitles.trucks;
+            title.innerHTML = '<i class="fas fa-truck"></i> Available Vehicles';
 
             let html = '';
             if (vehicleData[category]) {
                 vehicleData[category].forEach(v => {
-                    html += `<div class="vehicle-card" data-name="${v.name}" data-base="${v.base}" data-perkm="${v.perKm}" data-eta="${v.eta}">
-                        <div class="icon">${v.icon}</div>
-                        <div class="vehicle-info">
+                    // Create promo tag if exists
+                    const promoTag = v.promo ? `<div class="promo-tag">${v.promo}</div>` : '';
+                    
+                    html += `
+                        <div class="vehicle-card" 
+                             data-name="${v.name}" 
+                             data-base="${v.base}" 
+                             data-perkm="${v.perKm}" 
+                             data-eta="${v.eta}">
+                            ${promoTag}
+                            <div class="icon">${v.icon}</div>
                             <h4>${v.name}</h4>
-                            <p>${v.desc}</p>
+                            <div class="price-tag">${v.price}</div>
+                            <div class="eta-tag">${v.eta} min</div>
                         </div>
-                        <div class="vehicle-price">
-                            <div class="price">$${v.base}</div>
-                            <div class="eta">${v.eta} min away</div>
-                        </div>
-                    </div>`;
+                    `;
                 });
             }
             grid.innerHTML = html;
 
+            // Add click event to each card
             document.querySelectorAll('.vehicle-card').forEach(card => {
                 card.addEventListener('click', () => {
                     currentVehicle = card.dataset.name;
@@ -618,15 +706,6 @@
                 });
             });
         }
-
-        // Tab switching
-        document.querySelectorAll('.service-item').forEach(tab => {
-            tab.addEventListener('click', function() {
-                document.querySelectorAll('.service-item').forEach(t => t.classList.remove('active'));
-                this.classList.add('active');
-                loadVehicleGrid(this.dataset.category);
-            });
-        });
 
         // ---------- ADDRESS CONFIRMATION WITH ROUTING ----------
         window.confirmAddress = async function() {
@@ -850,50 +929,50 @@
 
         
         // ---------- GPS LOCATION (FIXED) ----------
-window.getCurrentLocation = function() {
-    if (!navigator.geolocation) { 
-        alert('Geolocation not supported'); 
-        return; 
-    }
-    
-    document.getElementById('loading').classList.add('active');
-    
-    navigator.geolocation.getCurrentPosition(async pos => {
-        const lat = pos.coords.latitude;
-        const lng = pos.coords.longitude;
-        
-        try {
-            // Reverse geocode to get address
-            const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=18`, {
-                headers: { 'User-Agent': 'TruckEase-App/1.0' }
-            });
-            const data = await res.json();
-            
-            const address = data.display_name || `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
-            
-            // Update the location bar
-            document.getElementById('locationPlaceholder').innerText = address.substring(0, 30) + '...';
-            
-            // If we're on booking screen, update pickup address
-            const pickupInput = document.getElementById('pickupAddr');
-            if (pickupInput) {
-                pickupInput.value = address;
+        window.getCurrentLocation = function() {
+            if (!navigator.geolocation) { 
+                alert('Geolocation not supported'); 
+                return; 
             }
             
-            console.log('📍 Location found:', address);
+            document.getElementById('loading').classList.add('active');
             
-        } catch(e) {
-            console.error('Geocoding error:', e);
-            document.getElementById('locationPlaceholder').innerText = '📍 Location found';
-        }
-        
-        document.getElementById('loading').classList.remove('active');
-        
-    }, err => {
-        alert('Unable to get location: ' + err.message);
-        document.getElementById('loading').classList.remove('active');
-    });
-};
+            navigator.geolocation.getCurrentPosition(async pos => {
+                const lat = pos.coords.latitude;
+                const lng = pos.coords.longitude;
+                
+                try {
+                    // Reverse geocode to get address
+                    const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=18`, {
+                        headers: { 'User-Agent': 'TruckEase-App/1.0' }
+                    });
+                    const data = await res.json();
+                    
+                    const address = data.display_name || `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
+                    
+                    // Update the location bar
+                    document.getElementById('locationPlaceholder').innerText = address.substring(0, 30) + '...';
+                    
+                    // If we're on booking screen, update pickup address
+                    const pickupInput = document.getElementById('pickupAddr');
+                    if (pickupInput) {
+                        pickupInput.value = address;
+                    }
+                    
+                    console.log('📍 Location found:', address);
+                    
+                } catch(e) {
+                    console.error('Geocoding error:', e);
+                    document.getElementById('locationPlaceholder').innerText = '📍 Location found';
+                }
+                
+                document.getElementById('loading').classList.remove('active');
+                
+            }, err => {
+                alert('Unable to get location: ' + err.message);
+                document.getElementById('loading').classList.remove('active');
+            });
+        };
 
         // ---------- LOAD HISTORY ----------
         window.loadHistory = async function() {
@@ -1255,19 +1334,19 @@ window.getCurrentLocation = function() {
         window.fetchSuggestions = fetchSuggestions;
         
         // ---------- WALLET DATA ----------
-function loadWalletData() {
-    console.log('Wallet screen loaded');
-    // यहाँ बाद में Firebase से असली डेटा लोड करेंगे
-}
+        function loadWalletData() {
+            console.log('Wallet screen loaded');
+            // यहाँ बाद में Firebase से असली डेटा लोड करेंगे
+        }
 
-// ---------- ACCOUNT DATA ----------
-function loadAccountData() {
-    console.log('Account screen loaded');
-    if (currentUser) {
-        document.getElementById('accountName').innerText = currentUser.name || 'Demo User';
-        document.getElementById('accountPhone').innerText = currentUser.phoneNumber || '+1 2125551234';
-    }
-}
+        // ---------- ACCOUNT DATA ----------
+        function loadAccountData() {
+            console.log('Account screen loaded');
+            if (currentUser) {
+                document.getElementById('accountName').innerText = currentUser.name || 'Demo User';
+                document.getElementById('accountPhone').innerText = currentUser.phoneNumber || '+1 2125551234';
+            }
+        }
     </script>
 </body>
 </html>
