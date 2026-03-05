@@ -538,9 +538,13 @@
                 else if (screenId === 'historyScreen' && idx === 1) item.classList.add('active');
                 else item.classList.remove('active');
             });
-            
-            if (screenId === 'historyScreen') loadHistory();
+
+                        if (screenId === 'historyScreen') loadHistory();
             if (screenId === 'homeScreen') loadVehicleGrid('trucks');
+            if (screenId === 'walletScreen') loadWalletData();
+            if (screenId === 'accountScreen') loadAccountData();
+            
+            
         };
 
         window.goBack = () => showScreen('homeScreen');
