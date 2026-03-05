@@ -945,8 +945,12 @@
                     
                     const address = data.display_name || `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
                     
-                    // Update the location bar
-                    document.getElementById('locationPlaceholder').innerText = address.substring(0, 30) + '...';
+                    // Update the location bar - पूरा एड्रेस दिखाओ, लेकिन छोटा करो अगर जरूरत हो
+                  if (address.length > 35) {
+                  document.getElementById('locationPlaceholder').innerText = address.substring(0, 32) + '...';
+                  } else {
+                  document.getElementById('locationPlaceholder').innerText = address;
+                  }
                     
                     // If we're on booking screen, update pickup address
                     const pickupInput = document.getElementById('pickupAddr');
