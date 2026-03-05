@@ -1252,6 +1252,21 @@ window.getCurrentLocation = function() {
 
         // Export functions for global access
         window.fetchSuggestions = fetchSuggestions;
+        
+        // ---------- WALLET DATA ----------
+function loadWalletData() {
+    console.log('Wallet screen loaded');
+    // यहाँ बाद में Firebase से असली डेटा लोड करेंगे
+}
+
+// ---------- ACCOUNT DATA ----------
+function loadAccountData() {
+    console.log('Account screen loaded');
+    if (currentUser) {
+        document.getElementById('accountName').innerText = currentUser.name || 'Demo User';
+        document.getElementById('accountPhone').innerText = currentUser.phoneNumber || '+1 2125551234';
+    }
+}
     </script>
 </body>
 </html>
