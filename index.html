@@ -837,13 +837,23 @@
 
                 // Draggable pickup marker
                 const pickupMarker = L.marker([pickupCoords.lat, pickupCoords.lng], {
-                    draggable: true,
-                    autoPan: true,
-                    riseOnHover: true
-                }).addTo(map);
+    draggable: true,
+    autoPan: true,
+    riseOnHover: true
+}).addTo(map);
 
-                pickupMarker.bindPopup('📍 Drag me to adjust pickup location').openPopup();
+// कस्टम पॉपअप HTML
+const pickupPopupContent = `
+    <div style="text-align:center;">
+        <p style="margin:5px 0; font-weight:bold;">📍 Pickup</p>
+        <button onclick="confirmPickupLocation()" 
+                style="background:#00f3ff; color:#000; border:none; padding:5px 15px; border-radius:20px; font-weight:bold; cursor:pointer;">
+            ✓ Select
+        </button>
+    </div>
+`;
 
+pickupMarker.bindPopup(pickupPopupContent).openPopup();
                 pickupMarker.on('dragend', async function(event) {
                     const marker = event.target;
                     const position = marker.getLatLng();
