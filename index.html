@@ -938,9 +938,9 @@ window.getCurrentLocation = function() {
         
         try {
             // Reverse geocode to get address - USA को ध्यान में रखते हुए, पर countrycode की जरूरत नहीं
-            const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=18`, {
-                headers: { 'User-Agent': 'TruckEase-App/1.0' }
-            });
+            const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1`, {
+    headers: { 'User-Agent': 'TruckEase-App/1.0' }
+});
             const data = await res.json();
             
             const address = data.display_name || `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
