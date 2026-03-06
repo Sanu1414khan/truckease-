@@ -855,43 +855,42 @@ const pickupPopupContent = `
 
 pickupMarker.bindPopup(pickupPopupContent).openPopup();
                 pickupMarker.on('dragend', async function(event) {
-                    const marker = event.target;
-                    const position = marker.getLatLng();
-                    
-                    document.getElementById('loading').classList.add('active');
-                    
-                    try {
-                        const newAddress = await reverseGeocode(position.lat, position.lng);
-                        
-                        if (newAddress) {
-                            document.getElementById('pickupAddr').value = newAddress;
-                            pickupCoords.lat = position.lat;
-                            pickupCoords.lng = position.lng;
-                            marker.bindPopup('📍 Pickup location updated!').openPopup();
-                        }
-                    } catch (error) {
-                        console.error('Reverse geocoding error:', error);
-                        alert('Could not get address for this location');
-                    } finally {
-                        document.getElementById('loading').classList.remove('active');
-                    }
+    const marker = event.target;
+    const position = marker.getLatLng();
     
-    // रूट रीकैलकुलेट करो
-    if (window.routingControl) {
-        map.removeControl(window.routingControl);
+    document.getElementById('loading').classList.add('active');
+    
+    try {
+        const newAddress = await reverseGeocode(position.lat, position.lng);
+        
+        if (newAddress) {
+            document.getElementById('pickupAddr').value = newAddress;
+            pickupCoords.lat = position.lat;
+            pickupCoords.lng = position.lng;
+            marker.bindPopup('📍 Pickup location updated!').openPopup();
+            
+            // रूट रीकैलकुलेट करो
+            if (window.routingControl) {
+                map.removeControl(window.routingControl);
+            }
+            
+            // नया रूट बनाओ
+            window.routingControl = L.Routing.control({
+                waypoints: [
+                    L.latLng(pickupCoords.lat, pickupCoords.lng),
+                    L.latLng(dropCoords.lat, dropCoords.lng)
+                ],
+                routeWhileDragging: false,
+                lineOptions: { styles: [{ color: '#00f3ff', weight: 5 }] }
+            }).addTo(map);
+        }
+    } catch (error) {
+        console.error('Reverse geocoding error:', error);
+        alert('Could not get address for this location');
+    } finally {
+        document.getElementById('loading').classList.remove('active');
     }
-    
-    // नया रूट बनाओ (pickupCoords और dropCoords अपडेटेड हैं)
-    window.routingControl = L.Routing.control({
-        waypoints: [
-            L.latLng(pickupCoords.lat, pickupCoords.lng),
-            L.latLng(dropCoords.lat, dropCoords.lng)
-        ],
-        routeWhileDragging: false,
-        lineOptions: { styles: [{ color: '#00f3ff', weight: 5 }] }
-    }).addTo(map);
 });
-                });
 
                 // Draggable drop marker
 const dropMarker = L.marker([dropCoords.lat, dropCoords.lng], {
