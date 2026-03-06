@@ -1442,6 +1442,18 @@ async function fetchSuggestions(query, type) {
                 document.getElementById('accountPhone').innerText = currentUser.phoneNumber || '+1 2125551234';
             }
         }
+
+        // ---------- पिकअप लोकेशन कन्फर्म करो ----------
+window.confirmPickupLocation = function() {
+    alert('Pickup location confirmed!');
+    // यहाँ पिकअप एड्रेस फाइनल करने का कोड
+}
+
+// ---------- ड्रॉप लोकेशन कन्फर्म करो ----------
+window.confirmDropLocation = function() {
+    alert('Drop location confirmed!');
+    // यहाँ ड्रॉप एड्रेस फाइनल करने का कोड
+}
     </script>
 </body>
 </html>
