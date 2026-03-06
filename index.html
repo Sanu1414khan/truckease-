@@ -923,56 +923,56 @@
         };
 
         
-        // ---------- GPS LOCATION (FIXED) ----------
-        window.getCurrentLocation = function() {
-            if (!navigator.geolocation) { 
-                alert('Geolocation not supported'); 
-                return; 
+        // ---------- GPS LOCATION (FIXED - USA ONLY) ----------
+window.getCurrentLocation = function() {
+    if (!navigator.geolocation) { 
+        alert('Geolocation not supported'); 
+        return; 
+    }
+    
+    document.getElementById('loading').classList.add('active');
+    
+    navigator.geolocation.getCurrentPosition(async pos => {
+        const lat = pos.coords.latitude;
+        const lng = pos.coords.longitude;
+        
+        try {
+            // Reverse geocode to get address - USA को ध्यान में रखते हुए, पर countrycode की जरूरत नहीं
+            const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=18`, {
+                headers: { 'User-Agent': 'TruckEase-App/1.0' }
+            });
+            const data = await res.json();
+            
+            const address = data.display_name || `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
+            
+            // Update the location bar - एड्रेस को सही तरीके से छोटा करो
+            const locSpan = document.getElementById('locationPlaceholder');
+            if (address.length > 35) {
+                locSpan.innerText = address.substring(0, 32) + '...';
+            } else {
+                locSpan.innerText = address;
             }
             
-            document.getElementById('loading').classList.add('active');
+            // If we're on booking screen, update pickup address
+            const pickupInput = document.getElementById('pickupAddr');
+            if (pickupInput) {
+                pickupInput.value = address;
+            }
             
-            navigator.geolocation.getCurrentPosition(async pos => {
-                const lat = pos.coords.latitude;
-                const lng = pos.coords.longitude;
-                
-                try {
-                    // Reverse geocode to get address
-                    const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=18`, {
-                        headers: { 'User-Agent': 'TruckEase-App/1.0' }
-                    });
-                    const data = await res.json();
-                    
-                    const address = data.display_name || `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
-                    
-                    // Update the location bar - पूरा एड्रेस दिखाओ, लेकिन छोटा करो अगर जरूरत हो
-                  if (address.length > 35) {
-                  document.getElementById('locationPlaceholder').innerText = address.substring(0, 32) + '...';
-                  } else {
-                  document.getElementById('locationPlaceholder').innerText = address;
-                  }
-                    
-                    // If we're on booking screen, update pickup address
-                    const pickupInput = document.getElementById('pickupAddr');
-                    if (pickupInput) {
-                        pickupInput.value = address;
-                    }
-                    
-                    console.log('📍 Location found:', address);
-                    
-                } catch(e) {
-                    console.error('Geocoding error:', e);
-                    document.getElementById('locationPlaceholder').innerText = '📍 Location found';
-                }
-                
-                document.getElementById('loading').classList.remove('active');
-                
-            }, err => {
-                alert('Unable to get location: ' + err.message);
-                document.getElementById('loading').classList.remove('active');
-            });
-        };
-
+            console.log('📍 Location found:', address);
+            
+        } catch(e) {
+            console.error('Geocoding error:', e);
+            document.getElementById('locationPlaceholder').innerText = '📍 Location found';
+        }
+        
+        document.getElementById('loading').classList.remove('active');
+        
+    }, err => {
+        alert('Unable to get location: ' + err.message);
+        document.getElementById('loading').classList.remove('active');
+    });
+};
         // ---------- LOAD HISTORY ----------
         window.loadHistory = async function() {
             if (!currentUser) { 
