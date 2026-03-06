@@ -11,15 +11,6 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.css" />
     
-    <!-- API Configuration -->
-    <script>
-        window.APP_CONFIG = {
-            GOOGLE_MAPS_API_KEY: '',
-            STRIPE_PUBLIC_KEY: '',
-            DAT_API_KEY: ''
-        };
-    </script>
-    
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
         body {
@@ -29,7 +20,6 @@
             position: relative;
             overflow-x: hidden;
         }
-        /* Starfield / Grid Background */
         body::before {
             content: "";
             position: fixed;
@@ -54,7 +44,8 @@
         .header { padding: 20px 20px 10px; display: flex; flex-direction: column; gap: 15px; z-index: 10; background: transparent; }
         .logo-area { display: flex; justify-content: space-between; align-items: center; }
         .logo { font-size: 28px; font-weight: 800; color: #00f3ff; text-shadow: 0 0 15px #00f3ff; letter-spacing: 2px; }
-        .user-icon { width: 48px; height: 48px; border-radius: 50%; background: rgba(255,255,255,0.05); border: 1px solid rgba(0,243,255,0.3); display: flex; align-items: center; justify-content: center; cursor: pointer; color: #00f3ff; font-size: 24px; }
+        .user-icon { width: 48px; height: 48px; border-radius: 50%; background: rgba(255,255,255,0.05); border: 1px solid rgba(0,243,255,0.3); display: flex; align-items: center; justify-content: center; cursor: pointer; color: #00f3ff; font-size: 24px; transition: 0.2s; }
+        .user-icon:hover { border-color: #00f3ff; background: rgba(0,243,255,0.1); }
         .location-bar { background: rgba(0, 243, 255, 0.05); backdrop-filter: blur(5px); padding: 16px 20px; border-radius: 40px; font-size: 16px; color: #aaa; border: 1px solid rgba(0,243,255,0.3); cursor: pointer; display: flex; align-items: center; gap: 10px; margin-bottom: 15px; }
         .location-bar i { color: #00f3ff; }
         .location-bar span { color: #fff; font-weight: 500; }
@@ -68,7 +59,6 @@
             gap: 8px;
             padding: 0 20px 20px;
         }
-        
         .utility-item {
             background: rgba(30, 40, 60, 0.5);
             backdrop-filter: blur(12px);
@@ -84,20 +74,17 @@
             cursor: pointer;
             transition: all 0.2s ease;
         }
-        
         .utility-item i {
             display: block;
             font-size: 18px;
             margin-bottom: 4px;
             color: #fff;
         }
-        
         .utility-item:hover {
             border-color: #00f3ff;
             box-shadow: 0 0 15px rgba(0, 243, 255, 0.3);
             transform: translateY(-2px);
         }
-        /* ===== END UTILITY BUTTONS ===== */
         
         /* ===== UBER STYLE GRID LAYOUT ===== */
         .vehicle-grid {
@@ -106,7 +93,6 @@
             gap: 15px;
             padding: 0 20px 20px;
         }
-        
         .vehicle-card {
             display: flex;
             flex-direction: column;
@@ -124,18 +110,15 @@
             position: relative;
             min-height: 120px;
         }
-        
         .vehicle-card:hover {
             border-color: #00f3ff;
             box-shadow: 0 0 25px rgba(0, 243, 255, 0.3);
             transform: translateY(-3px);
         }
-        
         .vehicle-card .icon {
             font-size: 42px;
             margin-bottom: 8px;
         }
-        
         .vehicle-card h4 {
             font-size: 14px;
             font-weight: 600;
@@ -143,7 +126,6 @@
             text-align: center;
             margin: 0;
         }
-        
         .vehicle-card .promo-tag {
             position: absolute;
             top: -5px;
@@ -157,20 +139,17 @@
             box-shadow: 0 4px 10px rgba(255, 51, 102, 0.5);
             border: 1px solid rgba(255, 255, 255, 0.3);
         }
-        
         .vehicle-card .price-tag {
             font-size: 12px;
             color: #00f3ff;
             margin-top: 4px;
             font-weight: 600;
         }
-        
         .vehicle-card .eta-tag {
             font-size: 11px;
             color: #4caf50;
             margin-top: 2px;
         }
-        /* ===== END UBER STYLE ===== */
         
         /* Booking Screen */
         .screen { display: none; padding: 0; }
@@ -185,55 +164,53 @@
         .row { display: flex; gap: 10px; }
         .fare-box { padding: 20px; border-radius: 24px; text-align: center; margin: 20px 0; border-color: #00f3ff; }
         .fare-box .fare { font-size: 48px; font-weight: 800; color: #00f3ff; }
-        .btn { width: 100%; padding: 18px; border-radius: 40px; font-weight: 700; cursor: pointer; margin-top: 10px; border: none; }
+        .btn { width: 100%; padding: 18px; border-radius: 40px; font-weight: 700; cursor: pointer; margin-top: 10px; border: none; transition: 0.2s; }
         .btn-primary { background: #00f3ff; color: #0a0c14; box-shadow: 0 0 30px #00f3ff; }
+        .btn-primary:hover { background: #fff; }
         .btn-secondary { background: rgba(255,255,255,0.05); border: 1px solid rgba(0,243,255,0.3); color: #00f3ff; }
-             #map { 
-             height: 70vh; 
-             width: 100%; 
-             border-radius: 0; 
-             margin: 0; 
-             display: none; 
-             border: none; 
-             box-shadow: none; 
-         }
-
+        .btn-secondary:hover { background: rgba(0,243,255,0.1); }
+        #map { 
+            height: 70vh; 
+            width: 100%; 
+            border-radius: 0; 
+            margin: 0; 
+            display: none; 
+            border: none; 
+            box-shadow: none; 
+        }
+        
         /* Map Overlay Search Boxes */
-.map-overlay {
-    position: absolute;
-    top: 20px;
-    left: 20px;
-    right: 20px;
-    z-index: 1000;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    pointer-events: none;
-}
-
-.map-search-box {
-    background: rgba(20, 30, 50, 0.8);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    border: 1px solid rgba(0, 243, 255, 0.3);
-    border-radius: 40px;
-    padding: 8px 16px;
-    color: #fff;
-    font-size: 14px;
-    width: 100%;
-    pointer-events: auto;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
-}
-
-.map-search-box:focus {
-    outline: none;
-    border-color: #00f3ff;
-    box-shadow: 0 0 20px rgba(0, 243, 255, 0.5);
-}
-
-.map-search-box::placeholder {
-    color: #aaa;
-}
+        .map-overlay {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            right: 20px;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            pointer-events: none;
+        }
+        .map-search-box {
+            background: rgba(20, 30, 50, 0.8);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(0, 243, 255, 0.3);
+            border-radius: 40px;
+            padding: 8px 16px;
+            color: #fff;
+            font-size: 14px;
+            width: 100%;
+            pointer-events: auto;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+        }
+        .map-search-box:focus {
+            outline: none;
+            border-color: #00f3ff;
+            box-shadow: 0 0 20px rgba(0, 243, 255, 0.5);
+        }
+        .map-search-box::placeholder { color: #aaa; }
+        
         /* History Items */
         .history-item { padding: 16px; margin-bottom: 12px; }
         .history-item .row { display: flex; justify-content: space-between; margin-bottom: 8px; }
@@ -241,15 +218,18 @@
         .status-completed { background: rgba(40,167,69,0.2); color: #4caf50; border: 1px solid #4caf50; }
         .status-pending { background: rgba(255,193,7,0.2); color: #ffc107; border: 1px solid #ffc107; }
         .status-accepted { background: rgba(0,123,255,0.2); color: #00f3ff; border: 1px solid #00f3ff; }
+        
         /* Rating Stars */
         .rating-stars { display: flex; gap: 5px; font-size: 30px; color: #ffc107; cursor: pointer; }
         .rating-stars i { transition: 0.2s; }
         .rating-stars i:hover, .rating-stars i.selected { color: #ffc107; text-shadow: 0 0 10px #ffc107; }
+        
         /* Chat */
         .chat-box { height: 300px; overflow-y: auto; background: rgba(0,0,0,0.3); border-radius: 20px; padding: 10px; margin-bottom: 10px; }
         .chat-message { margin-bottom: 10px; padding: 8px 12px; border-radius: 18px; max-width: 80%; }
         .chat-message.sent { background: #00f3ff; color: #000; align-self: flex-end; margin-left: auto; }
         .chat-message.received { background: rgba(255,255,255,0.1); color: #fff; }
+        
         /* Modal */
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); backdrop-filter: blur(10px); z-index: 2000; justify-content: center; align-items: center; }
         .modal.active { display: flex; }
@@ -257,16 +237,26 @@
         .modal-content h3 { color: #00f3ff; margin-bottom: 20px; }
         .modal-content input { width: 100%; padding: 16px; margin: 10px 0; background: rgba(255,255,255,0.05); border: 1px solid rgba(0,243,255,0.3); border-radius: 30px; color: #fff; }
         .demo-hint { background: rgba(255,193,7,0.1); color: #ffc107; padding: 15px; border-radius: 20px; margin-bottom: 20px; border: 1px solid #ffc107; }
+        
+        /* Wallet & Account screens */
+        .wallet-card, .profile-card { padding: 25px; margin: 20px; }
+        .balance { font-size: 48px; font-weight: 800; color: #00f3ff; margin: 15px 0; }
+        .transaction-item { display: flex; justify-content: space-between; padding: 15px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .profile-detail { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .logout-btn { background: #ff4444; color: white; border: none; padding: 15px; border-radius: 40px; font-weight: 700; margin-top: 30px; cursor: pointer; }
+        
         /* Bottom Navigation */
         .bottom-nav { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); width: calc(100% - 40px); max-width: 450px; background: rgba(10,12,20,0.8); backdrop-filter: blur(20px); display: flex; justify-content: space-around; padding: 12px 0; border: 1px solid rgba(0,243,255,0.3); border-radius: 50px; z-index: 1000; }
-        .nav-item { text-align: center; color: #aaa; font-size: 12px; cursor: pointer; }
+        .nav-item { text-align: center; color: #aaa; font-size: 12px; cursor: pointer; flex: 1; }
         .nav-item.active { color: #00f3ff; text-shadow: 0 0 10px #00f3ff; }
         .nav-item i { font-size: 22px; display: block; margin-bottom: 4px; }
+        
         /* Loading */
         .loading { display: none; text-align: center; padding: 50px; }
         .loading.active { display: block; }
-        .spinner { border: 4px solid rgba(0,243,255,0.1); border-top: 4px solid #00f3ff; border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite; margin: 0 auto; }
+        .spinner { border: 4px solid rgba(0,243,255,0.1); border-top: 4px solid #00f3ff; border-radius: 50%; width: 50px; height: 50px; animation: spin 0.8s cubic-bezier(0.76,0.15,0.24,1) infinite; margin: 0 auto; box-shadow: 0 0 15px rgba(0,243,255,0.3); }
         @keyframes spin { 0% { transform: rotate(0); } 100% { transform: rotate(360deg); } }
+        
         /* Onboarding */
         .onboarding-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 3000; display: none; flex-direction: column; justify-content: center; align-items: center; text-align: center; }
         .onboarding-overlay.active { display: flex; }
@@ -276,7 +266,6 @@
     </style>
 </head>
 <body>
-    
     <!-- Onboarding Overlay -->
     <div id="onboarding" class="onboarding-overlay">
         <div class="onboarding-card">
@@ -315,7 +304,7 @@
         </div>
     </div>
 
-    <!-- HOME SCREEN (CLEANED) -->
+    <!-- HOME SCREEN (CLEAN - NO QUANTUM GRID) -->
     <div id="homeScreen" class="screen active">
         <!-- Utility Buttons Row (Address Book, Promo, Schedule) -->
         <div class="utility-row">
@@ -363,19 +352,20 @@
             <!-- Step 2: Map & Fare (initially hidden) -->
             <div id="mapStep" style="display:none;">
                 <div id="map"></div>
+                <div class="map-overlay" style="display: none;" id="mapOverlay">
+                    <input type="text" class="map-search-box" id="mapPickup" placeholder="Pickup location" list="mapPickupSuggestions">
+                    <input type="text" class="map-search-box" id="mapDrop" placeholder="Drop location" list="mapDropSuggestions">
+                </div>
+                <datalist id="mapPickupSuggestions"></datalist>
+                <datalist id="mapDropSuggestions"></datalist>
                 <div class="fare-box">
                     <div class="fare" id="fareAmount">$0</div>
                 </div>
                 <button class="btn btn-primary" id="confirmBookingBtn" onclick="confirmBooking()">Confirm Booking</button>
             </div>
 
-            <!-- Map Overlay Search Boxes (नया) -->
-<div class="map-overlay" style="display: none;" id="mapOverlay">
-    <input type="text" class="map-search-box" id="mapPickup" placeholder="Pickup location" list="mapPickupSuggestions">
-    <input type="text" class="map-search-box" id="mapDrop" placeholder="Drop location" list="mapDropSuggestions">
-</div>
-<datalist id="mapPickupSuggestions"></datalist>
-<datalist id="mapDropSuggestions"></datalist>
+            <datalist id="pickupSuggestions"></datalist>
+            <datalist id="dropSuggestions"></datalist>
         </div>
     </div>
 
@@ -460,13 +450,14 @@
             <i class="fas fa-arrow-left back-btn" onclick="goBack()"></i>
             <h3>Your Wallet</h3>
         </div>
-        <div class="booking-content">
-            <div style="text-align:center; padding:30px;">
-                <i class="fas fa-wallet" style="font-size:80px; color:#00f3ff;"></i>
-                <h2 style="margin:20px 0;">$0.00</h2>
-                <p style="color:#aaa;">Your wallet is empty</p>
-                <button class="btn btn-primary" onclick="alert('Add money coming soon')">Add Money</button>
+        <div class="wallet-card" style="margin:20px;">
+            <div style="text-align:center;">
+                <i class="fas fa-wallet" style="font-size:60px; color:#00f3ff;"></i>
+                <div class="balance" id="walletBalance">$0.00</div>
+                <button class="btn btn-primary" onclick="addMoney()">Add Money</button>
             </div>
+            <h4 style="margin:25px 0 15px; color:#00f3ff;">Recent Transactions</h4>
+            <div id="transactionList"></div>
         </div>
     </div>
 
@@ -476,15 +467,18 @@
             <i class="fas fa-arrow-left back-btn" onclick="goBack()"></i>
             <h3>Your Account</h3>
         </div>
-        <div class="booking-content">
-            <div style="text-align:center; padding:20px;">
-                <div style="width:100px; height:100px; background:#00f3ff20; border-radius:50%; margin:0 auto 20px; display:flex; align-items:center; justify-content:center;">
-                    <i class="fas fa-user" style="font-size:50px; color:#00f3ff;"></i>
-                </div>
-                <h3 id="accountName">Demo User</h3>
-                <p id="accountPhone" style="color:#aaa;">+1 2125551234</p>
-                <button class="btn btn-secondary" style="margin-top:30px;" onclick="logout()">Logout</button>
+        <div class="profile-card" style="margin:20px;">
+            <div style="text-align:center;">
+                <div style="font-size:80px; color:#00f3ff;">👤</div>
+                <h2 id="accountName">Demo User</h2>
+                <p id="accountPhone">+1 2125551234</p>
             </div>
+            <div style="margin-top:30px;">
+                <div class="profile-detail"><span>Member since</span><span id="memberSince">Mar 2025</span></div>
+                <div class="profile-detail"><span>Total trips</span><span id="totalTrips">0</span></div>
+                <div class="profile-detail"><span>Reward points</span><span id="rewardPoints">0</span></div>
+            </div>
+            <button class="logout-btn" onclick="logout()">Logout</button>
         </div>
     </div>
 
@@ -528,7 +522,7 @@
     <script src="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.js"></script>
 
     <script>
-        // ---------- FIREBASE CONFIG ----------
+        // ---------- FIREBASE CONFIG (YOUR REAL KEYS) ----------
         const firebaseConfig = {
             apiKey: "AIzaSyByh4tT4zcUpjjQ_ebaYzpSulGtsDHjbw0",
             authDomain: "truckease-cb961.firebaseapp.com",
@@ -541,47 +535,33 @@
         const db = firebase.firestore();
 
         // ---------- GLOBAL VARIABLES ----------
-        let currentUser = null;
+        let currentUser = JSON.parse(localStorage.getItem('truckUser')) || null;
         let currentVehicle = null;
         let basePrice = 0, perKmRate = 0;
         let finalFare = 0;
         let map = null, trackingMap = null;
         let routingControl = null;
         let currentBookingId = null;
-        let driverListener = null;
         let promoDiscount = 0;
         let selectedRating = 0;
         let chatListener = null;
         let distanceMiles = 0;
-
-        // Variables for tracking simulation
         let trackingInterval = null;
         let driverMarker = null;
         let routeCoordinates = [];
         let currentStep = 0;
+        let savedPlaces = [];
+        let walletListener = null;
+        let userWalletRef = null;
 
-        // ---------- REVERSE GEOCODING FUNCTION (LAT/LNG to ADDRESS) ----------
+        // ---------- REVERSE GEOCODING ----------
         async function reverseGeocode(lat, lng) {
             try {
                 const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1`;
-                
-                const response = await fetch(url, {
-                    headers: {
-                        'User-Agent': 'TruckEase-App/1.0'
-                    }
-                });
-                
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-                
+                const response = await fetch(url, { headers: { 'User-Agent': 'TruckEase-App/1.0' } });
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
                 const data = await response.json();
-                
-                if (data && data.display_name) {
-                    return data.display_name;
-                } else {
-                    return `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
-                }
+                return data.display_name || `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
             } catch (error) {
                 console.error('Reverse geocoding failed:', error);
                 return `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
@@ -592,7 +572,6 @@
         if (!localStorage.getItem('onboardingSeen')) {
             document.getElementById('onboarding').classList.add('active');
         }
-
         window.closeOnboarding = function() {
             document.getElementById('onboarding').classList.remove('active');
             localStorage.setItem('onboardingSeen', 'true');
@@ -602,12 +581,13 @@
         window.showLoginModal = function() {
             if (currentUser) {
                 currentUser = null;
+                localStorage.removeItem('truckUser');
                 document.getElementById('userIcon').innerHTML = `<i class="fas fa-user"></i>`;
+                if (userWalletRef) userWalletRef();
                 return;
             }
             document.getElementById('loginModal').classList.add('active');
         };
-
         document.getElementById('demoLoginBtn').addEventListener('click', function() {
             const phone = document.getElementById('phoneNumber').value;
             if (!phone || phone.length !== 10) {
@@ -615,133 +595,75 @@
                 return;
             }
             currentUser = { uid: 'demo_' + phone, phoneNumber: '+1' + phone, name: 'Demo User' };
+            localStorage.setItem('truckUser', JSON.stringify(currentUser));
             document.getElementById('userIcon').innerHTML = `<i class="fas fa-user-check"></i>`;
             document.getElementById('loginModal').classList.remove('active');
             document.getElementById('loginError').innerText = '';
+            
+            // Create user wallet in Firestore if not exists
+            const userRef = db.collection('users').doc(currentUser.uid);
+            userRef.get().then(doc => {
+                if (!doc.exists) {
+                    userRef.set({
+                        name: currentUser.name,
+                        phone: currentUser.phoneNumber,
+                        walletBalance: 100.00, // $100 signup bonus
+                        rewardPoints: 100,
+                        memberSince: new Date().toISOString(),
+                        totalTrips: 0
+                    });
+                }
+            });
         });
 
         // ---------- SCREEN MANAGEMENT ----------
         window.showScreen = function(screenId) {
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
             document.getElementById(screenId).classList.add('active');
-            
             document.querySelectorAll('.nav-item').forEach((item, idx) => {
                 if (screenId === 'homeScreen' && idx === 0) item.classList.add('active');
                 else if (screenId === 'historyScreen' && idx === 1) item.classList.add('active');
+                else if (screenId === 'walletScreen' && idx === 2) item.classList.add('active');
+                else if (screenId === 'accountScreen' && idx === 3) item.classList.add('active');
                 else item.classList.remove('active');
             });
-
             if (screenId === 'historyScreen') loadHistory();
             if (screenId === 'homeScreen') loadVehicleGrid('trucks');
             if (screenId === 'walletScreen') loadWalletData();
             if (screenId === 'accountScreen') loadAccountData();
         };
-
         window.goBack = () => showScreen('homeScreen');
         window.goHome = () => showScreen('homeScreen');
 
         // ---------- VEHICLE DATA ----------
         const vehicleData = {
             trucks: [
-                { 
-                    icon: '🚚', 
-                    name: 'Box Truck', 
-                    desc: 'Ideal for local deliveries', 
-                    base: 65, 
-                    perKm: 1.2, 
-                    eta: 8,
-                    price: '$65',
-                    promo: '75% OFF'
-                },
-                { 
-                    icon: '🚛', 
-                    name: 'Semi-Truck', 
-                    desc: 'Long-haul freight', 
-                    base: 120, 
-                    perKm: 2.0, 
-                    eta: 15,
-                    price: '$120',
-                    promo: null
-                },
-                { 
-                    icon: '🚛', 
-                    name: 'Refrigerated', 
-                    desc: 'Temperature controlled', 
-                    base: 150, 
-                    perKm: 2.5, 
-                    eta: 12,
-                    price: '$150',
-                    promo: '20% OFF'
-                },
-                { 
-                    icon: '🚐', 
-                    name: 'Cargo Van', 
-                    desc: 'Perfect for parcels', 
-                    base: 35, 
-                    perKm: 0.7, 
-                    eta: 4,
-                    price: '$35',
-                    promo: null
-                },
-                { 
-                    icon: '🏗️', 
-                    name: 'Crane Truck', 
-                    desc: 'For heavy lifting', 
-                    base: 200, 
-                    perKm: 3.0, 
-                    eta: 25,
-                    price: '$200',
-                    promo: null
-                },
-                { 
-                    icon: '🛻', 
-                    name: 'Pickup', 
-                    desc: 'Daily rental', 
-                    base: 45, 
-                    perKm: 0.9, 
-                    eta: 5,
-                    price: '$45',
-                    promo: '15% OFF'
-                }
+                { icon: '🚚', name: 'Box Truck', base: 65, perKm: 1.2, eta: 8, price: '$65', promo: '75% OFF' },
+                { icon: '🚛', name: 'Semi-Truck', base: 120, perKm: 2.0, eta: 15, price: '$120', promo: null },
+                { icon: '🚛', name: 'Refrigerated', base: 150, perKm: 2.5, eta: 12, price: '$150', promo: '20% OFF' },
+                { icon: '🚐', name: 'Cargo Van', base: 35, perKm: 0.7, eta: 4, price: '$35', promo: null },
+                { icon: '🏗️', name: 'Crane Truck', base: 200, perKm: 3.0, eta: 25, price: '$200', promo: null },
+                { icon: '🛻', name: 'Pickup', base: 45, perKm: 0.9, eta: 5, price: '$45', promo: '15% OFF' }
             ]
         };
-
         function loadVehicleGrid(category) {
             const grid = document.getElementById('vehicleGrid');
             const title = document.getElementById('vehicleCategoryTitle');
             title.innerHTML = '<i class="fas fa-truck"></i> Available Vehicles';
-
             let html = '';
             if (vehicleData[category]) {
                 vehicleData[category].forEach(v => {
-                    // Create promo tag if exists
                     const promoTag = v.promo ? `<div class="promo-tag">${v.promo}</div>` : '';
-                    
-                    html += `
-                        <div class="vehicle-card" 
-                             data-name="${v.name}" 
-                             data-base="${v.base}" 
-                             data-perkm="${v.perKm}" 
-                             data-eta="${v.eta}">
-                            ${promoTag}
-                            <div class="icon">${v.icon}</div>
-                            <h4>${v.name}</h4>
-                            <div class="price-tag">${v.price}</div>
-                            <div class="eta-tag">${v.eta} min</div>
-                        </div>
-                    `;
+                    html += `<div class="vehicle-card" data-name="${v.name}" data-base="${v.base}" data-perkm="${v.perKm}" data-eta="${v.eta}">${promoTag}<div class="icon">${v.icon}</div><h4>${v.name}</h4><div class="price-tag">${v.price}</div><div class="eta-tag">${v.eta} min</div></div>`;
                 });
             }
             grid.innerHTML = html;
-
-            // Add click event to each card
             document.querySelectorAll('.vehicle-card').forEach(card => {
                 card.addEventListener('click', () => {
                     currentVehicle = card.dataset.name;
                     basePrice = parseFloat(card.dataset.base);
                     perKmRate = parseFloat(card.dataset.perkm);
                     document.getElementById('selectedVehicleInfo').innerHTML = `🚘 ${currentVehicle}`;
-                    
                     document.getElementById('addressStep').style.display = 'block';
                     document.getElementById('mapStep').style.display = 'none';
                     document.getElementById('pickupAddr').value = '';
@@ -752,402 +674,232 @@
             });
         }
 
-        // ---------- ADDRESS CONFIRMATION WITH ROUTING ----------
+        // ---------- ADDRESS CONFIRMATION ----------
         window.confirmAddress = async function() {
             const pickup = document.getElementById('pickupAddr').value.trim();
             const drop = document.getElementById('dropAddr').value.trim();
-            
-            if (!pickup || !drop) {
-                alert('Please enter both pickup and drop addresses');
-                return;
-            }
-
+            if (!pickup || !drop) { alert('Please enter both pickup and drop addresses'); return; }
             document.getElementById('loading').classList.add('active');
-
             try {
-                // Geocode pickup address
                 const pickupUrl = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(pickup)}&countrycodes=us&limit=1`;
-                const pickupRes = await fetch(pickupUrl, {
-                    headers: { 'User-Agent': 'TruckEase-App/1.0' }
-                });
+                const pickupRes = await fetch(pickupUrl, { headers: { 'User-Agent': 'TruckEase-App/1.0' } });
                 const pickupData = await pickupRes.json();
+                if (!pickupData || pickupData.length === 0) throw new Error('Pickup address not found');
+                const pickupCoords = { lat: parseFloat(pickupData[0].lat), lng: parseFloat(pickupData[0].lon) };
 
-                if (!pickupData || pickupData.length === 0) {
-                    throw new Error('Pickup address not found');
-                }
-
-                const pickupCoords = {
-                    lat: parseFloat(pickupData[0].lat),
-                    lng: parseFloat(pickupData[0].lon)
-                };
-
-                // Geocode drop address
                 const dropUrl = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(drop)}&countrycodes=us&limit=1`;
-                const dropRes = await fetch(dropUrl, {
-                    headers: { 'User-Agent': 'TruckEase-App/1.0' }
-                });
+                const dropRes = await fetch(dropUrl, { headers: { 'User-Agent': 'TruckEase-App/1.0' } });
                 const dropData = await dropRes.json();
+                if (!dropData || dropData.length === 0) throw new Error('Drop address not found');
+                const dropCoords = { lat: parseFloat(dropData[0].lat), lng: parseFloat(dropData[0].lon) };
 
-                if (!dropData || dropData.length === 0) {
-                    throw new Error('Drop address not found');
-                }
-
-                const dropCoords = {
-                    lat: parseFloat(dropData[0].lat),
-                    lng: parseFloat(dropData[0].lon)
-                };
-
-                // Get route using OSRM
                 const osrmUrl = `https://router.project-osrm.org/route/v1/driving/${pickupCoords.lng},${pickupCoords.lat};${dropCoords.lng},${dropCoords.lat}?overview=full&geometries=geojson`;
-                
                 const routeRes = await fetch(osrmUrl);
                 const routeData = await routeRes.json();
-
-                if (!routeData.routes || routeData.routes.length === 0) {
-                    throw new Error('Could not calculate route');
-                }
-
+                if (!routeData.routes || routeData.routes.length === 0) throw new Error('Could not calculate route');
                 const distanceMeters = routeData.routes[0].distance;
                 distanceMiles = distanceMeters * 0.000621371;
                 const routeGeometry = routeData.routes[0].geometry;
 
                 finalFare = basePrice + (distanceMiles * perKmRate);
-                
-                if (promoDiscount > 0) {
-                    finalFare -= promoDiscount;
-                    if (finalFare < 0) finalFare = 0;
-                }
+                if (promoDiscount > 0) { finalFare -= promoDiscount; if (finalFare < 0) finalFare = 0; }
 
-                // Display map with route
                 const mapDiv = document.getElementById('map');
                 mapDiv.style.display = 'block';
-
-                if (map) {
-                    map.remove();
-                }
+                if (map) map.remove();
 
                 const centerLat = (pickupCoords.lat + dropCoords.lat) / 2;
                 const centerLng = (pickupCoords.lng + dropCoords.lng) / 2;
-                
                 map = L.map('map').setView([centerLat, centerLng], 12);
-                
-                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                    attribution: '© OpenStreetMap contributors'
-                }).addTo(map);
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap' }).addTo(map);
 
-                // Draggable pickup marker
-                const pickupMarker = L.marker([pickupCoords.lat, pickupCoords.lng], {
-    draggable: true,
-    autoPan: true,
-    riseOnHover: true
-}).addTo(map);
+                const pickupMarker = L.marker([pickupCoords.lat, pickupCoords.lng], { draggable: true, autoPan: true }).addTo(map);
+                const pickupPopupContent = `<div style="text-align:center;"><p style="font-weight:bold;">📍 Pickup</p><button class="btn btn-primary" style="padding:2px 10px; font-size:12px;" onclick="confirmPickupLocation()">✓ Select</button></div>`;
+                pickupMarker.bindPopup(pickupPopupContent).openPopup();
+                pickupMarker.on('dragend', async function(e) {
+                    const pos = e.target.getLatLng();
+                    document.getElementById('loading').classList.add('active');
+                    try {
+                        const addr = await reverseGeocode(pos.lat, pos.lng);
+                        document.getElementById('pickupAddr').value = addr;
+                        pickupCoords.lat = pos.lat; pickupCoords.lng = pos.lng;
+                        if (routingControl) map.removeControl(routingControl);
+                        routingControl = L.Routing.control({
+                            waypoints: [L.latLng(pickupCoords.lat, pickupCoords.lng), L.latLng(dropCoords.lat, dropCoords.lng)],
+                            lineOptions: { styles: [{ color: '#00f3ff', weight: 5 }] }
+                        }).addTo(map);
+                    } catch (err) { alert('Could not get address'); }
+                    finally { document.getElementById('loading').classList.remove('active'); }
+                });
 
-// कस्टम पॉपअप HTML
-const pickupPopupContent = `
-    <div style="text-align:center;">
-        <p style="margin:5px 0; font-weight:bold;">📍 Pickup</p>
-        <button onclick="confirmPickupLocation()" 
-                style="background:#00f3ff; color:#000; border:none; padding:5px 15px; border-radius:20px; font-weight:bold; cursor:pointer;">
-            ✓ Select
-        </button>
-    </div>
-`;
+                const dropMarker = L.marker([dropCoords.lat, dropCoords.lng], { draggable: true, autoPan: true }).addTo(map);
+                const dropPopupContent = `<div style="text-align:center;"><p style="font-weight:bold;">🏁 Drop</p><button class="btn btn-primary" style="padding:2px 10px; font-size:12px;" onclick="confirmDropLocation()">✓ Select</button></div>`;
+                dropMarker.bindPopup(dropPopupContent).openPopup();
+                dropMarker.on('dragend', async function(e) {
+                    const pos = e.target.getLatLng();
+                    document.getElementById('loading').classList.add('active');
+                    try {
+                        const addr = await reverseGeocode(pos.lat, pos.lng);
+                        document.getElementById('dropAddr').value = addr;
+                        dropCoords.lat = pos.lat; dropCoords.lng = pos.lng;
+                        if (routingControl) map.removeControl(routingControl);
+                        routingControl = L.Routing.control({
+                            waypoints: [L.latLng(pickupCoords.lat, pickupCoords.lng), L.latLng(dropCoords.lat, dropCoords.lng)],
+                            lineOptions: { styles: [{ color: '#00f3ff', weight: 5 }] }
+                        }).addTo(map);
+                    } catch (err) { alert('Could not get address'); }
+                    finally { document.getElementById('loading').classList.remove('active'); }
+                });
 
-pickupMarker.bindPopup(pickupPopupContent).openPopup();
-                pickupMarker.on('dragend', async function(event) {
-    const marker = event.target;
-    const position = marker.getLatLng();
-    
-    document.getElementById('loading').classList.add('active');
-    
-    try {
-        const newAddress = await reverseGeocode(position.lat, position.lng);
-        
-        if (newAddress) {
-            document.getElementById('pickupAddr').value = newAddress;
-            pickupCoords.lat = position.lat;
-            pickupCoords.lng = position.lng;
-            marker.bindPopup('📍 Pickup location updated!').openPopup();
-            
-            // रूट रीकैलकुलेट करो
-            if (window.routingControl) {
-                map.removeControl(window.routingControl);
-            }
-            
-            // नया रूट बनाओ
-            window.routingControl = L.Routing.control({
-                waypoints: [
-                    L.latLng(pickupCoords.lat, pickupCoords.lng),
-                    L.latLng(dropCoords.lat, dropCoords.lng)
-                ],
-                routeWhileDragging: false,
-                lineOptions: { styles: [{ color: '#00f3ff', weight: 5 }] }
-            }).addTo(map);
-        }
-    } catch (error) {
-        console.error('Reverse geocoding error:', error);
-        alert('Could not get address for this location');
-    } finally {
-        document.getElementById('loading').classList.remove('active');
-    }
-});
-
-                // Draggable drop marker
-const dropMarker = L.marker([dropCoords.lat, dropCoords.lng], {
-    draggable: true,
-    autoPan: true,
-    riseOnHover: true
-}).addTo(map);
-
-dropMarker.bindPopup('🏁 Drag to adjust drop location').openPopup();
-
-dropMarker.on('dragend', async function(event) {
-    const marker = event.target;
-    const position = marker.getLatLng();
-    
-    document.getElementById('loading').classList.add('active');
-    
-    try {
-        const newAddress = await reverseGeocode(position.lat, position.lng);
-        
-        if (newAddress) {
-            document.getElementById('dropAddr').value = newAddress;
-            dropCoords.lat = position.lat;
-            dropCoords.lng = position.lng;
-            marker.bindPopup('🏁 Drop location updated!').openPopup();
-            
-            // Optionally recalculate route
-            // You can call a function to recalculate the route here
-        }
-    } catch (error) {
-        console.error('Reverse geocoding error:', error);
-        alert('Could not get address for this location');
-    } finally {
-        document.getElementById('loading').classList.remove('active');
-    }
-});
-                // Draw route line
                 if (routeGeometry && routeGeometry.coordinates) {
                     const latLngs = routeGeometry.coordinates.map(coord => [coord[1], coord[0]]);
-                    
-                    L.polyline(latLngs, {
-                        color: '#00f3ff',
-                        weight: 5,
-                        opacity: 0.8,
-                        lineJoin: 'round'
-                    }).addTo(map);
-
+                    L.polyline(latLngs, { color: '#00f3ff', weight: 5 }).addTo(map);
                     map.fitBounds(latLngs);
                 }
 
                 document.getElementById('fareAmount').innerText = '$' + finalFare.toFixed(2);
-                
                 document.getElementById('addressStep').style.display = 'none';
                 document.getElementById('mapStep').style.display = 'block';
-
-                setTimeout(() => {
-                    if (map) {
-                        map.invalidateSize();
-                    }
-                }, 400);
-
+                document.getElementById('mapOverlay').style.display = 'flex';
+                setTimeout(() => { if (map) map.invalidateSize(); }, 400);
                 document.getElementById('loading').classList.remove('active');
-
             } catch (error) {
-                console.error('🔥 Route calculation error:', error);
+                console.error(error);
                 alert('Error: ' + error.message);
                 document.getElementById('loading').classList.remove('active');
                 useBypassMode(pickup, drop);
             }
         };
 
-        // Fallback bypass function
         function useBypassMode(pickup, drop) {
-            console.log('Using bypass mode for testing');
             distanceMiles = 12.5;
             finalFare = basePrice + (distanceMiles * perKmRate);
-            
             const mapDiv = document.getElementById('map');
             mapDiv.style.display = 'block';
-
-            if (map) {
-                map.remove();
-            }
-            
+            if (map) map.remove();
             map = L.map('map').setView([40.7128, -74.0060], 12);
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
             L.marker([40.7128, -74.0060]).addTo(map).bindPopup('Pickup: ' + pickup.substring(0,30));
             L.marker([40.7580, -73.9855]).addTo(map).bindPopup('Drop: ' + drop.substring(0,30));
-
             document.getElementById('fareAmount').innerText = '$' + finalFare.toFixed(2);
             document.getElementById('addressStep').style.display = 'none';
             document.getElementById('mapStep').style.display = 'block';
+            document.getElementById('mapOverlay').style.display = 'flex';
             document.getElementById('loading').classList.remove('active');
         }
+
+        window.confirmPickupLocation = function() { 
+            alert('Pickup location confirmed!'); 
+            // You can update the address in Firestore if needed
+        };
+        window.confirmDropLocation = function() { 
+            alert('Drop location confirmed!'); 
+        };
+
+        // ---------- GPS LOCATION (FIXED - UBER STYLE) ----------
+        window.getCurrentLocation = function() {
+            if (!navigator.geolocation) { alert('Geolocation not supported'); return; }
+            document.getElementById('loading').classList.add('active');
+            navigator.geolocation.getCurrentPosition(async pos => {
+                const lat = pos.coords.latitude, lng = pos.coords.longitude;
+                try {
+                    const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1`, { headers: { 'User-Agent': 'TruckEase-App/1.0' } });
+                    const data = await res.json();
+                    const address = data.display_name || `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
+                    document.getElementById('locationPlaceholder').innerText = address.length > 35 ? address.substring(0,32)+'...' : address;
+                    const pickupInput = document.getElementById('pickupAddr');
+                    if (pickupInput) pickupInput.value = address;
+                    showScreen('bookingScreen');
+                } catch(e) { document.getElementById('locationPlaceholder').innerText = '📍 Location found'; }
+                document.getElementById('loading').classList.remove('active');
+            }, err => { alert('Unable to get location: ' + err.message); document.getElementById('loading').classList.remove('active'); });
+        };
 
         // ---------- CONFIRM BOOKING ----------
         window.confirmBooking = async function() {
             if (!currentUser) { alert('Please login first'); showLoginModal(); return; }
             if (finalFare <= 0) { alert('Please confirm address first'); return; }
-            
             const pickup = document.getElementById('pickupAddr').value || 'Unknown';
             const drop = document.getElementById('dropAddr').value || 'Unknown';
             const km = distanceMiles;
-
             const commission = finalFare * 0.15;
             const driverAmount = finalFare - commission;
-
+            
             const booking = {
-                userId: currentUser.uid,
-                userPhone: currentUser.phoneNumber,
+                userId: currentUser.uid, 
+                userPhone: currentUser.phoneNumber, 
                 vehicle: currentVehicle,
-                pickup, drop, km,
-                fare: finalFare, commission, driverAmount,
-                currency: '$',
+                pickup, drop, km, 
+                fare: finalFare, 
+                commission: commission,
+                driverAmount: driverAmount, 
+                currency: '$', 
                 status: 'pending',
                 timestamp: firebase.firestore.FieldValue.serverTimestamp()
             };
-
             try {
                 document.getElementById('loading').classList.add('active');
                 const docRef = await db.collection('bookings').add(booking);
                 document.getElementById('loading').classList.remove('active');
                 currentBookingId = docRef.id;
-                document.getElementById('successDetails').innerHTML = `
-                    <p><strong>Booking ID:</strong> ${docRef.id.slice(0,8)}</p>
-                    <p><strong>Vehicle:</strong> ${currentVehicle}</p>
-                    <p><strong>Fare:</strong> $${finalFare.toFixed(2)}</p>
-                    <p><strong>Pickup:</strong> ${pickup.substring(0,30)}...</p>
-                `;
+                document.getElementById('successDetails').innerHTML = `<p><strong>Booking ID:</strong> ${docRef.id.slice(0,8)}</p><p><strong>Vehicle:</strong> ${currentVehicle}</p><p><strong>Fare:</strong> $${finalFare.toFixed(2)}</p><p><strong>Pickup:</strong> ${pickup.substring(0,30)}...</p>`;
                 showScreen('successScreen');
-            } catch (e) {
-                alert('Booking failed: ' + e.message);
-                document.getElementById('loading').classList.remove('active');
-            }
+                
+                // Update wallet balance after booking (example: deduct fare)
+                if (currentUser) {
+                    const userRef = db.collection('users').doc(currentUser.uid);
+                    userRef.get().then(doc => {
+                        if (doc.exists) {
+                            let balance = doc.data().walletBalance || 0;
+                            userRef.update({ walletBalance: balance - finalFare });
+                        }
+                    });
+                }
+            } catch (e) { alert('Booking failed: ' + e.message); document.getElementById('loading').classList.remove('active'); }
         };
 
-        
-        // ---------- GPS LOCATION (FIXED - USA ONLY) ----------
-window.getCurrentLocation = function() {
-    if (!navigator.geolocation) { 
-        alert('Geolocation not supported'); 
-        return; 
-    }
-    
-    document.getElementById('loading').classList.add('active');
-    
-    navigator.geolocation.getCurrentPosition(async pos => {
-        const lat = pos.coords.latitude;
-        const lng = pos.coords.longitude;
-        
-        try {
-            // Reverse geocode to get address - USA को ध्यान में रखते हुए, पर countrycode की जरूरत नहीं
-            const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1`, {
-    headers: { 'User-Agent': 'TruckEase-App/1.0' }
-});
-            const data = await res.json();
-            
-            const address = data.display_name || `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
-            
-            // Update the location bar - एड्रेस को सही तरीके से छोटा करो
-            const locSpan = document.getElementById('locationPlaceholder');
-            if (address.length > 35) {
-                locSpan.innerText = address.substring(0, 32) + '...';
-            } else {
-                locSpan.innerText = address;
-            }
-            
-            // If we're on booking screen, update pickup address
-                        const pickupInput = document.getElementById('pickupAddr');
-if (pickupInput) {
-    pickupInput.value = address;
-}
-// यह लाइन बटन को 'Uber' जैसा बनाएगी
-showScreen('bookingScreen');
-            }
-            
-            
-            console.log('📍 Location found:', address);
-            
-        } catch(e) {
-            console.error('Geocoding error:', e);
-            document.getElementById('locationPlaceholder').innerText = '📍 Location found';
-        }
-        
-        document.getElementById('loading').classList.remove('active');
-        
-    }, err => {
-        alert('Unable to get location: ' + err.message);
-        document.getElementById('loading').classList.remove('active');
-    });
-};
         // ---------- LOAD HISTORY ----------
         window.loadHistory = async function() {
-            if (!currentUser) { 
-                document.getElementById('historyList').innerHTML = '<p>Please login</p>'; 
-                return; 
-            }
-            
+            if (!currentUser) { document.getElementById('historyList').innerHTML = '<p>Please login</p>'; return; }
             document.getElementById('historyList').innerHTML = '<div style="text-align:center;"><div class="spinner"></div><p>Loading trips...</p></div>';
-            
             try {
-                const snapshot = await db.collection('bookings')
-                    .where('userId', '==', currentUser.uid)
-                    .orderBy('timestamp', 'desc')
-                    .get();
-                    
-                if (snapshot.empty) { 
-                    document.getElementById('historyList').innerHTML = '<p>No trips yet</p>'; 
-                    return; 
-                }
-                
+                const snapshot = await db.collection('bookings').where('userId', '==', currentUser.uid).orderBy('timestamp', 'desc').get();
+                if (snapshot.empty) { document.getElementById('historyList').innerHTML = '<p>No trips yet</p>'; return; }
                 let html = '';
                 snapshot.forEach(doc => {
                     const b = doc.data();
                     const time = b.timestamp ? new Date(b.timestamp.toDate()).toLocaleString('en-US') : '';
-                    html += `<div class="history-item">
-                        <div class="row"><span>${b.vehicle}</span><span class="status-badge status-${b.status}">${b.status}</span></div>
-                        <div class="row"><small>${b.pickup.substring(0,20)} → ${b.drop.substring(0,20)}</small></div>
-                        <div class="row"><span>$${b.fare?.toFixed(2)}</span><small>${time}</small></div>
-                    </div>`;
+                    html += `<div class="history-item"><div class="row"><span>${b.vehicle}</span><span class="status-badge status-${b.status}">${b.status}</span></div><div class="row"><small>${b.pickup?.substring(0,20)} → ${b.drop?.substring(0,20)}</small></div><div class="row"><span>$${b.fare?.toFixed(2)}</span><small>${time}</small></div></div>`;
                 });
                 document.getElementById('historyList').innerHTML = html;
-                
-            } catch(e) { 
-                console.error('🔥 Error loading history:', e);
-                document.getElementById('historyList').innerHTML = `<p style="color:#ff4444;">Error loading trips: ${e.message}</p>`; 
-            }
+            } catch(e) { document.getElementById('historyList').innerHTML = `<p style="color:#ff4444;">Error loading trips: ${e.message}</p>`; }
         };
 
-        // ---------- ADDRESS AUTOCOMPLETE (USA ONLY) ----------
-let suggestionTimeout;
-async function fetchSuggestions(query, type) {
-    clearTimeout(suggestionTimeout);
-    if (query.length < 3) return;
-    suggestionTimeout = setTimeout(async () => {
-        try {
-            // ✅ USA filter लगा दिया
-            const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&addressdetails=1&countrycodes=us&limit=20`;
-            const res = await fetch(url);
-            const data = await res.json();
-            const datalist = document.getElementById(type === 'pickup' ? 'pickupSuggestions' : 'dropSuggestions');
-            datalist.innerHTML = '';
-            data.forEach(item => {
-                const option = document.createElement('option');
-                option.value = item.display_name;
-                datalist.appendChild(option);
-            });
-        } catch (e) {
-            console.error('Autocomplete error:', e);
+        // ---------- ADDRESS AUTOCOMPLETE ----------
+        let suggestionTimeout;
+        async function fetchSuggestions(query, type) {
+            clearTimeout(suggestionTimeout);
+            if (query.length < 3) return;
+            suggestionTimeout = setTimeout(async () => {
+                try {
+                    const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&addressdetails=1&countrycodes=us&limit=20`;
+                    const res = await fetch(url);
+                    const data = await res.json();
+                    const datalist = document.getElementById(type === 'pickup' ? 'pickupSuggestions' : 'dropSuggestions');
+                    datalist.innerHTML = '';
+                    data.forEach(item => {
+                        const option = document.createElement('option');
+                        option.value = item.display_name;
+                        datalist.appendChild(option);
+                    });
+                } catch (e) { console.error('Autocomplete error:', e); }
+            }, 300);
         }
-    }, 300);
-}
 
         // ---------- PROMO CODE ----------
         window.applyPromo = async function() {
             const code = document.getElementById('promoInput').value.trim().toUpperCase();
             if (!code) return;
-            
             try {
                 const promoRef = db.collection('promoCodes').doc(code);
                 const doc = await promoRef.get();
@@ -1155,90 +907,57 @@ async function fetchSuggestions(query, type) {
                     promoDiscount = doc.data().discount;
                     alert(`Promo applied! You get $${promoDiscount} off.`);
                     closeModal('promoModal');
-                    
                     if (distanceMiles > 0) {
                         finalFare = basePrice + (distanceMiles * perKmRate) - promoDiscount;
                         if (finalFare < 0) finalFare = 0;
                         document.getElementById('fareAmount').innerText = '$' + finalFare.toFixed(2);
                     }
-                } else {
-                    alert('Invalid promo code');
-                }
-            } catch(e) {
-                console.error('Promo error:', e);
-                alert('Error applying promo');
-            }
+                } else { alert('Invalid promo code'); }
+            } catch(e) { console.error(e); alert('Error applying promo'); }
         };
-
-        window.showPromo = function() {
-            document.getElementById('promoModal').classList.add('active');
-        };
+        window.showPromo = () => document.getElementById('promoModal').classList.add('active');
 
         // ---------- ADDRESS BOOK ----------
-        let savedPlaces = [];
         window.showAddressBook = async function() {
             if (!currentUser) { alert('Login first'); return; }
-            
             try {
                 const userRef = db.collection('users').doc(currentUser.uid);
                 const doc = await userRef.get();
-                if (doc.exists && doc.data().savedPlaces) {
-                    savedPlaces = doc.data().savedPlaces;
-                }
-                
+                if (doc.exists && doc.data().savedPlaces) savedPlaces = doc.data().savedPlaces;
                 let html = '';
-                savedPlaces.forEach((place, index) => {
-                    html += `<div style="display:flex; justify-content:space-between; padding:10px; border-bottom:1px solid #333;">
-                        <span><strong>${place.name}</strong><br><small>${place.address}</small></span>
-                        <button onclick="useAddress('${place.address}')">Use</button>
-                    </div>`;
+                savedPlaces.forEach((place, i) => {
+                    html += `<div style="display:flex; justify-content:space-between; padding:10px; border-bottom:1px solid #333;"><span><strong>${place.name}</strong><br><small>${place.address}</small></span><button onclick="useAddress('${place.address}')">Use</button></div>`;
                 });
                 document.getElementById('savedPlacesList').innerHTML = html || '<p>No saved places</p>';
                 document.getElementById('addressBookModal').classList.add('active');
-            } catch(e) {
-                console.error('Address book error:', e);
-                alert('Error loading address book');
-            }
+            } catch(e) { alert('Error loading address book'); }
         };
-
         window.savePlace = async function() {
             const name = document.getElementById('newPlaceName').value;
             const addr = document.getElementById('newPlaceAddr').value;
             if (!name || !addr) return;
-            
             savedPlaces.push({ name, address: addr });
-            
             if (currentUser) {
-                try {
-                    await db.collection('users').doc(currentUser.uid).set({ savedPlaces }, { merge: true });
-                } catch(e) {
-                    console.error('Error saving place:', e);
-                }
+                try { await db.collection('users').doc(currentUser.uid).set({ savedPlaces }, { merge: true }); } catch(e) { console.error(e); }
             }
             showAddressBook();
             document.getElementById('newPlaceName').value = '';
             document.getElementById('newPlaceAddr').value = '';
         };
-
         window.useAddress = function(addr) {
             document.getElementById('pickupAddr').value = addr;
             closeModal('addressBookModal');
         };
 
         // ---------- SCHEDULING ----------
-        window.scheduleRide = function() {
-            showScreen('bookingScreen');
-        };
+        window.scheduleRide = () => showScreen('bookingScreen');
 
         // ---------- REFERRAL ----------
         window.showReferral = function() {
-            // This function is kept for compatibility but no longer used in home screen
             document.getElementById('referralCode').innerText = currentUser ? 'TRUCK' + currentUser.uid.slice(-4) : 'TRUCK123';
             alert('Referral code: ' + document.getElementById('referralCode').innerText);
         };
-
         window.copyReferral = function() {
-            // This function is kept for compatibility but no longer used in home screen
             navigator.clipboard.writeText(document.getElementById('referralCode').innerText);
             alert('Copied!');
         };
@@ -1248,102 +967,48 @@ async function fetchSuggestions(query, type) {
             if (!currentUser) { alert('Login first'); return; }
             if (navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition(pos => {
-                    const lat = pos.coords.latitude;
-                    const lng = pos.coords.longitude;
-                    alert(`🚨 SOS! Your location (${lat},${lng}) has been sent to emergency contacts.`);
-                }, () => {
-                    alert('SOS triggered (location unavailable)');
-                });
-            } else {
-                alert('SOS triggered');
-            }
+                    alert(`🚨 SOS! Your location (${pos.coords.latitude},${pos.coords.longitude}) has been sent.`);
+                }, () => { alert('SOS triggered (location unavailable)'); });
+            } else { alert('SOS triggered'); }
         };
 
         // ---------- TRACKING SIMULATION ----------
         window.startTracking = function() {
-            if (trackingInterval) {
-                clearInterval(trackingInterval);
-                trackingInterval = null;
-            }
-            
+            if (trackingInterval) { clearInterval(trackingInterval); trackingInterval = null; }
             showScreen('trackingScreen');
-            
             const pickup = document.getElementById('pickupAddr').value || '123 Main St, New York, NY';
             const drop = document.getElementById('dropAddr').value || '456 Broadway, New York, NY';
-            
             const pickupCoords = { lat: 40.7128, lng: -74.0060 };
             const dropCoords = { lat: 40.7580, lng: -73.9855 };
-            
-            const mapDiv = document.getElementById('trackingMap');
             if (!trackingMap) {
                 trackingMap = L.map('trackingMap').setView([pickupCoords.lat, pickupCoords.lng], 13);
                 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(trackingMap);
-            } else {
-                trackingMap.setView([pickupCoords.lat, pickupCoords.lng], 13);
-            }
-            
+            } else { trackingMap.setView([pickupCoords.lat, pickupCoords.lng], 13); }
             L.marker([pickupCoords.lat, pickupCoords.lng]).addTo(trackingMap).bindPopup('Pickup').openPopup();
             L.marker([dropCoords.lat, dropCoords.lng]).addTo(trackingMap).bindPopup('Drop').openPopup();
-            
             driverMarker = L.marker([pickupCoords.lat + 0.01, pickupCoords.lng + 0.01]).addTo(trackingMap).bindPopup('Driver').openPopup();
-            
             routeCoordinates = [];
-            const steps = 20;
-            for (let i = 0; i <= steps; i++) {
-                const lat = pickupCoords.lat + (dropCoords.lat - pickupCoords.lat) * i / steps;
-                const lng = pickupCoords.lng + (dropCoords.lng - pickupCoords.lng) * i / steps;
+            for (let i = 0; i <= 20; i++) {
+                const lat = pickupCoords.lat + (dropCoords.lat - pickupCoords.lat) * i / 20;
+                const lng = pickupCoords.lng + (dropCoords.lng - pickupCoords.lng) * i / 20;
                 routeCoordinates.push({ lat, lng });
             }
-            
             currentStep = 0;
-            
-            document.getElementById('trackingDetails').innerHTML = `
-                <p><i class="fas fa-circle-notch fa-spin"></i> Driver is heading to pickup location...</p>
-                <p><strong>Pickup:</strong> ${pickup.substring(0,30)}</p>
-                <p><strong>Drop:</strong> ${drop.substring(0,30)}</p>
-            `;
-            
+            document.getElementById('trackingDetails').innerHTML = `<p><i class="fas fa-circle-notch fa-spin"></i> Driver is heading to pickup...</p><p><strong>Pickup:</strong> ${pickup.substring(0,30)}</p><p><strong>Drop:</strong> ${drop.substring(0,30)}</p>`;
             trackingInterval = setInterval(() => {
                 if (currentStep < routeCoordinates.length - 1) {
                     currentStep++;
-                    const pos = routeCoordinates[currentStep];
-                    driverMarker.setLatLng([pos.lat, pos.lng]);
-                    trackingMap.panTo([pos.lat, pos.lng]);
-                    
-                    if (currentStep < routeCoordinates.length / 2) {
-                        document.getElementById('trackingDetails').innerHTML = `
-                            <p><i class="fas fa-circle-notch fa-spin"></i> Driver is on the way to pickup...</p>
-                            <p><strong>Pickup:</strong> ${pickup.substring(0,30)}</p>
-                            <p><strong>Drop:</strong> ${drop.substring(0,30)}</p>
-                        `;
-                    } else {
-                        document.getElementById('trackingDetails').innerHTML = `
-                            <p><i class="fas fa-circle-notch fa-spin"></i> Driver has picked up and heading to drop...</p>
-                            <p><strong>Pickup:</strong> ${pickup.substring(0,30)}</p>
-                            <p><strong>Drop:</strong> ${drop.substring(0,30)}</p>
-                        `;
-                    }
+                    driverMarker.setLatLng([routeCoordinates[currentStep].lat, routeCoordinates[currentStep].lng]);
+                    trackingMap.panTo([routeCoordinates[currentStep].lat, routeCoordinates[currentStep].lng]);
                 } else {
                     clearInterval(trackingInterval);
-                    trackingInterval = null;
-                    document.getElementById('trackingDetails').innerHTML = `
-                        <p><i class="fas fa-check-circle" style="color:#4caf50;"></i> Trip completed!</p>
-                        <p><strong>Pickup:</strong> ${pickup.substring(0,30)}</p>
-                        <p><strong>Drop:</strong> ${drop.substring(0,30)}</p>
-                    `;
+                    document.getElementById('trackingDetails').innerHTML = `<p><i class="fas fa-check-circle" style="color:#4caf50;"></i> Trip completed!</p>`;
                 }
             }, 2000);
         };
-
         window.cancelBooking = function() {
-            if (trackingInterval) {
-                clearInterval(trackingInterval);
-                trackingInterval = null;
-            }
-            if (trackingMap) {
-                trackingMap.remove();
-                trackingMap = null;
-            }
+            if (trackingInterval) { clearInterval(trackingInterval); trackingInterval = null; }
+            if (trackingMap) { trackingMap.remove(); trackingMap = null; }
             goHome();
         };
 
@@ -1364,24 +1029,14 @@ async function fetchSuggestions(query, type) {
                 });
             });
         });
-
         window.submitReview = async function() {
             if (!currentBookingId || !selectedRating) { alert('Please select rating'); return; }
             const review = document.getElementById('reviewText').value;
             try {
-                await db.collection('reviews').add({
-                    bookingId: currentBookingId,
-                    userId: currentUser.uid,
-                    rating: selectedRating,
-                    comment: review,
-                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
-                });
+                await db.collection('reviews').add({ bookingId: currentBookingId, userId: currentUser.uid, rating: selectedRating, comment: review, timestamp: firebase.firestore.FieldValue.serverTimestamp() });
                 alert('Thank you for your review!');
                 document.getElementById('ratingSection').style.display = 'none';
-            } catch(e) {
-                console.error('Review error:', e);
-                alert('Error submitting review');
-            }
+            } catch(e) { console.error(e); alert('Error submitting review'); }
         };
 
         // ---------- CHAT ----------
@@ -1393,82 +1048,78 @@ async function fetchSuggestions(query, type) {
                 let html = '';
                 snapshot.forEach(doc => {
                     const msg = doc.data();
-                    const className = msg.sender === currentUser.uid ? 'sent' : 'received';
-                    html += `<div class="chat-message ${className}">${msg.text}</div>`;
+                    html += `<div class="chat-message ${msg.sender === currentUser.uid ? 'sent' : 'received'}">${msg.text}</div>`;
                 });
                 document.getElementById('chatBox').innerHTML = html;
                 document.getElementById('chatBox').scrollTop = document.getElementById('chatBox').scrollHeight;
             });
         };
-
         window.sendMessage = async function() {
             const text = document.getElementById('chatInput').value.trim();
             if (!text || !currentBookingId) return;
             try {
-                await db.collection('chats').add({
-                    bookingId: currentBookingId,
-                    sender: currentUser.uid,
-                    text: text,
-                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
-                });
+                await db.collection('chats').add({ bookingId: currentBookingId, sender: currentUser.uid, text: text, timestamp: firebase.firestore.FieldValue.serverTimestamp() });
                 document.getElementById('chatInput').value = '';
-            } catch(e) {
-                console.error('Chat error:', e);
-                alert('Error sending message');
+            } catch(e) { console.error(e); alert('Error sending message'); }
+        };
+
+        // ---------- WALLET ----------
+        window.addMoney = function() { alert('Add money feature coming soon!'); };
+        function loadWalletData() {
+            if (!currentUser) { 
+                document.getElementById('walletBalance').innerText = '$0.00';
+                document.getElementById('transactionList').innerHTML = '<p>Please login to view wallet</p>';
+                return;
             }
+            // Real-time wallet listener
+            if (userWalletRef) userWalletRef();
+            userWalletRef = db.collection('users').doc(currentUser.uid).onSnapshot(doc => {
+                if (doc.exists) {
+                    const data = doc.data();
+                    document.getElementById('walletBalance').innerText = '$' + (data.walletBalance || 0).toFixed(2);
+                    // Load transactions from Firestore (you can add a transactions subcollection)
+                    db.collection('users').doc(currentUser.uid).collection('transactions').orderBy('timestamp', 'desc').limit(10).get()
+                        .then(snapshot => {
+                            let html = '';
+                            snapshot.forEach(tx => {
+                                const t = tx.data();
+                                html += `<div class="transaction-item"><span>${t.desc}<br><small>${new Date(t.timestamp.toDate()).toLocaleDateString()}</small></span><span>$${t.amount.toFixed(2)}</span></div>`;
+                            });
+                            document.getElementById('transactionList').innerHTML = html || '<p>No transactions yet</p>';
+                        });
+                }
+            });
+        }
+
+        // ---------- ACCOUNT ----------
+        function loadAccountData() {
+            if (currentUser) {
+                db.collection('users').doc(currentUser.uid).get().then(doc => {
+                    if (doc.exists) {
+                        const data = doc.data();
+                        document.getElementById('accountName').innerText = data.name || currentUser.name;
+                        document.getElementById('accountPhone').innerText = data.phone || currentUser.phoneNumber;
+                        document.getElementById('memberSince').innerText = data.memberSince ? new Date(data.memberSince).toLocaleDateString('en-US', { month: 'short', year: 'numeric' }) : 'Mar 2025';
+                        document.getElementById('totalTrips').innerText = data.totalTrips || 0;
+                        document.getElementById('rewardPoints').innerText = data.rewardPoints || 0;
+                    }
+                });
+            }
+        }
+        window.logout = function() {
+            currentUser = null;
+            localStorage.removeItem('truckUser');
+            document.getElementById('userIcon').innerHTML = `<i class="fas fa-user"></i>`;
+            if (userWalletRef) userWalletRef();
+            showScreen('homeScreen');
         };
 
         // ---------- UTILITY ----------
-        window.closeModal = function(id) {
-            document.getElementById(id).classList.remove('active');
-        };
+        window.closeModal = function(id) { document.getElementById(id).classList.remove('active'); };
 
-        // Initialize
+        // ---------- INIT ----------
         loadVehicleGrid('trucks');
-        
-        // Load online drivers count - removed as element is no longer in home screen
-        // db.collection('drivers').where('status', '==', 'online').onSnapshot(snap => {
-        //     document.getElementById('onlineDrivers').innerText = snap.size;
-        // }, error => {
-        //     console.error('Drivers snapshot error:', error);
-        // });
-        
-        // Load active shipments - removed as element is no longer in home screen
-        // db.collection('bookings').where('status', '==', 'accepted').onSnapshot(snap => {
-        //     document.getElementById('activeShipments').innerText = snap.size;
-        // }, error => {
-        //     console.error('Bookings snapshot error:', error);
-        // });
-
-        // Export functions for global access
         window.fetchSuggestions = fetchSuggestions;
-        
-        // ---------- WALLET DATA ----------
-        function loadWalletData() {
-            console.log('Wallet screen loaded');
-            // यहाँ बाद में Firebase से असली डेटा लोड करेंगे
-        }
-
-        // ---------- ACCOUNT DATA ----------
-        function loadAccountData() {
-            console.log('Account screen loaded');
-            if (currentUser) {
-                document.getElementById('accountName').innerText = currentUser.name || 'Demo User';
-                document.getElementById('accountPhone').innerText = currentUser.phoneNumber || '+1 2125551234';
-            }
-        }
-
-        // ---------- पिकअप लोकेशन कन्फर्म करो ----------
-window.confirmPickupLocation = function() {
-    alert('Pickup location confirmed!');
-    // यहाँ पिकअप एड्रेस फाइनल करने का कोड
-}
-
-// ---------- ड्रॉप लोकेशन कन्फर्म करो ----------
-window.confirmDropLocation = function() {
-    alert('Drop location confirmed!');
-    // यहाँ ड्रॉप एड्रेस फाइनल करने का कोड
-}
     </script>
 </body>
 </html>
