@@ -369,8 +369,13 @@
                 <button class="btn btn-primary" id="confirmBookingBtn" onclick="confirmBooking()">Confirm Booking</button>
             </div>
 
-            <datalist id="pickupSuggestions"></datalist>
-            <datalist id="dropSuggestions"></datalist>
+            <!-- Map Overlay Search Boxes (नया) -->
+<div class="map-overlay" style="display: none;" id="mapOverlay">
+    <input type="text" class="map-search-box" id="mapPickup" placeholder="Pickup location" list="mapPickupSuggestions">
+    <input type="text" class="map-search-box" id="mapDrop" placeholder="Drop location" list="mapDropSuggestions">
+</div>
+<datalist id="mapPickupSuggestions"></datalist>
+<datalist id="mapDropSuggestions"></datalist>
         </div>
     </div>
 
