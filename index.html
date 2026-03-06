@@ -875,6 +875,22 @@ pickupMarker.bindPopup(pickupPopupContent).openPopup();
                     } finally {
                         document.getElementById('loading').classList.remove('active');
                     }
+    
+    // रूट रीकैलकुलेट करो
+    if (window.routingControl) {
+        map.removeControl(window.routingControl);
+    }
+    
+    // नया रूट बनाओ (pickupCoords और dropCoords अपडेटेड हैं)
+    window.routingControl = L.Routing.control({
+        waypoints: [
+            L.latLng(pickupCoords.lat, pickupCoords.lng),
+            L.latLng(dropCoords.lat, dropCoords.lng)
+        ],
+        routeWhileDragging: false,
+        lineOptions: { styles: [{ color: '#00f3ff', weight: 5 }] }
+    }).addTo(map);
+});
                 });
 
                 // Draggable drop marker
