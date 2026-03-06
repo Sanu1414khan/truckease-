@@ -826,11 +826,40 @@
                     }
                 });
 
-                // Drop marker
-                L.marker([dropCoords.lat, dropCoords.lng])
-                    .addTo(map)
-                    .bindPopup('🏁 Drop: ' + drop.substring(0, 30));
+                // Draggable drop marker
+const dropMarker = L.marker([dropCoords.lat, dropCoords.lng], {
+    draggable: true,
+    autoPan: true,
+    riseOnHover: true
+}).addTo(map);
 
+dropMarker.bindPopup('🏁 Drag to adjust drop location').openPopup();
+
+dropMarker.on('dragend', async function(event) {
+    const marker = event.target;
+    const position = marker.getLatLng();
+    
+    document.getElementById('loading').classList.add('active');
+    
+    try {
+        const newAddress = await reverseGeocode(position.lat, position.lng);
+        
+        if (newAddress) {
+            document.getElementById('dropAddr').value = newAddress;
+            dropCoords.lat = position.lat;
+            dropCoords.lng = position.lng;
+            marker.bindPopup('🏁 Drop location updated!').openPopup();
+            
+            // Optionally recalculate route
+            // You can call a function to recalculate the route here
+        }
+    } catch (error) {
+        console.error('Reverse geocoding error:', error);
+        alert('Could not get address for this location');
+    } finally {
+        document.getElementById('loading').classList.remove('active');
+    }
+});
                 // Draw route line
                 if (routeGeometry && routeGeometry.coordinates) {
                     const latLngs = routeGeometry.coordinates.map(coord => [coord[1], coord[0]]);
