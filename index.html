@@ -954,10 +954,13 @@ window.getCurrentLocation = function() {
             }
             
             // If we're on booking screen, update pickup address
-            const pickupInput = document.getElementById('pickupAddr');
+                        const pickupInput = document.getElementById('pickupAddr');
             if (pickupInput) {
                 pickupInput.value = address;
+                // यह लाइन बटन को 'Uber' जैसा बनाएगी
+                showScreen('bookingScreen'); 
             }
+            
             
             console.log('📍 Location found:', address);
             
