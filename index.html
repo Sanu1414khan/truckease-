@@ -1060,7 +1060,7 @@ async function fetchSuggestions(query, type) {
     suggestionTimeout = setTimeout(async () => {
         try {
             // ✅ USA filter लगा दिया
-            const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&addressdetails=1&countrycodes=us&limit=5`;
+            const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&addressdetails=1&countrycodes=us&limit=20`;
             const res = await fetch(url);
             const data = await res.json();
             const datalist = document.getElementById(type === 'pickup' ? 'pickupSuggestions' : 'dropSuggestions');
