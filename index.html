@@ -669,6 +669,7 @@
                     currentVehicle = card.dataset.name;
                     basePrice = parseFloat(card.dataset.base);
                     perKmRate = parseFloat(card.dataset.perkm);
+                    localStorage.setItem('lastVehicle', currentVehicle);
                     document.getElementById('selectedVehicleInfo').innerHTML = `🚘 ${currentVehicle}`;
                     document.getElementById('addressStep').style.display = 'block';
                     document.getElementById('mapStep').style.display = 'none';
@@ -685,6 +686,8 @@
             const pickup = document.getElementById('pickupAddr').value.trim();
             const drop = document.getElementById('dropAddr').value.trim();
             if (!pickup || !drop) { alert('Please enter both pickup and drop addresses'); return; }
+             localStorage.setItem('lastPickup', pickup);
+            localStorage.setItem('lastDrop', drop);
             document.getElementById('loading').classList.add('active');
             try {
                 const pickupUrl = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(pickup)}&countrycodes=us&limit=1`;
