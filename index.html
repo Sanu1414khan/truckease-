@@ -567,41 +567,15 @@
                 return `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
             }
         }
-        
-        // ---------- ONLOAD WITH STATE RESTORATION ----------
-window.onload = function() {
-    if (!localStorage.getItem('onboardingSeen')) {
-        document.getElementById('onboarding').classList.add('active');
-    }
-    
-    // पिछली स्क्रीन रिस्टोर करो
-    const savedScreen = localStorage.getItem('lastScreen') || 'homeScreen';
-    
-    // बुकिंग स्क्रीन के लिए एड्रेस रिस्टोर करो
-    if (savedScreen === 'bookingScreen') {
-        const pickupInput = document.getElementById('pickupAddr');
-        const dropInput = document.getElementById('dropAddr');
-        if (pickupInput) pickupInput.value = localStorage.getItem('lastPickup') || '';
-        if (dropInput) dropInput.value = localStorage.getItem('lastDrop') || '';
-        
-        // व्हीकल रिस्टोर करो
-        const savedVehicle = localStorage.getItem('lastVehicle');
-        if (savedVehicle) {
-            currentVehicle = savedVehicle;
-            document.getElementById('selectedVehicleInfo').innerHTML = `🚘 ${currentVehicle}`;
-            document.getElementById('addressStep').style.display = 'block';
-            document.getElementById('mapStep').style.display = 'none';
+
+        // ---------- ONBOARDING ----------
+        if (!localStorage.getItem('onboardingSeen')) {
+            document.getElementById('onboarding').classList.add('active');
         }
-    }
-    
-    // स्क्रीन दिखाओ
-    showScreen(savedScreen);
-    
-    // यूजर रिस्टोर करो
-    if (currentUser) {
-        document.getElementById('userIcon').innerHTML = `<i class="fas fa-user-check"></i>`;
-    }
-};
+        window.closeOnboarding = function() {
+            document.getElementById('onboarding').classList.remove('active');
+            localStorage.setItem('onboardingSeen', 'true');
+        };
 
         // ---------- DEMO LOGIN ----------
         window.showLoginModal = function() {
@@ -821,21 +795,6 @@ window.onload = function() {
         window.confirmDropLocation = function() { 
             alert('Drop location confirmed!'); 
         };
-        // ---------- ADDRESS CONFIRMATION ----------
-window.confirmAddress = async function() {
-    const pickup = document.getElementById('pickupAddr').value.trim();
-    const drop = document.getElementById('dropAddr').value.trim();
-    
-    // यह एड्रेस को ब्राउजर में सेव कर देगा
-    localStorage.setItem('lastPickup', pickup);
-    localStorage.setItem('lastDrop', drop);
-    
-    if (!pickup || !drop) { 
-        alert('कृपया दोनों एड्रेस भरें'); 
-        return; 
-    }
-    // आगे का कोड...
-};
 
         // ---------- GPS LOCATION (FIXED - UBER STYLE) ----------
         window.getCurrentLocation = function() {
@@ -885,7 +844,7 @@ window.confirmAddress = async function() {
                 currentBookingId = docRef.id;
                 document.getElementById('successDetails').innerHTML = `<p><strong>Booking ID:</strong> ${docRef.id.slice(0,8)}</p><p><strong>Vehicle:</strong> ${currentVehicle}</p><p><strong>Fare:</strong> $${finalFare.toFixed(2)}</p><p><strong>Pickup:</strong> ${pickup.substring(0,30)}...</p>`;
                 showScreen('successScreen');
-               
+                
                 // Update wallet balance after booking (example: deduct fare)
                 if (currentUser) {
                     const userRef = db.collection('users').doc(currentUser.uid);
@@ -915,18 +874,6 @@ window.confirmAddress = async function() {
                 document.getElementById('historyList').innerHTML = html;
             } catch(e) { document.getElementById('historyList').innerHTML = `<p style="color:#ff4444;">Error loading trips: ${e.message}</p>`; }
         };
-
-        window.logout = function() {
-    currentUser = null;
-    localStorage.removeItem('truckUser');
-    localStorage.removeItem('lastScreen');
-    localStorage.removeItem('lastPickup');
-    localStorage.removeItem('lastDrop');
-    localStorage.removeItem('lastVehicle');
-    document.getElementById('userIcon').innerHTML = `<i class="fas fa-user"></i>`;
-    if (userWalletRef) userWalletRef();
-    showScreen('homeScreen');
-};
 
         // ---------- ADDRESS AUTOCOMPLETE ----------
         let suggestionTimeout;
@@ -1159,57 +1106,13 @@ window.confirmAddress = async function() {
                 });
             }
         }
-
-        
-       function loadVehicleGrid(category) {
-    const grid = document.getElementById('vehicleGrid');
-    const title = document.getElementById('vehicleCategoryTitle');
-    title.innerHTML = '<i class="fas fa-truck"></i> Available Vehicles';
-
-    document.querySelectorAll('.vehicle-card').forEach(card => {
-        card.addEventListener('click', () => {
-            currentVehicle = card.dataset.name;
-            basePrice = parseFloat(card.dataset.base);
-            perKmRate = parseFloat(card.dataset.perkm);
-            
-            // Truck ko memory mein save karo
-            localStorage.setItem('lastVehicle', currentVehicle);
-            
-            // Selected info dikhao (Maine car 🚘 ki jagah truck 🚛 kar diya hai)
-            document.getElementById('selectedVehicleInfo').innerHTML = `🚛 ${currentVehicle}`;
-            document.getElementById('addressStep').style.display = 'block';
-            document.getElementById('mapStep').style.display = 'none';
-            
-            // Purane saved address apne aap bhar jayenge
-            document.getElementById('pickupAddr').value = localStorage.getItem('lastPickup') || '';
-            document.getElementById('dropAddr').value = localStorage.getItem('lastDrop') || '';
-            
-            document.getElementById('fareAmount').innerText = '$0';
-            showScreen('bookingScreen');
-        });
-       }
-
-        // ---------- SCREEN MANAGEMENT ----------
-window.showScreen = function(screenId) {
-    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-    document.getElementById(screenId).classList.add('active');
-    
-    // नई लाइन - स्क्रीन को localStorage में सेव करो
-    localStorage.setItem('lastScreen', screenId);
-    
-    document.querySelectorAll('.nav-item').forEach((item, idx) => {
-        if (screenId === 'homeScreen' && idx === 0) item.classList.add('active');
-        else if (screenId === 'historyScreen' && idx === 1) item.classList.add('active');
-        else if (screenId === 'walletScreen' && idx === 2) item.classList.add('active');
-        else if (screenId === 'accountScreen' && idx === 3) item.classList.add('active');
-        else item.classList.remove('active');
-    });
-
-    if (screenId === 'historyScreen') loadHistory();
-    if (screenId === 'homeScreen') loadVehicleGrid('trucks');
-    if (screenId === 'walletScreen') loadWalletData();
-    if (screenId === 'accountScreen') loadAccountData();
-};
+        window.logout = function() {
+            currentUser = null;
+            localStorage.removeItem('truckUser');
+            document.getElementById('userIcon').innerHTML = `<i class="fas fa-user"></i>`;
+            if (userWalletRef) userWalletRef();
+            showScreen('homeScreen');
+        };
 
         // ---------- UTILITY ----------
         window.closeModal = function(id) { document.getElementById(id).classList.remove('active'); };
