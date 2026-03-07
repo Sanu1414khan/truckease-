@@ -620,6 +620,7 @@
         window.showScreen = function(screenId) {
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
             document.getElementById(screenId).classList.add('active');
+            localStorage.setItem('lastScreen', screenId);
             document.querySelectorAll('.nav-item').forEach((item, idx) => {
                 if (screenId === 'homeScreen' && idx === 0) item.classList.add('active');
                 else if (screenId === 'historyScreen' && idx === 1) item.classList.add('active');
