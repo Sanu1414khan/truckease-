@@ -1147,6 +1147,36 @@ window.confirmAddress = async function() {
                 });
             }
         }
+
+        
+       function loadVehicleGrid(category) {
+    const grid = document.getElementById('vehicleGrid');
+    const title = document.getElementById('vehicleCategoryTitle');
+    title.innerHTML = '<i class="fas fa-truck"></i> Available Vehicles';
+
+    document.querySelectorAll('.vehicle-card').forEach(card => {
+        card.addEventListener('click', () => {
+            currentVehicle = card.dataset.name;
+            basePrice = parseFloat(card.dataset.base);
+            perKmRate = parseFloat(card.dataset.perkm);
+            
+            // Truck ko memory mein save karo
+            localStorage.setItem('lastVehicle', currentVehicle);
+            
+            // Selected info dikhao (Maine car 🚘 ki jagah truck 🚛 kar diya hai)
+            document.getElementById('selectedVehicleInfo').innerHTML = `🚛 ${currentVehicle}`;
+            document.getElementById('addressStep').style.display = 'block';
+            document.getElementById('mapStep').style.display = 'none';
+            
+            // Purane saved address apne aap bhar jayenge
+            document.getElementById('pickupAddr').value = localStorage.getItem('lastPickup') || '';
+            document.getElementById('dropAddr').value = localStorage.getItem('lastDrop') || '';
+            
+            document.getElementById('fareAmount').innerText = '$0';
+            showScreen('bookingScreen');
+        });
+       }
+
         // ---------- SCREEN MANAGEMENT ----------
 window.showScreen = function(screenId) {
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
