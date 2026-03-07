@@ -1106,13 +1106,27 @@
                 });
             }
         }
-        window.logout = function() {
-            currentUser = null;
-            localStorage.removeItem('truckUser');
-            document.getElementById('userIcon').innerHTML = `<i class="fas fa-user"></i>`;
-            if (userWalletRef) userWalletRef();
-            showScreen('homeScreen');
-        };
+        // ---------- SCREEN MANAGEMENT ----------
+window.showScreen = function(screenId) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById(screenId).classList.add('active');
+    
+    // नई लाइन - स्क्रीन को localStorage में सेव करो
+    localStorage.setItem('lastScreen', screenId);
+    
+    document.querySelectorAll('.nav-item').forEach((item, idx) => {
+        if (screenId === 'homeScreen' && idx === 0) item.classList.add('active');
+        else if (screenId === 'historyScreen' && idx === 1) item.classList.add('active');
+        else if (screenId === 'walletScreen' && idx === 2) item.classList.add('active');
+        else if (screenId === 'accountScreen' && idx === 3) item.classList.add('active');
+        else item.classList.remove('active');
+    });
+
+    if (screenId === 'historyScreen') loadHistory();
+    if (screenId === 'homeScreen') loadVehicleGrid('trucks');
+    if (screenId === 'walletScreen') loadWalletData();
+    if (screenId === 'accountScreen') loadAccountData();
+};
 
         // ---------- UTILITY ----------
         window.closeModal = function(id) { document.getElementById(id).classList.remove('active'); };
