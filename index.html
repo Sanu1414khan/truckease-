@@ -821,6 +821,21 @@ window.onload = function() {
         window.confirmDropLocation = function() { 
             alert('Drop location confirmed!'); 
         };
+        // ---------- ADDRESS CONFIRMATION ----------
+window.confirmAddress = async function() {
+    const pickup = document.getElementById('pickupAddr').value.trim();
+    const drop = document.getElementById('dropAddr').value.trim();
+    
+    // यह एड्रेस को ब्राउजर में सेव कर देगा
+    localStorage.setItem('lastPickup', pickup);
+    localStorage.setItem('lastDrop', drop);
+    
+    if (!pickup || !drop) { 
+        alert('कृपया दोनों एड्रेस भरें'); 
+        return; 
+    }
+    // आगे का कोड...
+};
 
         // ---------- GPS LOCATION (FIXED - UBER STYLE) ----------
         window.getCurrentLocation = function() {
