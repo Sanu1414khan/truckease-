@@ -885,7 +885,7 @@ window.confirmAddress = async function() {
                 currentBookingId = docRef.id;
                 document.getElementById('successDetails').innerHTML = `<p><strong>Booking ID:</strong> ${docRef.id.slice(0,8)}</p><p><strong>Vehicle:</strong> ${currentVehicle}</p><p><strong>Fare:</strong> $${finalFare.toFixed(2)}</p><p><strong>Pickup:</strong> ${pickup.substring(0,30)}...</p>`;
                 showScreen('successScreen');
-                
+               
                 // Update wallet balance after booking (example: deduct fare)
                 if (currentUser) {
                     const userRef = db.collection('users').doc(currentUser.uid);
