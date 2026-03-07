@@ -553,6 +553,11 @@
         let savedPlaces = [];
         let walletListener = null;
         let userWalletRef = null;
+      
+        // State Persistence के लिए
+       let lastPickup = localStorage.getItem('lastPickup') || '';
+       let lastDrop = localStorage.getItem('lastDrop') || '';
+       let lastVehicle = localStorage.getItem('lastVehicle') || null;
 
         // ---------- REVERSE GEOCODING ----------
         async function reverseGeocode(lat, lng) {
