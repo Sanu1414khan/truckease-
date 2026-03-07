@@ -567,15 +567,41 @@
                 return `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
             }
         }
-
-        // ---------- ONBOARDING ----------
-        if (!localStorage.getItem('onboardingSeen')) {
-            document.getElementById('onboarding').classList.add('active');
+        
+        // ---------- ONLOAD WITH STATE RESTORATION ----------
+window.onload = function() {
+    if (!localStorage.getItem('onboardingSeen')) {
+        document.getElementById('onboarding').classList.add('active');
+    }
+    
+    // पिछली स्क्रीन रिस्टोर करो
+    const savedScreen = localStorage.getItem('lastScreen') || 'homeScreen';
+    
+    // बुकिंग स्क्रीन के लिए एड्रेस रिस्टोर करो
+    if (savedScreen === 'bookingScreen') {
+        const pickupInput = document.getElementById('pickupAddr');
+        const dropInput = document.getElementById('dropAddr');
+        if (pickupInput) pickupInput.value = localStorage.getItem('lastPickup') || '';
+        if (dropInput) dropInput.value = localStorage.getItem('lastDrop') || '';
+        
+        // व्हीकल रिस्टोर करो
+        const savedVehicle = localStorage.getItem('lastVehicle');
+        if (savedVehicle) {
+            currentVehicle = savedVehicle;
+            document.getElementById('selectedVehicleInfo').innerHTML = `🚘 ${currentVehicle}`;
+            document.getElementById('addressStep').style.display = 'block';
+            document.getElementById('mapStep').style.display = 'none';
         }
-        window.closeOnboarding = function() {
-            document.getElementById('onboarding').classList.remove('active');
-            localStorage.setItem('onboardingSeen', 'true');
-        };
+    }
+    
+    // स्क्रीन दिखाओ
+    showScreen(savedScreen);
+    
+    // यूजर रिस्टोर करो
+    if (currentUser) {
+        document.getElementById('userIcon').innerHTML = `<i class="fas fa-user-check"></i>`;
+    }
+};
 
         // ---------- DEMO LOGIN ----------
         window.showLoginModal = function() {
