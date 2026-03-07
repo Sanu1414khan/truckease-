@@ -916,6 +916,18 @@ window.confirmAddress = async function() {
             } catch(e) { document.getElementById('historyList').innerHTML = `<p style="color:#ff4444;">Error loading trips: ${e.message}</p>`; }
         };
 
+        window.logout = function() {
+    currentUser = null;
+    localStorage.removeItem('truckUser');
+    localStorage.removeItem('lastScreen');
+    localStorage.removeItem('lastPickup');
+    localStorage.removeItem('lastDrop');
+    localStorage.removeItem('lastVehicle');
+    document.getElementById('userIcon').innerHTML = `<i class="fas fa-user"></i>`;
+    if (userWalletRef) userWalletRef();
+    showScreen('homeScreen');
+};
+
         // ---------- ADDRESS AUTOCOMPLETE ----------
         let suggestionTimeout;
         async function fetchSuggestions(query, type) {
