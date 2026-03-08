@@ -263,6 +263,107 @@
         .onboarding-card { background: rgba(0,243,255,0.1); padding: 30px; border-radius: 40px; border: 1px solid #00f3ff; max-width: 300px; }
         .onboarding-card h2 { color: #00f3ff; margin-bottom: 20px; }
         .onboarding-card p { color: #ccc; margin-bottom: 20px; }
+         /* Full Screen Search Overlay */
+.full-screen-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(10, 12, 20, 0.98);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    z-index: 2000;
+    flex-direction: column;
+    padding: 20px;
+}
+
+.full-screen-overlay.active {
+    display: flex;
+}
+
+.overlay-header {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    padding: 10px 0 20px;
+    border-bottom: 1px solid rgba(0, 243, 255, 0.2);
+    margin-bottom: 30px;
+}
+
+.overlay-header h3 {
+    color: #00f3ff;
+    font-size: 24px;
+    font-weight: 600;
+}
+
+.overlay-content {
+    flex: 1;
+}
+
+.search-input-group {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    background: rgba(255, 255, 255, 0.08);  /* Light Grey/Dim effect */
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 40px;
+    padding: 8px 20px;
+    margin-bottom: 20px;
+    transition: all 0.2s ease;
+}
+
+.search-input-group:focus-within {
+    border-color: #00f3ff;
+    box-shadow: 0 0 15px rgba(0, 243, 255, 0.3);
+    background: rgba(255, 255, 255, 0.12);
+}
+
+.search-input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    color: #fff;
+    font-size: 16px;
+    padding: 15px 0;
+}
+
+.search-input::placeholder {
+    color: #aaa;  /* Light grey placeholder */
+    font-weight: 400;
+}
+
+.search-input:focus {
+    outline: none;
+}
+
+.recent-searches {
+    margin-top: 30px;
+}
+
+.recent-searches h4 {
+    color: #aaa;
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 15px;
+}
+
+.recent-item {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 30px;
+    padding: 15px 20px;
+    margin-bottom: 10px;
+    cursor: pointer;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    transition: 0.2s;
+}
+
+.recent-item:hover {
+    border-color: #00f3ff;
+    background: rgba(0, 243, 255, 0.05);
+    }
     </style>
 </head>
 <body>
@@ -291,6 +392,38 @@
         </div>
     </div>
 
+    <!-- NEW FULL SCREEN SEARCH OVERLAY -->
+<div id="fullScreenSearch" class="full-screen-overlay">
+    <div class="overlay-header">
+        <i class="fas fa-arrow-left back-btn" onclick="closeFullScreenSearch()"></i>
+        <h3>Where to?</h3>
+    </div>
+    <div class="overlay-content">
+        <div class="search-input-group">
+            <i class="fas fa-circle" style="color: #00f3ff; font-size: 12px;"></i>
+            <input type="text" id="fsPickup" class="search-input" 
+                   placeholder="Search to pickup location" 
+                   list="fsPickupSuggestions"
+                   oninput="fetchSuggestions(this.value, 'fsPickup')">
+        </div>
+        <div class="search-input-group">
+            <i class="fas fa-map-marker-alt" style="color: #ff3366; font-size: 14px;"></i>
+            <input type="text" id="fsDrop" class="search-input" 
+                   placeholder="Search to drop location"
+                   list="fsDropSuggestions"
+                   oninput="fetchSuggestions(this.value, 'fsDrop')">
+        </div>
+        
+        <!-- Recent Searches (optional) -->
+        <div class="recent-searches">
+            <h4>Recent</h4>
+            <div id="recentSearchesList"></div>
+        </div>
+    </div>
+    <datalist id="fsPickupSuggestions"></datalist>
+    <datalist id="fsDropSuggestions"></datalist>
+</div>
+    
     <!-- Header -->
     <div class="header">
         <div class="logo-area">
