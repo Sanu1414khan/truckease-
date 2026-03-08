@@ -686,6 +686,9 @@
         let savedPlaces = [];
         let walletListener = null;
         let userWalletRef = null;
+        // Full Screen Search के लिए
+        let fsPickupAddr = '';
+        let fsDropAddr = '';
       
         // State Persistence के लिए
        let lastPickup = localStorage.getItem('lastPickup') || '';
@@ -774,6 +777,39 @@
         window.goBack = () => showScreen('homeScreen');
         window.goHome = () => showScreen('homeScreen');
 
+        // ---------- GPS LOCATION WITH FULL SCREEN SEARCH ----------
+window.getCurrentLocation = function() {
+    if (!navigator.geolocation) { alert('Geolocation not supported'); return; }
+    
+    // पहले full screen overlay खोलो
+    openFullScreenSearch();
+    
+    document.getElementById('loading').classList.add('active');
+    navigator.geolocation.getCurrentPosition(async pos => {
+        const lat = pos.coords.latitude, lng = pos.coords.longitude;
+        try {
+            const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1`, { headers: { 'User-Agent': 'TruckEase-App/1.0' } });
+            const data = await res.json();
+            const address = data.display_name || `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
+            
+            // Full screen search ke pickup box mein daalo
+            const pickupInput = document.getElementById('fsPickup');
+            if (pickupInput) pickupInput.value = address;
+            fsPickupAddr = address;
+            
+            // Location placeholder update karo (optional)
+            document.getElementById('locationPlaceholder').innerText = address.length > 35 ? address.substring(0,32)+'...' : address;
+            
+        } catch(e) { 
+            document.getElementById('locationPlaceholder').innerText = '📍 Location found'; 
+        }
+        document.getElementById('loading').classList.remove('active');
+    }, err => { 
+        alert('Unable to get location: ' + err.message); 
+        document.getElementById('loading').classList.remove('active');
+    });
+};
+        
         // ---------- VEHICLE DATA ----------
         const vehicleData = {
             trucks: [
@@ -814,6 +850,94 @@
             });
         }
 
+        // ---------- FULL SCREEN SEARCH FUNCTIONS ----------
+window.openFullScreenSearch = function() {
+    document.getElementById('fullScreenSearch').classList.add('active');
+    
+    // पुराने सेव किए गए एड्रेस डाल दो (अगर हों)
+    if (fsPickupAddr) document.getElementById('fsPickup').value = fsPickupAddr;
+    if (fsDropAddr) document.getElementById('fsDrop').value = fsDropAddr;
+    
+    // Recent searches load करो (optional)
+    loadRecentSearches();
+};
+
+window.closeFullScreenSearch = function() {
+    document.getElementById('fullScreenSearch').classList.remove('active');
+};
+
+// जब यूजर दोनों एड्रेस भर दे, तो बुकिंग स्क्रीन पर जाओ
+window.confirmFullScreenAddress = function() {
+    const pickup = document.getElementById('fsPickup').value.trim();
+    const drop = document.getElementById('fsDrop').value.trim();
+    
+    if (!pickup || !drop) {
+        alert('Please enter both pickup and drop locations');
+        return;
+    }
+    
+    // Save to global variables
+    fsPickupAddr = pickup;
+    fsDropAddr = drop;
+    
+    // Transfer to booking screen inputs
+    document.getElementById('pickupAddr').value = pickup;
+    document.getElementById('dropAddr').value = drop;
+    
+    // Save to localStorage for persistence
+    localStorage.setItem('lastPickup', pickup);
+    localStorage.setItem('lastDrop', drop);
+    
+    // Close overlay and go to booking screen
+    closeFullScreenSearch();
+    showScreen('bookingScreen');
+    
+    // Optional: Auto-confirm address if vehicle already selected
+    if (currentVehicle) {
+        confirmAddress();
+    }
+};
+
+// Recent searches (optional enhancement)
+function loadRecentSearches() {
+    // You can implement this later - fetch from Firestore
+    const recentList = document.getElementById('recentSearchesList');
+    if (recentList) {
+        recentList.innerHTML = `
+            <div class="recent-item" onclick="useRecent('Home', '123 Main St, New York, NY')">
+                <i class="fas fa-home" style="color:#00f3ff; margin-right:10px;"></i>
+                <span>Home - 123 Main St</span>
+            </div>
+            <div class="recent-item" onclick="useRecent('Work', '456 Park Ave, New York, NY')">
+                <i class="fas fa-briefcase" style="color:#00f3ff; margin-right:10px;"></i>
+                <span>Work - 456 Park Ave</span>
+            </div>
+        `;
+    }
+}
+
+window.useRecent = function(name, address) {
+    document.getElementById('fsPickup').value = address;
+    // You can set this as pickup or ask user
+};
+
+// Override fetchSuggestions to work with new inputs
+const originalFetchSuggestions = fetchSuggestions;
+fetchSuggestions = function(query, type) {
+    // Call original function
+    originalFetchSuggestions(query, type);
+    
+    // Also populate new datalists for full screen
+    if (type === 'pickup' || type === 'drop') {
+        const fsType = 'fs' + type.charAt(0).toUpperCase() + type.slice(1);
+        const fsDatalist = document.getElementById(fsType + 'Suggestions');
+        const originalDatalist = document.getElementById(type + 'Suggestions');
+        if (fsDatalist && originalDatalist) {
+            fsDatalist.innerHTML = originalDatalist.innerHTML;
+        }
+    }
+};
+        
         // ---------- ADDRESS CONFIRMATION ----------
         window.confirmAddress = async function() {
             const pickup = document.getElementById('pickupAddr').value.trim();
