@@ -1386,6 +1386,18 @@ fetchSuggestions = function(query, type) {
         // ---------- INIT ----------
         loadVehicleGrid('trucks');
         window.fetchSuggestions = fetchSuggestions;
+         // Enter key on drop input confirms
+document.addEventListener('DOMContentLoaded', function() {
+    const dropInput = document.getElementById('fsDrop');
+    if (dropInput) {
+        dropInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                confirmFullScreenAddress();
+            }
+        });
+    }
+});
     </script>
 </body>
 </html>
