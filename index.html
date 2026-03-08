@@ -1391,6 +1391,44 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 });
+    
+    // नए फंक्शन (लगभग लाइन 1100 के बाद जोड़ें)
+window.openFullScreenMap = function() {
+    document.getElementById('fullScreenMap').classList.add('active');
+    // मैप इनिशियलाइज़ करो (अगर नहीं हुआ हो)
+    if (!window.map) {
+        window.map = L.map('mapContainer').setView([40.7128, -74.0060], 12);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap'
+        }).addTo(window.map);
+    } else {
+        window.map.invalidateSize();
+    }
+};
+
+window.closeFullScreenMap = function() {
+    document.getElementById('fullScreenMap').classList.remove('active');
+    // मैप को साफ करो या छोड़ दो
+};
+
+// कन्फर्म एड्रेस का नया तरीका - जब यूजर दोनों एड्रेस भर दे
+window.confirmMapAddress = function() {
+    const pickup = document.getElementById('mapPickup').value.trim();
+    const drop = document.getElementById('mapDrop').value.trim();
+    if (!pickup || !drop) {
+        alert('Please enter both pickup and drop locations');
+        return;
+    }
+    // सेव करो और अगले स्टेप पर जाओ (जैसे व्हीकल सिलेक्शन)
+    localStorage.setItem('lastPickup', pickup);
+    localStorage.setItem('lastDrop', drop);
+    // यहाँ से आप सीधे व्हीकल ग्रिड दिखा सकते हैं या होम स्क्रीन पर लौट सकते हैं
+    // फिलहाल होम स्क्रीन पर जाते हैं
+    closeFullScreenMap();
+    showScreen('homeScreen');
+    // व्हीकल ग्रिड में पिकअप/ड्रॉप दिखाने के लिए आप कुछ UI अपडेट कर सकते हैं
+    document.getElementById('locationPlaceholder').innerText = pickup.substring(0,25) + '...';
+};
     </script>
 </body>
 </html>
