@@ -393,35 +393,33 @@
     </div>
 
     <!-- NEW FULL SCREEN SEARCH OVERLAY -->
-<div id="fullScreenSearch" class="full-screen-overlay">
-    <div class="overlay-header">
-        <i class="fas fa-arrow-left back-btn" onclick="closeFullScreenSearch()"></i>
-        <h3>Where to?</h3>
-    </div>
-    <div class="overlay-content">
+      
+    <!-- FULL SCREEN MAP WITH SEARCH OVERLAY -->
+<div id="fullScreenMap" class="full-screen-map">
+    <div id="mapContainer" style="height: 100vh; width: 100%;"></div>
+    <!-- Search Overlay (पहले वाला fullScreenSearch अब इसी के अंदर आएगा) -->
+    <div id="mapSearchOverlay" class="map-search-overlay">
         <div class="search-input-group">
             <i class="fas fa-circle" style="color: #00f3ff; font-size: 12px;"></i>
-            <input type="text" id="fsPickup" class="search-input" 
+            <input type="text" id="mapPickup" class="search-input" 
                    placeholder="Search to pickup location" 
-                   list="fsPickupSuggestions"
-                   oninput="fetchSuggestions(this.value, 'fsPickup')">
+                   list="mapPickupSuggestions"
+                   oninput="fetchSuggestions(this.value, 'mapPickup')">
         </div>
         <div class="search-input-group">
             <i class="fas fa-map-marker-alt" style="color: #ff3366; font-size: 14px;"></i>
-            <input type="text" id="fsDrop" class="search-input" 
+            <input type="text" id="mapDrop" class="search-input" 
                    placeholder="Search to drop location"
-                   list="fsDropSuggestions"
-                   oninput="fetchSuggestions(this.value, 'fsDrop')">
+                   list="mapDropSuggestions"
+                   oninput="fetchSuggestions(this.value, 'mapDrop')">
         </div>
-        
-        <!-- Recent Searches (optional) -->
-        <div class="recent-searches">
-            <h4>Recent</h4>
-            <div id="recentSearchesList"></div>
-        </div>
+        <datalist id="mapPickupSuggestions"></datalist>
+        <datalist id="mapDropSuggestions"></datalist>
     </div>
-    <datalist id="fsPickupSuggestions"></datalist>
-    <datalist id="fsDropSuggestions"></datalist>
+    <!-- Optional: Back button -->
+    <div class="map-header">
+        <i class="fas fa-arrow-left back-btn" onclick="closeFullScreenMap()"></i>
+    </div>
 </div>
     
     <!-- Header -->
