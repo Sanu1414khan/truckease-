@@ -916,6 +916,23 @@ function loadRecentSearches() {
     }
 }
 
+        
+        // ---------- ADDRESS CONFIRMATION ----------
+window.confirmAddress = async function() {
+    // ... पूरा फंक्शन ...
+};
+
+function useBypassMode(pickup, drop) {
+    // ... पूरा फंक्शन ...
+}
+
+window.confirmPickupLocation = function() { 
+    alert('Pickup location confirmed!'); 
+};
+
+window.confirmDropLocation = function() { 
+    alert('Drop location confirmed!'); 
+};
 window.useRecent = function(name, address) {
     document.getElementById('fsPickup').value = address;
     // You can set this as pickup or ask user
@@ -938,104 +955,7 @@ fetchSuggestions = function(query, type) {
     }
 };
         
-        // ---------- ADDRESS CONFIRMATION ----------
-        window.confirmAddress = async function() {
-            const pickup = document.getElementById('pickupAddr').value.trim();
-            const drop = document.getElementById('dropAddr').value.trim();
-            if (!pickup || !drop) { alert('Please enter both pickup and drop addresses'); return; }
-             localStorage.setItem('lastPickup', pickup);
-            localStorage.setItem('lastDrop', drop);
-            document.getElementById('loading').classList.add('active');
-            try {
-                const pickupUrl = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(pickup)}&countrycodes=us&limit=1`;
-                const pickupRes = await fetch(pickupUrl, { headers: { 'User-Agent': 'TruckEase-App/1.0' } });
-                const pickupData = await pickupRes.json();
-                if (!pickupData || pickupData.length === 0) throw new Error('Pickup address not found');
-                const pickupCoords = { lat: parseFloat(pickupData[0].lat), lng: parseFloat(pickupData[0].lon) };
-
-                const dropUrl = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(drop)}&countrycodes=us&limit=1`;
-                const dropRes = await fetch(dropUrl, { headers: { 'User-Agent': 'TruckEase-App/1.0' } });
-                const dropData = await dropRes.json();
-                if (!dropData || dropData.length === 0) throw new Error('Drop address not found');
-                const dropCoords = { lat: parseFloat(dropData[0].lat), lng: parseFloat(dropData[0].lon) };
-
-                const osrmUrl = `https://router.project-osrm.org/route/v1/driving/${pickupCoords.lng},${pickupCoords.lat};${dropCoords.lng},${dropCoords.lat}?overview=full&geometries=geojson`;
-                const routeRes = await fetch(osrmUrl);
-                const routeData = await routeRes.json();
-                if (!routeData.routes || routeData.routes.length === 0) throw new Error('Could not calculate route');
-                const distanceMeters = routeData.routes[0].distance;
-                distanceMiles = distanceMeters * 0.000621371;
-                const routeGeometry = routeData.routes[0].geometry;
-
-                finalFare = basePrice + (distanceMiles * perKmRate);
-                if (promoDiscount > 0) { finalFare -= promoDiscount; if (finalFare < 0) finalFare = 0; }
-
-                const mapDiv = document.getElementById('map');
-                mapDiv.style.display = 'block';
-                if (map) map.remove();
-
-                const centerLat = (pickupCoords.lat + dropCoords.lat) / 2;
-                const centerLng = (pickupCoords.lng + dropCoords.lng) / 2;
-                map = L.map('map').setView([centerLat, centerLng], 12);
-                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap' }).addTo(map);
-
-                const pickupMarker = L.marker([pickupCoords.lat, pickupCoords.lng], { draggable: true, autoPan: true }).addTo(map);
-                const pickupPopupContent = `<div style="text-align:center;"><p style="font-weight:bold;">📍 Pickup</p><button class="btn btn-primary" style="padding:2px 10px; font-size:12px;" onclick="confirmPickupLocation()">✓ Select</button></div>`;
-                pickupMarker.bindPopup(pickupPopupContent).openPopup();
-                pickupMarker.on('dragend', async function(e) {
-                    const pos = e.target.getLatLng();
-                    document.getElementById('loading').classList.add('active');
-                    try {
-                        const addr = await reverseGeocode(pos.lat, pos.lng);
-                        document.getElementById('pickupAddr').value = addr;
-                        pickupCoords.lat = pos.lat; pickupCoords.lng = pos.lng;
-                        if (routingControl) map.removeControl(routingControl);
-                        routingControl = L.Routing.control({
-                            waypoints: [L.latLng(pickupCoords.lat, pickupCoords.lng), L.latLng(dropCoords.lat, dropCoords.lng)],
-                            lineOptions: { styles: [{ color: '#00f3ff', weight: 5 }] }
-                        }).addTo(map);
-                    } catch (err) { alert('Could not get address'); }
-                    finally { document.getElementById('loading').classList.remove('active'); }
-                });
-
-                const dropMarker = L.marker([dropCoords.lat, dropCoords.lng], { draggable: true, autoPan: true }).addTo(map);
-                const dropPopupContent = `<div style="text-align:center;"><p style="font-weight:bold;">🏁 Drop</p><button class="btn btn-primary" style="padding:2px 10px; font-size:12px;" onclick="confirmDropLocation()">✓ Select</button></div>`;
-                dropMarker.bindPopup(dropPopupContent).openPopup();
-                dropMarker.on('dragend', async function(e) {
-                    const pos = e.target.getLatLng();
-                    document.getElementById('loading').classList.add('active');
-                    try {
-                        const addr = await reverseGeocode(pos.lat, pos.lng);
-                        document.getElementById('dropAddr').value = addr;
-                        dropCoords.lat = pos.lat; dropCoords.lng = pos.lng;
-                        if (routingControl) map.removeControl(routingControl);
-                        routingControl = L.Routing.control({
-                            waypoints: [L.latLng(pickupCoords.lat, pickupCoords.lng), L.latLng(dropCoords.lat, dropCoords.lng)],
-                            lineOptions: { styles: [{ color: '#00f3ff', weight: 5 }] }
-                        }).addTo(map);
-                    } catch (err) { alert('Could not get address'); }
-                    finally { document.getElementById('loading').classList.remove('active'); }
-                });
-
-                if (routeGeometry && routeGeometry.coordinates) {
-                    const latLngs = routeGeometry.coordinates.map(coord => [coord[1], coord[0]]);
-                    L.polyline(latLngs, { color: '#00f3ff', weight: 5 }).addTo(map);
-                    map.fitBounds(latLngs);
-                }
-
-                document.getElementById('fareAmount').innerText = '$' + finalFare.toFixed(2);
-                document.getElementById('addressStep').style.display = 'none';
-                document.getElementById('mapStep').style.display = 'block';
-                document.getElementById('mapOverlay').style.display = 'flex';
-                setTimeout(() => { if (map) map.invalidateSize(); }, 400);
-                document.getElementById('loading').classList.remove('active');
-            } catch (error) {
-                console.error(error);
-                alert('Error: ' + error.message);
-                document.getElementById('loading').classList.remove('active');
-                useBypassMode(pickup, drop);
-            }
-        };
+        
 
         function useBypassMode(pickup, drop) {
             distanceMiles = 12.5;
