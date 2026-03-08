@@ -745,6 +745,43 @@
             }
         }
 
+
+        // ---------- GPS LOCATION WITH DIRECT MAP ----------
+window.getCurrentLocation = function() {
+    if (!navigator.geolocation) { alert('Geolocation not supported'); return; }
+    
+    // पहले फुल स्क्रीन मैप खोलो
+    openFullScreenMap();
+    
+    document.getElementById('loading').classList.add('active');
+    navigator.geolocation.getCurrentPosition(async pos => {
+        const lat = pos.coords.latitude, lng = pos.coords.longitude;
+        try {
+            const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1`, { headers: { 'User-Agent': 'TruckEase-App/1.0' } });
+            const data = await res.json();
+            const address = data.display_name || `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
+            
+            // मैप पर पिकअप लोकेशन सेट करो
+            const pickupInput = document.getElementById('mapPickup');
+            if (pickupInput) pickupInput.value = address;
+            
+            // मैप को सेंटर करो
+            if (window.map) {
+                window.map.setView([lat, lng], 14);
+                // पिकअप मार्कर डालो
+                L.marker([lat, lng]).addTo(window.map).bindPopup('Pickup').openPopup();
+            }
+            
+        } catch(e) { 
+            console.error('Reverse geocoding failed', e);
+        }
+        document.getElementById('loading').classList.remove('active');
+    }, err => { 
+        alert('Unable to get location: ' + err.message); 
+        document.getElementById('loading').classList.remove('active');
+    });
+};
+     
         // ---------- ONBOARDING ----------
         if (!localStorage.getItem('onboardingSeen')) {
             document.getElementById('onboarding').classList.add('active');
