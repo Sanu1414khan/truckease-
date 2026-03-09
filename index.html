@@ -791,32 +791,7 @@
             }
         };
 
-        // ---------- GET CURRENT LOCATION (reverse geocode) ----------
-        window.getCurrentLocation = function() {
-            if (!navigator.geolocation) { alert('Geolocation not supported'); return; }
-            document.getElementById('loading').classList.add('active');
-            navigator.geolocation.getCurrentPosition(async pos => {
-                const lat = pos.coords.latitude, lng = pos.coords.longitude;
-                try {
-                    const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1`, { headers: { 'User-Agent': 'TruckEase-App/1.0' } });
-                    const data = await res.json();
-                    const address = data.display_name || `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
-                    document.getElementById('locationPlaceholder').innerText = address.length > 35 ? address.substring(0,32)+'...' : address;
-                    // Set as pickup in full screen map if open, else store
-                    if (document.getElementById('fullScreenMap').classList.contains('active')) {
-                        document.getElementById('fsPickup').value = address;
-                    } else {
-                        fsPickup = address;
-                    }
-                } catch(e) { 
-                    document.getElementById('locationPlaceholder').innerText = '📍 Location found'; 
-                }
-                document.getElementById('loading').classList.remove('active');
-            }, err => { 
-                alert('Unable to get location: ' + err.message); 
-                document.getElementById('loading').classList.remove('active');
-            });
-        };
+
 
         // ---------- CONFIRM ADDRESS (geocode and show map with fare) ----------
         window.confirmAddress = async function() {
