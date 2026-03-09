@@ -703,6 +703,32 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
 
+// प्रीलोड मैप - जैसे ही पेज लोड हो, मैप बना लो
+document.addEventListener('DOMContentLoaded', function() {
+    // एक छुपा हुआ मैप कंटेनर बनाओ (या बैकग्राउंड में)
+    setTimeout(() => {
+        if (!map) {
+            map = L.map('mapContainer', { zoomControl: false }).setView([40.7128, -74.0060], 12);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap'
+            }).addTo(map);
+            map.zoomControl.setPosition('topright'); // जूम कंट्रोल को सही जगह रखो
+        }
+    }, 1000); // 1 सेकंड बाद लोड करो ताकि पेज रेंडरिंग पर असर न पड़े
+});
+
+// अब openFullScreenMap में बस दिखाओ और इनवैलिडेट करो
+window.openFullScreenMap = function() {
+    document.getElementById('fullScreenMap').classList.add('active');
+    if (map) {
+        map.invalidateSize(); // मैप सही साइज में रेंडर हो
+    } else {
+        // अगर किसी वजह से नहीं बना, तो अब बनाओ
+        map = L.map('mapContainer').setView([40.7128, -74.0060], 12);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+    }
+};
+
         // ---------- GLOBAL VARIABLES ----------
         let currentUser = JSON.parse(localStorage.getItem('truckUser')) || null;
         let currentVehicle = null;
