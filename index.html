@@ -9,17 +9,6 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <!-- Leaflet for map -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.css" />
-    
-    <!-- API Configuration -->
-    <script>
-        window.APP_CONFIG = {
-            GOOGLE_MAPS_API_KEY: '',
-            STRIPE_PUBLIC_KEY: '',
-            DAT_API_KEY: ''
-        };
-    </script>
-    
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
         body {
@@ -178,47 +167,39 @@
         .btn-primary:hover { background: #fff; }
         .btn-secondary { background: rgba(255,255,255,0.05); border: 1px solid rgba(0,243,255,0.3); color: #00f3ff; }
         .btn-secondary:hover { background: rgba(0,243,255,0.1); }
-        #map { 
-            height: 70vh; 
+        #bookingMap { 
+            height: 300px; 
             width: 100%; 
-            border-radius: 0; 
-            margin: 0; 
-            display: none; 
-            border: none; 
-            box-shadow: none; 
+            border-radius: 24px; 
+            margin: 20px 0; 
+            border: 1px solid #00f3ff; 
+            box-shadow: 0 0 20px rgba(0,243,255,0.2); 
         }
         
-        /* Map Overlay Search Boxes */
-        .map-overlay {
-            position: absolute;
-            top: 20px;
-            left: 20px;
-            right: 20px;
-            z-index: 1000;
+        /* Map Overlay Search Boxes (for booking screen) */
+        .booking-map-overlay {
             display: flex;
             flex-direction: column;
             gap: 10px;
-            pointer-events: none;
+            margin-bottom: 15px;
         }
-        .map-search-box {
+        .booking-map-search {
             background: rgba(20, 30, 50, 0.8);
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
             border: 1px solid rgba(0, 243, 255, 0.3);
             border-radius: 40px;
-            padding: 8px 16px;
+            padding: 12px 16px;
             color: #fff;
             font-size: 14px;
             width: 100%;
-            pointer-events: auto;
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
         }
-        .map-search-box:focus {
+        .booking-map-search:focus {
             outline: none;
             border-color: #00f3ff;
             box-shadow: 0 0 20px rgba(0, 243, 255, 0.5);
         }
-        .map-search-box::placeholder { color: #aaa; }
         
         /* History Items */
         .history-item { padding: 16px; margin-bottom: 12px; }
@@ -272,6 +253,93 @@
         .onboarding-card { background: rgba(0,243,255,0.1); padding: 30px; border-radius: 40px; border: 1px solid #00f3ff; max-width: 300px; }
         .onboarding-card h2 { color: #00f3ff; margin-bottom: 20px; }
         .onboarding-card p { color: #ccc; margin-bottom: 20px; }
+        
+        /* Full Screen Map Overlay */
+        .full-screen-map {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 2000;
+            background: #0a0c14;
+            flex-direction: column;
+        }
+        .full-screen-map.active {
+            display: flex;
+        }
+        #fullScreenMapContainer {
+            flex: 1;
+            width: 100%;
+            height: 100%;
+        }
+        .map-search-overlay {
+            position: absolute;
+            top: 80px;
+            left: 20px;
+            right: 20px;
+            z-index: 2001;
+            pointer-events: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .map-header {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            z-index: 2001;
+            pointer-events: auto;
+        }
+        .map-header .back-btn {
+            background: rgba(0,0,0,0.5);
+            border-radius: 50%;
+            padding: 10px 15px;
+            color: #00f3ff;
+            cursor: pointer;
+        }
+        .search-input-group {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 40px;
+            padding: 8px 20px;
+            transition: all 0.2s ease;
+        }
+        .search-input-group:focus-within {
+            border-color: #00f3ff;
+            box-shadow: 0 0 15px rgba(0, 243, 255, 0.3);
+            background: rgba(255, 255, 255, 0.12);
+        }
+        .search-input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: #fff;
+            font-size: 16px;
+            padding: 15px 0;
+        }
+        .search-input::placeholder {
+            color: #aaa;
+        }
+        .search-input:focus {
+            outline: none;
+        }
+        .confirm-map-btn {
+            background: #00f3ff;
+            color: #0a0c14;
+            border: none;
+            border-radius: 40px;
+            padding: 16px;
+            font-weight: 700;
+            font-size: 18px;
+            cursor: pointer;
+            margin-top: 10px;
+            box-shadow: 0 0 30px #00f3ff;
+        }
     </style>
 </head>
 <body>
@@ -300,11 +368,30 @@
         </div>
     </div>
 
+    <!-- FULL SCREEN MAP WITH SEARCH -->
+    <div id="fullScreenMap" class="full-screen-map">
+        <div id="fullScreenMapContainer"></div>
+        <div class="map-search-overlay">
+            <div class="search-input-group">
+                <i class="fas fa-circle" style="color: #00f3ff; font-size: 12px;"></i>
+                <input type="text" id="fsPickup" class="search-input" placeholder="Pickup location" autocomplete="off">
+            </div>
+            <div class="search-input-group">
+                <i class="fas fa-map-marker-alt" style="color: #ff3366; font-size: 14px;"></i>
+                <input type="text" id="fsDrop" class="search-input" placeholder="Drop location" autocomplete="off">
+            </div>
+            <button class="confirm-map-btn" onclick="confirmMapAddress()">Confirm Locations</button>
+        </div>
+        <div class="map-header">
+            <i class="fas fa-arrow-left back-btn" onclick="closeFullScreenMap()"></i>
+        </div>
+    </div>
+    
     <!-- Header -->
     <div class="header">
         <div class="logo-area">
             <div class="logo">TRUCKEASE</div>
-            <div class="user-icon" id="userIcon" onclick="showLoginModal()">
+            <div class="user-icon" id="userIcon" onclick="toggleLogin()">
                 <i class="fas fa-user"></i>
             </div>
         </div>
@@ -313,9 +400,9 @@
         </div>
     </div>
 
-    <!-- HOME SCREEN (CLEAN - NO QUANTUM GRID) -->
+    <!-- HOME SCREEN -->
     <div id="homeScreen" class="screen active">
-        <!-- Utility Buttons Row (Address Book, Promo, Schedule) -->
+        <!-- Utility Buttons Row -->
         <div class="utility-row">
             <div class="utility-item" onclick="showAddressBook()">
                 <i class="fas fa-map-marker-alt"></i>
@@ -331,7 +418,7 @@
             </div>
         </div>
 
-        <!-- Vehicle Grid - UBER STYLE -->
+        <!-- Vehicle Grid -->
         <h3 class="section-title" id="vehicleCategoryTitle"><i class="fas fa-truck"></i> Available Trucks</h3>
         <div class="vehicle-grid" id="vehicleGrid"></div>
     </div>
@@ -345,36 +432,31 @@
         <div class="booking-content">
             <div id="selectedVehicleInfo" style="margin-bottom:20px; font-weight:600; color:#00f3ff;"></div>
             
-            <!-- Step 1: Only Pickup & Drop Addresses -->
+            <!-- Step 1: Only Pickup & Drop Addresses (simple inputs) -->
             <div id="addressStep">
                 <div class="input-group">
                     <label>📍 Pickup</label>
-                    <input type="text" id="pickupAddr" placeholder="Enter pickup address" list="pickupSuggestions" oninput="fetchSuggestions(this.value, 'pickup')">
+                    <input type="text" id="pickupAddr" placeholder="Enter pickup address" readonly onclick="openFullScreenMap()">
                 </div>
                 <div class="input-group">
                     <label>🏁 Drop</label>
-                    <input type="text" id="dropAddr" placeholder="Enter drop address" list="dropSuggestions" oninput="fetchSuggestions(this.value, 'drop')">
+                    <input type="text" id="dropAddr" placeholder="Enter drop address" readonly onclick="openFullScreenMap()">
                 </div>
                 <button class="btn btn-primary" id="confirmAddressBtn" onclick="confirmAddress()">Confirm Address</button>
             </div>
 
-            <!-- Step 2: Map & Fare (initially hidden) -->
+            <!-- Step 2: Map & Fare (shown after address confirm) -->
             <div id="mapStep" style="display:none;">
-                <div id="map"></div>
-                <div class="map-overlay" style="display: none;" id="mapOverlay">
-                    <input type="text" class="map-search-box" id="mapPickup" placeholder="Pickup location" list="mapPickupSuggestions">
-                    <input type="text" class="map-search-box" id="mapDrop" placeholder="Drop location" list="mapDropSuggestions">
+                <div class="booking-map-overlay">
+                    <input type="text" class="booking-map-search" id="bookingPickup" placeholder="Pickup" readonly>
+                    <input type="text" class="booking-map-search" id="bookingDrop" placeholder="Drop" readonly>
                 </div>
-                <datalist id="mapPickupSuggestions"></datalist>
-                <datalist id="mapDropSuggestions"></datalist>
+                <div id="bookingMap"></div>
                 <div class="fare-box">
                     <div class="fare" id="fareAmount">$0</div>
                 </div>
                 <button class="btn btn-primary" id="confirmBookingBtn" onclick="confirmBooking()">Confirm Booking</button>
             </div>
-
-            <datalist id="pickupSuggestions"></datalist>
-            <datalist id="dropSuggestions"></datalist>
         </div>
     </div>
 
@@ -387,7 +469,7 @@
         <div class="booking-content" id="historyList"></div>
     </div>
 
-    <!-- TRACKING SCREEN (FULLY RESTORED) -->
+    <!-- TRACKING SCREEN -->
     <div id="trackingScreen" class="screen">
         <div class="booking-header">
             <i class="fas fa-arrow-left back-btn" onclick="goBack()"></i>
@@ -428,7 +510,7 @@
         </div>
     </div>
 
-    <!-- CHAT SCREEN (FULLY RESTORED) -->
+    <!-- CHAT SCREEN -->
     <div id="chatScreen" class="screen">
         <div class="booking-header">
             <i class="fas fa-arrow-left back-btn" onclick="goBack()"></i>
@@ -453,7 +535,7 @@
         </div>
     </div>
 
-    <!-- WALLET SCREEN (FULLY RESTORED) -->
+    <!-- WALLET SCREEN -->
     <div id="walletScreen" class="screen">
         <div class="booking-header">
             <i class="fas fa-arrow-left back-btn" onclick="goBack()"></i>
@@ -462,7 +544,7 @@
         <div class="wallet-card" style="margin:20px;">
             <div style="text-align:center;">
                 <i class="fas fa-wallet" style="font-size:60px; color:#00f3ff;"></i>
-                <div class="balance" id="walletBalance">$125.50</div>
+                <div class="balance" id="walletBalance">$0.00</div>
                 <button class="btn btn-primary" onclick="addMoney()">Add Money</button>
             </div>
             <h4 style="margin:25px 0 15px; color:#00f3ff;">Recent Transactions</h4>
@@ -470,7 +552,7 @@
         </div>
     </div>
 
-    <!-- ACCOUNT SCREEN (FULLY RESTORED) -->
+    <!-- ACCOUNT SCREEN -->
     <div id="accountScreen" class="screen">
         <div class="booking-header">
             <i class="fas fa-arrow-left back-btn" onclick="goBack()"></i>
@@ -484,8 +566,8 @@
             </div>
             <div style="margin-top:30px;">
                 <div class="profile-detail"><span>Member since</span><span id="memberSince">Mar 2025</span></div>
-                <div class="profile-detail"><span>Total trips</span><span id="totalTrips">3</span></div>
-                <div class="profile-detail"><span>Reward points</span><span id="rewardPoints">250</span></div>
+                <div class="profile-detail"><span>Total trips</span><span id="totalTrips">0</span></div>
+                <div class="profile-detail"><span>Reward points</span><span id="rewardPoints">0</span></div>
             </div>
             <button class="logout-btn" onclick="logout()">Logout</button>
         </div>
@@ -528,7 +610,6 @@
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <script src="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.js"></script>
 
     <script>
         // ---------- FIREBASE CONFIG ----------
@@ -548,10 +629,8 @@
         let currentVehicle = null;
         let basePrice = 0, perKmRate = 0;
         let finalFare = 0;
-        let map = null, trackingMap = null;
-        let routingControl = null;
+        let bookingMap = null, trackingMap = null, fullScreenMap = null;
         let currentBookingId = null;
-        let driverListener = null;
         let promoDiscount = 0;
         let selectedRating = 0;
         let chatListener = null;
@@ -561,20 +640,8 @@
         let routeCoordinates = [];
         let currentStep = 0;
         let savedPlaces = [];
-
-        // ---------- REVERSE GEOCODING ----------
-        async function reverseGeocode(lat, lng) {
-            try {
-                const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1`;
-                const response = await fetch(url, { headers: { 'User-Agent': 'TruckEase-App/1.0' } });
-                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-                const data = await response.json();
-                return data.display_name || `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
-            } catch (error) {
-                console.error('Reverse geocoding failed:', error);
-                return `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
-            }
-        }
+        let walletListener = null;
+        let fsPickup = '', fsDrop = ''; // stored from full screen map
 
         // ---------- ONBOARDING ----------
         if (!localStorage.getItem('onboardingSeen')) {
@@ -585,16 +652,20 @@
             localStorage.setItem('onboardingSeen', 'true');
         };
 
-        // ---------- DEMO LOGIN ----------
-        window.showLoginModal = function() {
+        // ---------- LOGIN / LOGOUT ----------
+        window.toggleLogin = function() {
             if (currentUser) {
+                // logout
                 currentUser = null;
                 localStorage.removeItem('truckUser');
                 document.getElementById('userIcon').innerHTML = `<i class="fas fa-user"></i>`;
-                return;
+                if (walletListener) walletListener(); // unsubscribe
+                showScreen('homeScreen');
+            } else {
+                document.getElementById('loginModal').classList.add('active');
             }
-            document.getElementById('loginModal').classList.add('active');
         };
+
         document.getElementById('demoLoginBtn').addEventListener('click', function() {
             const phone = document.getElementById('phoneNumber').value;
             if (!phone || phone.length !== 10) {
@@ -606,12 +677,28 @@
             document.getElementById('userIcon').innerHTML = `<i class="fas fa-user-check"></i>`;
             document.getElementById('loginModal').classList.remove('active');
             document.getElementById('loginError').innerText = '';
+            
+            // Create user wallet in Firestore if not exists
+            const userRef = db.collection('users').doc(currentUser.uid);
+            userRef.get().then(doc => {
+                if (!doc.exists) {
+                    userRef.set({
+                        name: currentUser.name,
+                        phone: currentUser.phoneNumber,
+                        walletBalance: 100.00,
+                        rewardPoints: 100,
+                        memberSince: new Date().toISOString(),
+                        totalTrips: 0
+                    });
+                }
+            });
         });
 
         // ---------- SCREEN MANAGEMENT ----------
         window.showScreen = function(screenId) {
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
             document.getElementById(screenId).classList.add('active');
+            localStorage.setItem('lastScreen', screenId);
             document.querySelectorAll('.nav-item').forEach((item, idx) => {
                 if (screenId === 'homeScreen' && idx === 0) item.classList.add('active');
                 else if (screenId === 'historyScreen' && idx === 1) item.classList.add('active');
@@ -638,152 +725,73 @@
                 { icon: '🛻', name: 'Pickup', base: 45, perKm: 0.9, eta: 5, price: '$45', promo: '15% OFF' }
             ]
         };
+
         function loadVehicleGrid(category) {
             const grid = document.getElementById('vehicleGrid');
             const title = document.getElementById('vehicleCategoryTitle');
             title.innerHTML = '<i class="fas fa-truck"></i> Available Vehicles';
             let html = '';
-            if (vehicleData[category]) {
-                vehicleData[category].forEach(v => {
-                    const promoTag = v.promo ? `<div class="promo-tag">${v.promo}</div>` : '';
-                    html += `<div class="vehicle-card" data-name="${v.name}" data-base="${v.base}" data-perkm="${v.perKm}" data-eta="${v.eta}">${promoTag}<div class="icon">${v.icon}</div><h4>${v.name}</h4><div class="price-tag">${v.price}</div><div class="eta-tag">${v.eta} min</div></div>`;
-                });
-            }
+            vehicleData[category].forEach(v => {
+                const promoTag = v.promo ? `<div class="promo-tag">${v.promo}</div>` : '';
+                html += `<div class="vehicle-card" data-name="${v.name}" data-base="${v.base}" data-perkm="${v.perKm}" data-eta="${v.eta}">${promoTag}<div class="icon">${v.icon}</div><h4>${v.name}</h4><div class="price-tag">${v.price}</div><div class="eta-tag">${v.eta} min</div></div>`;
+            });
             grid.innerHTML = html;
             document.querySelectorAll('.vehicle-card').forEach(card => {
                 card.addEventListener('click', () => {
                     currentVehicle = card.dataset.name;
                     basePrice = parseFloat(card.dataset.base);
                     perKmRate = parseFloat(card.dataset.perkm);
+                    localStorage.setItem('lastVehicle', currentVehicle);
                     document.getElementById('selectedVehicleInfo').innerHTML = `🚘 ${currentVehicle}`;
-                    document.getElementById('addressStep').style.display = 'block';
-                    document.getElementById('mapStep').style.display = 'none';
-                    document.getElementById('pickupAddr').value = '';
-                    document.getElementById('dropAddr').value = '';
-                    document.getElementById('fareAmount').innerText = '$0';
-                    showScreen('bookingScreen');
+                    // Open full screen map to enter addresses
+                    openFullScreenMap();
                 });
             });
         }
 
-        // ---------- ADDRESS CONFIRMATION ----------
-        window.confirmAddress = async function() {
-            const pickup = document.getElementById('pickupAddr').value.trim();
-            const drop = document.getElementById('dropAddr').value.trim();
-            if (!pickup || !drop) { alert('Please enter both pickup and drop addresses'); return; }
-            document.getElementById('loading').classList.add('active');
-            try {
-                const pickupUrl = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(pickup)}&countrycodes=us&limit=1`;
-                const pickupRes = await fetch(pickupUrl, { headers: { 'User-Agent': 'TruckEase-App/1.0' } });
-                const pickupData = await pickupRes.json();
-                if (!pickupData || pickupData.length === 0) throw new Error('Pickup address not found');
-                const pickupCoords = { lat: parseFloat(pickupData[0].lat), lng: parseFloat(pickupData[0].lon) };
+        // ---------- FULL SCREEN MAP FUNCTIONS ----------
+        window.openFullScreenMap = function() {
+            document.getElementById('fullScreenMap').classList.add('active');
+            if (!fullScreenMap) {
+                fullScreenMap = L.map('fullScreenMapContainer').setView([40.7128, -74.0060], 12);
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    attribution: '© OpenStreetMap'
+                }).addTo(fullScreenMap);
+            } else {
+                fullScreenMap.invalidateSize();
+            }
+            // Pre-fill if already have values
+            if (fsPickup) document.getElementById('fsPickup').value = fsPickup;
+            if (fsDrop) document.getElementById('fsDrop').value = fsDrop;
+        };
 
-                const dropUrl = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(drop)}&countrycodes=us&limit=1`;
-                const dropRes = await fetch(dropUrl, { headers: { 'User-Agent': 'TruckEase-App/1.0' } });
-                const dropData = await dropRes.json();
-                if (!dropData || dropData.length === 0) throw new Error('Drop address not found');
-                const dropCoords = { lat: parseFloat(dropData[0].lat), lng: parseFloat(dropData[0].lon) };
+        window.closeFullScreenMap = function() {
+            document.getElementById('fullScreenMap').classList.remove('active');
+        };
 
-                const osrmUrl = `https://router.project-osrm.org/route/v1/driving/${pickupCoords.lng},${pickupCoords.lat};${dropCoords.lng},${dropCoords.lat}?overview=full&geometries=geojson`;
-                const routeRes = await fetch(osrmUrl);
-                const routeData = await routeRes.json();
-                if (!routeData.routes || routeData.routes.length === 0) throw new Error('Could not calculate route');
-                const distanceMeters = routeData.routes[0].distance;
-                distanceMiles = distanceMeters * 0.000621371;
-                const routeGeometry = routeData.routes[0].geometry;
-
-                finalFare = basePrice + (distanceMiles * perKmRate);
-                if (promoDiscount > 0) { finalFare -= promoDiscount; if (finalFare < 0) finalFare = 0; }
-
-                const mapDiv = document.getElementById('map');
-                mapDiv.style.display = 'block';
-                if (map) map.remove();
-
-                const centerLat = (pickupCoords.lat + dropCoords.lat) / 2;
-                const centerLng = (pickupCoords.lng + dropCoords.lng) / 2;
-                map = L.map('map').setView([centerLat, centerLng], 12);
-                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap' }).addTo(map);
-
-                const pickupMarker = L.marker([pickupCoords.lat, pickupCoords.lng], { draggable: true, autoPan: true }).addTo(map);
-                const pickupPopupContent = `<div style="text-align:center;"><p style="font-weight:bold;">📍 Pickup</p><button class="btn btn-primary" style="padding:2px 10px; font-size:12px;" onclick="confirmPickupLocation()">✓ Select</button></div>`;
-                pickupMarker.bindPopup(pickupPopupContent).openPopup();
-                pickupMarker.on('dragend', async function(e) {
-                    const pos = e.target.getLatLng();
-                    document.getElementById('loading').classList.add('active');
-                    try {
-                        const addr = await reverseGeocode(pos.lat, pos.lng);
-                        document.getElementById('pickupAddr').value = addr;
-                        pickupCoords.lat = pos.lat; pickupCoords.lng = pos.lng;
-                        if (routingControl) map.removeControl(routingControl);
-                        routingControl = L.Routing.control({
-                            waypoints: [L.latLng(pickupCoords.lat, pickupCoords.lng), L.latLng(dropCoords.lat, dropCoords.lng)],
-                            lineOptions: { styles: [{ color: '#00f3ff', weight: 5 }] }
-                        }).addTo(map);
-                    } catch (err) { alert('Could not get address'); }
-                    finally { document.getElementById('loading').classList.remove('active'); }
-                });
-
-                const dropMarker = L.marker([dropCoords.lat, dropCoords.lng], { draggable: true, autoPan: true }).addTo(map);
-                const dropPopupContent = `<div style="text-align:center;"><p style="font-weight:bold;">🏁 Drop</p><button class="btn btn-primary" style="padding:2px 10px; font-size:12px;" onclick="confirmDropLocation()">✓ Select</button></div>`;
-                dropMarker.bindPopup(dropPopupContent).openPopup();
-                dropMarker.on('dragend', async function(e) {
-                    const pos = e.target.getLatLng();
-                    document.getElementById('loading').classList.add('active');
-                    try {
-                        const addr = await reverseGeocode(pos.lat, pos.lng);
-                        document.getElementById('dropAddr').value = addr;
-                        dropCoords.lat = pos.lat; dropCoords.lng = pos.lng;
-                        if (routingControl) map.removeControl(routingControl);
-                        routingControl = L.Routing.control({
-                            waypoints: [L.latLng(pickupCoords.lat, pickupCoords.lng), L.latLng(dropCoords.lat, dropCoords.lng)],
-                            lineOptions: { styles: [{ color: '#00f3ff', weight: 5 }] }
-                        }).addTo(map);
-                    } catch (err) { alert('Could not get address'); }
-                    finally { document.getElementById('loading').classList.remove('active'); }
-                });
-
-                if (routeGeometry && routeGeometry.coordinates) {
-                    const latLngs = routeGeometry.coordinates.map(coord => [coord[1], coord[0]]);
-                    L.polyline(latLngs, { color: '#00f3ff', weight: 5 }).addTo(map);
-                    map.fitBounds(latLngs);
-                }
-
-                document.getElementById('fareAmount').innerText = '$' + finalFare.toFixed(2);
-                document.getElementById('addressStep').style.display = 'none';
-                document.getElementById('mapStep').style.display = 'block';
-                document.getElementById('mapOverlay').style.display = 'flex';
-                setTimeout(() => { if (map) map.invalidateSize(); }, 400);
-                document.getElementById('loading').classList.remove('active');
-            } catch (error) {
-                console.error(error);
-                alert('Error: ' + error.message);
-                document.getElementById('loading').classList.remove('active');
-                useBypassMode(pickup, drop);
+        window.confirmMapAddress = function() {
+            const pickup = document.getElementById('fsPickup').value.trim();
+            const drop = document.getElementById('fsDrop').value.trim();
+            if (!pickup || !drop) {
+                alert('Please enter both pickup and drop locations');
+                return;
+            }
+            fsPickup = pickup;
+            fsDrop = drop;
+            // Transfer to booking screen
+            document.getElementById('pickupAddr').value = pickup;
+            document.getElementById('dropAddr').value = drop;
+            document.getElementById('bookingPickup').value = pickup;
+            document.getElementById('bookingDrop').value = drop;
+            closeFullScreenMap();
+            showScreen('bookingScreen');
+            // Auto-confirm address if vehicle already selected
+            if (currentVehicle) {
+                confirmAddress();
             }
         };
 
-        function useBypassMode(pickup, drop) {
-            distanceMiles = 12.5;
-            finalFare = basePrice + (distanceMiles * perKmRate);
-            const mapDiv = document.getElementById('map');
-            mapDiv.style.display = 'block';
-            if (map) map.remove();
-            map = L.map('map').setView([40.7128, -74.0060], 12);
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
-            L.marker([40.7128, -74.0060]).addTo(map).bindPopup('Pickup: ' + pickup.substring(0,30));
-            L.marker([40.7580, -73.9855]).addTo(map).bindPopup('Drop: ' + drop.substring(0,30));
-            document.getElementById('fareAmount').innerText = '$' + finalFare.toFixed(2);
-            document.getElementById('addressStep').style.display = 'none';
-            document.getElementById('mapStep').style.display = 'block';
-            document.getElementById('mapOverlay').style.display = 'flex';
-            document.getElementById('loading').classList.remove('active');
-        }
-
-        window.confirmPickupLocation = function() { alert('Pickup confirmed'); };
-        window.confirmDropLocation = function() { alert('Drop confirmed'); };
-
-        // ---------- GPS LOCATION (FIXED) ----------
+        // ---------- GET CURRENT LOCATION (reverse geocode) ----------
         window.getCurrentLocation = function() {
             if (!navigator.geolocation) { alert('Geolocation not supported'); return; }
             document.getElementById('loading').classList.add('active');
@@ -794,25 +802,125 @@
                     const data = await res.json();
                     const address = data.display_name || `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
                     document.getElementById('locationPlaceholder').innerText = address.length > 35 ? address.substring(0,32)+'...' : address;
-                    const pickupInput = document.getElementById('pickupAddr');
-                    if (pickupInput) pickupInput.value = address;
-                    showScreen('bookingScreen');
-                } catch(e) { document.getElementById('locationPlaceholder').innerText = '📍 Location found'; }
+                    // Set as pickup in full screen map if open, else store
+                    if (document.getElementById('fullScreenMap').classList.contains('active')) {
+                        document.getElementById('fsPickup').value = address;
+                    } else {
+                        fsPickup = address;
+                    }
+                } catch(e) { 
+                    document.getElementById('locationPlaceholder').innerText = '📍 Location found'; 
+                }
                 document.getElementById('loading').classList.remove('active');
-            }, err => { alert('Unable to get location: ' + err.message); document.getElementById('loading').classList.remove('active'); });
+            }, err => { 
+                alert('Unable to get location: ' + err.message); 
+                document.getElementById('loading').classList.remove('active');
+            });
         };
+
+        // ---------- CONFIRM ADDRESS (geocode and show map with fare) ----------
+        window.confirmAddress = async function() {
+            const pickup = document.getElementById('pickupAddr').value;
+            const drop = document.getElementById('dropAddr').value;
+            if (!pickup || !drop) {
+                alert('Please enter both pickup and drop locations');
+                return;
+            }
+            document.getElementById('loading').classList.add('active');
+            try {
+                // Geocode pickup
+                const pickRes = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(pickup)}&limit=1`, { headers: { 'User-Agent': 'TruckEase-App/1.0' } });
+                const pickData = await pickRes.json();
+                if (!pickData.length) throw new Error('Pickup location not found');
+                const pickCoords = [parseFloat(pickData[0].lat), parseFloat(pickData[0].lon)];
+
+                // Geocode drop
+                const dropRes = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(drop)}&limit=1`, { headers: { 'User-Agent': 'TruckEase-App/1.0' } });
+                const dropData = await dropRes.json();
+                if (!dropData.length) throw new Error('Drop location not found');
+                const dropCoords = [parseFloat(dropData[0].lat), parseFloat(dropData[0].lon)];
+
+                // Calculate distance using Haversine formula (approximate)
+                const R = 3959; // miles
+                const lat1 = pickCoords[0] * Math.PI/180;
+                const lat2 = dropCoords[0] * Math.PI/180;
+                const dLat = (dropCoords[0]-pickCoords[0]) * Math.PI/180;
+                const dLon = (dropCoords[1]-pickCoords[1]) * Math.PI/180;
+                const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+                          Math.cos(lat1) * Math.cos(lat2) *
+                          Math.sin(dLon/2) * Math.sin(dLon/2);
+                const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+                distanceMiles = R * c;
+
+                // Calculate fare
+                finalFare = basePrice + (distanceMiles * perKmRate) - promoDiscount;
+                if (finalFare < 0) finalFare = 0;
+
+                // Show map step
+                document.getElementById('addressStep').style.display = 'none';
+                document.getElementById('mapStep').style.display = 'block';
+                document.getElementById('fareAmount').innerText = '$' + finalFare.toFixed(2);
+
+                // Initialize map if not already
+                if (!bookingMap) {
+                    bookingMap = L.map('bookingMap').setView(pickCoords, 10);
+                    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(bookingMap);
+                } else {
+                    bookingMap.setView(pickCoords, 10);
+                }
+                // Clear previous layers
+                bookingMap.eachLayer(layer => { if (layer instanceof L.Marker) bookingMap.removeLayer(layer); });
+                L.marker(pickCoords).addTo(bookingMap).bindPopup('Pickup').openPopup();
+                L.marker(dropCoords).addTo(bookingMap).bindPopup('Drop');
+                // Draw line
+                L.polyline([pickCoords, dropCoords], { color: '#00f3ff' }).addTo(bookingMap);
+                
+            } catch (error) {
+                alert('Geocoding error: ' + error.message);
+                // Fallback to bypass mode with dummy coordinates
+                useBypassMode(pickup, drop);
+            }
+            document.getElementById('loading').classList.remove('active');
+        };
+
+        // Fallback function
+        function useBypassMode(pickup, drop) {
+            distanceMiles = 12.5;
+            finalFare = basePrice + (distanceMiles * perKmRate) - promoDiscount;
+            if (finalFare < 0) finalFare = 0;
+            document.getElementById('addressStep').style.display = 'none';
+            document.getElementById('mapStep').style.display = 'block';
+            document.getElementById('fareAmount').innerText = '$' + finalFare.toFixed(2);
+            if (!bookingMap) {
+                bookingMap = L.map('bookingMap').setView([40.7128, -74.0060], 10);
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(bookingMap);
+            }
+            bookingMap.eachLayer(layer => { if (layer instanceof L.Marker) bookingMap.removeLayer(layer); });
+            L.marker([40.7128, -74.0060]).addTo(bookingMap).bindPopup('Pickup: ' + pickup.substring(0,20));
+            L.marker([40.7580, -73.9855]).addTo(bookingMap).bindPopup('Drop: ' + drop.substring(0,20));
+            L.polyline([[40.7128, -74.0060], [40.7580, -73.9855]], { color: '#00f3ff' }).addTo(bookingMap);
+        }
 
         // ---------- CONFIRM BOOKING ----------
         window.confirmBooking = async function() {
-            if (!currentUser) { alert('Please login first'); showLoginModal(); return; }
+            if (!currentUser) { alert('Please login first'); toggleLogin(); return; }
             if (finalFare <= 0) { alert('Please confirm address first'); return; }
-            const pickup = document.getElementById('pickupAddr').value || 'Unknown';
-            const drop = document.getElementById('dropAddr').value || 'Unknown';
+            const pickup = document.getElementById('pickupAddr').value;
+            const drop = document.getElementById('dropAddr').value;
             const km = distanceMiles;
+            const commission = finalFare * 0.15;
+            const driverAmount = finalFare - commission;
+            
             const booking = {
-                userId: currentUser.uid, userPhone: currentUser.phoneNumber, vehicle: currentVehicle,
-                pickup, drop, km, fare: finalFare, commission: finalFare*0.15,
-                driverAmount: finalFare*0.85, currency: '$', status: 'pending',
+                userId: currentUser.uid, 
+                userPhone: currentUser.phoneNumber, 
+                vehicle: currentVehicle,
+                pickup, drop, km, 
+                fare: finalFare, 
+                commission: commission,
+                driverAmount: driverAmount, 
+                currency: '$', 
+                status: 'pending',
                 timestamp: firebase.firestore.FieldValue.serverTimestamp()
             };
             try {
@@ -822,7 +930,21 @@
                 currentBookingId = docRef.id;
                 document.getElementById('successDetails').innerHTML = `<p><strong>Booking ID:</strong> ${docRef.id.slice(0,8)}</p><p><strong>Vehicle:</strong> ${currentVehicle}</p><p><strong>Fare:</strong> $${finalFare.toFixed(2)}</p><p><strong>Pickup:</strong> ${pickup.substring(0,30)}...</p>`;
                 showScreen('successScreen');
-            } catch (e) { alert('Booking failed: ' + e.message); document.getElementById('loading').classList.remove('active'); }
+                
+                // Update wallet balance
+                if (currentUser) {
+                    const userRef = db.collection('users').doc(currentUser.uid);
+                    userRef.get().then(doc => {
+                        if (doc.exists) {
+                            let balance = doc.data().walletBalance || 0;
+                            userRef.update({ walletBalance: balance - finalFare });
+                        }
+                    });
+                }
+            } catch (e) { 
+                alert('Booking failed: ' + e.message); 
+                document.getElementById('loading').classList.remove('active');
+            }
         };
 
         // ---------- LOAD HISTORY ----------
@@ -841,27 +963,6 @@
                 document.getElementById('historyList').innerHTML = html;
             } catch(e) { document.getElementById('historyList').innerHTML = `<p style="color:#ff4444;">Error loading trips: ${e.message}</p>`; }
         };
-
-        // ---------- ADDRESS AUTOCOMPLETE ----------
-        let suggestionTimeout;
-        async function fetchSuggestions(query, type) {
-            clearTimeout(suggestionTimeout);
-            if (query.length < 3) return;
-            suggestionTimeout = setTimeout(async () => {
-                try {
-                    const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&addressdetails=1&countrycodes=us&limit=20`;
-                    const res = await fetch(url);
-                    const data = await res.json();
-                    const datalist = document.getElementById(type === 'pickup' ? 'pickupSuggestions' : 'dropSuggestions');
-                    datalist.innerHTML = '';
-                    data.forEach(item => {
-                        const option = document.createElement('option');
-                        option.value = item.display_name;
-                        datalist.appendChild(option);
-                    });
-                } catch (e) { console.error('Autocomplete error:', e); }
-            }, 300);
-        }
 
         // ---------- PROMO CODE ----------
         window.applyPromo = async function() {
@@ -883,6 +984,7 @@
             } catch(e) { console.error(e); alert('Error applying promo'); }
         };
         window.showPromo = () => document.getElementById('promoModal').classList.add('active');
+        window.scheduleRide = () => showScreen('bookingScreen');
 
         // ---------- ADDRESS BOOK ----------
         window.showAddressBook = async function() {
@@ -916,29 +1018,6 @@
             closeModal('addressBookModal');
         };
 
-        // ---------- SCHEDULING ----------
-        window.scheduleRide = () => showScreen('bookingScreen');
-
-        // ---------- REFERRAL ----------
-        window.showReferral = function() {
-            document.getElementById('referralCode').innerText = currentUser ? 'TRUCK' + currentUser.uid.slice(-4) : 'TRUCK123';
-            alert('Referral code: ' + document.getElementById('referralCode').innerText);
-        };
-        window.copyReferral = function() {
-            navigator.clipboard.writeText(document.getElementById('referralCode').innerText);
-            alert('Copied!');
-        };
-
-        // ---------- SOS ----------
-        window.sosAlert = function() {
-            if (!currentUser) { alert('Login first'); return; }
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(pos => {
-                    alert(`🚨 SOS! Your location (${pos.coords.latitude},${pos.coords.longitude}) has been sent.`);
-                }, () => { alert('SOS triggered (location unavailable)'); });
-            } else { alert('SOS triggered'); }
-        };
-
         // ---------- TRACKING SIMULATION ----------
         window.startTracking = function() {
             if (trackingInterval) { clearInterval(trackingInterval); trackingInterval = null; }
@@ -950,7 +1029,10 @@
             if (!trackingMap) {
                 trackingMap = L.map('trackingMap').setView([pickupCoords.lat, pickupCoords.lng], 13);
                 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(trackingMap);
-            } else { trackingMap.setView([pickupCoords.lat, pickupCoords.lng], 13); }
+            } else { 
+                trackingMap.setView([pickupCoords.lat, pickupCoords.lng], 13);
+                trackingMap.eachLayer(layer => { if (layer instanceof L.Marker) trackingMap.removeLayer(layer); });
+            }
             L.marker([pickupCoords.lat, pickupCoords.lng]).addTo(trackingMap).bindPopup('Pickup').openPopup();
             L.marker([dropCoords.lat, dropCoords.lng]).addTo(trackingMap).bindPopup('Drop').openPopup();
             driverMarker = L.marker([pickupCoords.lat + 0.01, pickupCoords.lng + 0.01]).addTo(trackingMap).bindPopup('Driver').openPopup();
@@ -980,6 +1062,14 @@
         };
 
         // ---------- RATING ----------
+        function resetRatingStars() {
+            document.querySelectorAll('#ratingStars i').forEach(star => {
+                star.classList.remove('fas', 'selected');
+                star.classList.add('far');
+            });
+            selectedRating = 0;
+        }
+
         document.querySelectorAll('#ratingStars i').forEach(star => {
             star.addEventListener('mouseenter', function() {
                 const rating = this.dataset.rating;
@@ -988,11 +1078,20 @@
                     else { s.classList.remove('fas'); s.classList.add('far'); }
                 });
             });
+            star.addEventListener('mouseleave', function() {
+                resetRatingStars();
+                if (selectedRating > 0) {
+                    document.querySelectorAll('#ratingStars i').forEach((s, idx) => {
+                        if (idx < selectedRating) s.classList.add('selected', 'fas');
+                        else s.classList.add('far');
+                    });
+                }
+            });
             star.addEventListener('click', function() {
                 selectedRating = this.dataset.rating;
                 document.querySelectorAll('#ratingStars i').forEach((s, idx) => {
-                    if (idx < selectedRating) s.classList.add('selected');
-                    else s.classList.remove('selected');
+                    if (idx < selectedRating) { s.classList.add('selected', 'fas'); s.classList.remove('far'); }
+                    else { s.classList.remove('selected', 'fas'); s.classList.add('far'); }
                 });
             });
         });
@@ -1003,6 +1102,7 @@
                 await db.collection('reviews').add({ bookingId: currentBookingId, userId: currentUser.uid, rating: selectedRating, comment: review, timestamp: firebase.firestore.FieldValue.serverTimestamp() });
                 alert('Thank you for your review!');
                 document.getElementById('ratingSection').style.display = 'none';
+                resetRatingStars();
             } catch(e) { console.error(e); alert('Error submitting review'); }
         };
 
@@ -1033,33 +1133,49 @@
         // ---------- WALLET ----------
         window.addMoney = function() { alert('Add money feature coming soon!'); };
         function loadWalletData() {
-            document.getElementById('walletBalance').innerText = '$125.50';
-            const transactions = [
-                { date: '2025-03-01', desc: 'Trip #TKE1234', amount: 45.20 },
-                { date: '2025-02-28', desc: 'Trip #TKE5678', amount: 32.50 },
-                { date: '2025-02-27', desc: 'Added funds', amount: 100.00 }
-            ];
-            let html = '';
-            transactions.forEach(t => {
-                html += `<div class="transaction-item"><span>${t.desc}<br><small>${t.date}</small></span><span>$${t.amount.toFixed(2)}</span></div>`;
+            if (!currentUser) { 
+                document.getElementById('walletBalance').innerText = '$0.00';
+                document.getElementById('transactionList').innerHTML = '<p>Please login to view wallet</p>';
+                return;
+            }
+            if (walletListener) walletListener();
+            walletListener = db.collection('users').doc(currentUser.uid).onSnapshot(doc => {
+                if (doc.exists) {
+                    const data = doc.data();
+                    document.getElementById('walletBalance').innerText = '$' + (data.walletBalance || 0).toFixed(2);
+                    db.collection('users').doc(currentUser.uid).collection('transactions').orderBy('timestamp', 'desc').limit(10).get()
+                        .then(snapshot => {
+                            let html = '';
+                            snapshot.forEach(tx => {
+                                const t = tx.data();
+                                html += `<div class="transaction-item"><span>${t.desc}<br><small>${t.timestamp ? new Date(t.timestamp.toDate()).toLocaleDateString() : ''}</small></span><span>$${t.amount.toFixed(2)}</span></div>`;
+                            });
+                            document.getElementById('transactionList').innerHTML = html || '<p>No transactions yet</p>';
+                        });
+                }
             });
-            document.getElementById('transactionList').innerHTML = html;
         }
 
         // ---------- ACCOUNT ----------
         function loadAccountData() {
             if (currentUser) {
-                document.getElementById('accountName').innerText = currentUser.name || 'Demo User';
-                document.getElementById('accountPhone').innerText = currentUser.phoneNumber || '+1 2125551234';
-                document.getElementById('memberSince').innerText = 'Mar 2025';
-                document.getElementById('totalTrips').innerText = '3';
-                document.getElementById('rewardPoints').innerText = '250';
+                db.collection('users').doc(currentUser.uid).get().then(doc => {
+                    if (doc.exists) {
+                        const data = doc.data();
+                        document.getElementById('accountName').innerText = data.name || currentUser.name;
+                        document.getElementById('accountPhone').innerText = data.phone || currentUser.phoneNumber;
+                        document.getElementById('memberSince').innerText = data.memberSince ? new Date(data.memberSince).toLocaleDateString('en-US', { month: 'short', year: 'numeric' }) : 'Mar 2025';
+                        document.getElementById('totalTrips').innerText = data.totalTrips || 0;
+                        document.getElementById('rewardPoints').innerText = data.rewardPoints || 0;
+                    }
+                });
             }
         }
         window.logout = function() {
             currentUser = null;
             localStorage.removeItem('truckUser');
             document.getElementById('userIcon').innerHTML = `<i class="fas fa-user"></i>`;
+            if (walletListener) walletListener();
             showScreen('homeScreen');
         };
 
@@ -1068,7 +1184,17 @@
 
         // ---------- INIT ----------
         loadVehicleGrid('trucks');
-        window.fetchSuggestions = fetchSuggestions;
+        if (currentUser) {
+            document.getElementById('userIcon').innerHTML = `<i class="fas fa-user-check"></i>`;
+        }
+
+        // Enter key on drop input in full screen map
+        document.getElementById('fsDrop')?.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                confirmMapAddress();
+            }
+        });
     </script>
 </body>
 </html>
