@@ -945,15 +945,11 @@ window.getCurrentLocation = function() {
                     document.getElementById('pickupAddr').value = '';
                     document.getElementById('dropAddr').value = '';
                     document.getElementById('fareAmount').innerText = '$0';
-                    920:    document.getElementById('dropAddr').value = '';
-921:    document.getElementById('fareAmount').innerText = '$0';
-922:    openFullScreenSearch(); // <--- आपने यहाँ यह नया कोड लिख दिया
-923:    });
-924:  });
-            
-                });
-            });
-        }
+                    document.getElementById('dropAddr').value = '';
+        document.getElementById('fareAmount').innerText = '$0';
+          openFullScreenSearch(); // <--- आपने यहाँ यह नया कोड लिख दिया
+       });
+    }
 
         // ---------- FULL SCREEN SEARCH FUNCTIONS ----------
 window.openFullScreenSearch = function() {
