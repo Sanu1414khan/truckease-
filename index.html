@@ -781,7 +781,8 @@ window.getCurrentLocation = function() {
         document.getElementById('loading').classList.remove('active');
     });
 };
-     
+
+        
         // ---------- ONBOARDING ----------
         if (!localStorage.getItem('onboardingSeen')) {
             document.getElementById('onboarding').classList.add('active');
@@ -918,7 +919,12 @@ window.getCurrentLocation = function() {
                     document.getElementById('pickupAddr').value = '';
                     document.getElementById('dropAddr').value = '';
                     document.getElementById('fareAmount').innerText = '$0';
-                    showScreen('bookingScreen');
+                    920:    document.getElementById('dropAddr').value = '';
+921:    document.getElementById('fareAmount').innerText = '$0';
+922:    openFullScreenSearch(); // <--- आपने यहाँ यह नया कोड लिख दिया
+923:    });
+924:  });
+            
                 });
             });
         }
