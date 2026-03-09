@@ -436,11 +436,11 @@
             <div id="addressStep">
                 <div class="input-group">
                     <label>📍 Pickup</label>
-                    <input type="text" id="pickupAddr" placeholder="Enter pickup address" readonly onclick="openFullScreenMap()">
+                    <input type="text" id="pickupAddr" placeholder="Enter pickup address" readonly>
                 </div>
                 <div class="input-group">
                     <label>🏁 Drop</label>
-                    <input type="text" id="dropAddr" placeholder="Enter drop address" readonly onclick="openFullScreenMap()">
+                    <input type="text" id="dropAddr" placeholder="Enter drop address" readonly>
                 </div>
                 <button class="btn btn-primary" id="confirmAddressBtn" onclick="confirmAddress()">Confirm Address</button>
             </div>
@@ -743,8 +743,8 @@
                     perKmRate = parseFloat(card.dataset.perkm);
                     localStorage.setItem('lastVehicle', currentVehicle);
                     document.getElementById('selectedVehicleInfo').innerHTML = `🚘 ${currentVehicle}`;
-                    // Open full screen map to enter addresses
-                    openFullScreenMap();
+                    // इसे हटाकर सिर्फ showScreen('bookingScreen') रखें:
+                   showScreen('bookingScreen');
                 });
             });
         }
