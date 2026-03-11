@@ -275,35 +275,38 @@
             height: 100%;
         }
 
-        /* Map Search Overlay - और ऊपर */
-.map-search-overlay {
-    position: absolute;
-    top: 60px;  /* और ऊपर किया */
-    left: 20px;
-    right: 20px;
-    z-index: 2001;
-    pointer-events: auto;
-    display: flex;
-    flex-direction: column;
-    gap: 8px;  /* gap कम किया */
-}
+                /* Map Search Overlay - और भी ऊपर (Super High) */
+        .map-search-overlay {
+            position: absolute;
+            top: 25px; /* 🎯 इसे 40px से और घटाकर 25px किया, ताकि बॉक्स एकदम ऊपर चले जाएँ */
+            left: 20px;
+            right: 20px;
+            z-index: 2001;
+            pointer-events: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
 
-/* बॉक्स - और पतला, हल्का transparent */
-.search-input-group {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    background: rgba(15, 20, 25, 0.4);  /* हल्का transparent - फोटो जैसा */
-    border: 1px solid rgba(0, 243, 255, 0.25);
-    border-radius: 40px;
-    padding: 4px 16px;  /* padding कम - पतला */
-    transition: all 0.2s ease;
-    height: 48px;  /* height कम - पतला */
-    backdrop-filter: blur(6px);
-    -webkit-backdrop-filter: blur(6px);
-    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-    width: 100%;
-}
+        /* सर्च बॉक्स - साफ़ Transparent (No Blur) */
+        .search-input-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(15, 20, 25, 0.45); /* हल्का पारदर्शी */
+            border: 1px solid rgba(0, 243, 255, 0.25);
+            border-radius: 40px;
+            padding: 4px 16px;
+            transition: all 0.2s ease;
+            height: 46px; /* 🎯 ऊंचाई को 2px और कम किया ताकि और स्लिम दिखें */
+            
+            /* 🎯 Blur पूरी तरह हटा दिया गया है */
+            backdrop-filter: none;
+            -webkit-backdrop-filter: none;
+            
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            width: 100%;
+        }
 
 .search-input-group:focus-within {
     border-color: #00f3ff;
