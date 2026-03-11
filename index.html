@@ -749,21 +749,23 @@
         }
 
         // ---------- FULL SCREEN MAP FUNCTIONS ----------
-        window.openFullScreenMap = function() {
-            document.getElementById('fullScreenMap').classList.add('active');
-            if (!fullScreenMap) {
-                fullScreenMap = L.map('fullScreenMapContainer').setView([40.7128, -74.0060], 12);
-                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                    attribution: '© OpenStreetMap'
-                }).addTo(fullScreenMap);
-            } else {
-                fullScreenMap.invalidateSize();
-            }
-            // Pre-fill if already have values
-            if (fsPickup) document.getElementById('fsPickup').value = fsPickup;
-            if (fsDrop) document.getElementById('fsDrop').value = fsDrop;
-        };
-
+window.openFullScreenMap = function() {
+    document.getElementById('fullScreenMap').classList.add('active');
+    if (!fullScreenMap) {
+        fullScreenMap = L.map('fullScreenMapContainer', {
+            zoomControl: false  // यह लाइन जोड़ें - Plus/Minus हट जाएगा
+        }).setView([40.7128, -74.0060], 12);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap'
+        }).addTo(fullScreenMap);
+    } else {
+        fullScreenMap.invalidateSize();
+    }
+    // Pre-fill if already have values
+    if (fsPickup) document.getElementById('fsPickup').value = fsPickup;
+    if (fsDrop) document.getElementById('fsDrop').value = fsDrop;
+};
+        
         window.closeFullScreenMap = function() {
             document.getElementById('fullScreenMap').classList.remove('active');
         };
