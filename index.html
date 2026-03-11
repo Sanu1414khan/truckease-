@@ -328,35 +328,34 @@
     font-weight: 300;
     font-size: 14px;
 }
+
+                /* --- बैक एरो स्टाइल (Cosmic Look) --- */
+        .map-back-arrow {
+            position: fixed;
+            bottom: 30px; /* आपके लाल गोले वाली सही ऊंचाई */
+            left: 20px;
+            width: 50px;
+            height: 50px;
+            background: rgba(15, 20, 25, 0.45); 
+            border: 1px solid rgba(0, 243, 255, 0.25);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #00f3ff;
+            font-size: 20px;
+            cursor: pointer;
+            z-index: 2002;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            transition: all 0.3s ease;
+        }
+
+        .map-back-arrow:active {
+            transform: scale(0.9);
+            background: rgba(0, 243, 255, 0.2);
+        }
+        
     </style>
-
-    /* नीचे बाएँ कोने में बैक एरो - Cosmic Look */
-.map-back-arrow {
-    position: fixed;
-    bottom: 30px; /* आपके लाल गोले वाली सही ऊंचाई */
-    left: 20px;   /* बाएँ कोने में */
-    width: 50px;
-    height: 50px;
-    background: rgba(15, 20, 25, 0.45); /* बॉक्स जैसा पारदर्शी */
-    border: 1px solid rgba(0, 243, 255, 0.25);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #00f3ff;
-    font-size: 20px;
-    cursor: pointer;
-    z-index: 2002;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-    transition: all 0.3s ease;
-}
-
-/* बटन पर टच करने पर हल्का सा दबेगा */
-.map-back-arrow:active {
-    transform: scale(0.9);
-    background: rgba(0, 243, 255, 0.2);
-}
-
 </head>
 <body>
     <!-- Onboarding Overlay -->
