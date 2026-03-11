@@ -329,6 +329,34 @@
     font-size: 14px;
 }
     </style>
+
+    /* नीचे बाएँ कोने में बैक एरो - Cosmic Look */
+.map-back-arrow {
+    position: fixed;
+    bottom: 30px; /* आपके लाल गोले वाली सही ऊंचाई */
+    left: 20px;   /* बाएँ कोने में */
+    width: 50px;
+    height: 50px;
+    background: rgba(15, 20, 25, 0.45); /* बॉक्स जैसा पारदर्शी */
+    border: 1px solid rgba(0, 243, 255, 0.25);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #00f3ff;
+    font-size: 20px;
+    cursor: pointer;
+    z-index: 2002;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+    transition: all 0.3s ease;
+}
+
+/* बटन पर टच करने पर हल्का सा दबेगा */
+.map-back-arrow:active {
+    transform: scale(0.9);
+    background: rgba(0, 243, 255, 0.2);
+}
+
 </head>
 <body>
     <!-- Onboarding Overlay -->
@@ -357,20 +385,25 @@
     </div>
 
     <!-- FULL SCREEN MAP WITH SEARCH -->
-    <div id="fullScreenMap" class="full-screen-map">
-        <div id="fullScreenMapContainer"></div>
-        <div class="map-search-overlay">
-            <div class="search-input-group">
-                <i class="fas fa-circle" style="color: #00f3ff; font-size: 12px;"></i>
-                <input type="text" id="fsPickup" class="search-input" placeholder="Pickup location" autocomplete="off">
+            <div id="fullScreenMap" class="full-screen-map">
+            <div id="fullScreenMapContainer"></div>
+            
+            <div class="map-search-overlay">
+                <div class="search-input-group">
+                    <i class="fas fa-circle" style="color: #00f3ff; font-size: 10px;"></i>
+                    <input type="text" id="fsPickup" class="search-input" placeholder="Pickup location">
+                </div>
+                <div class="search-input-group">
+                    <i class="fas fa-map-marker-alt" style="color: #ff3366; font-size: 12px;"></i>
+                    <input type="text" id="fsDrop" class="search-input" placeholder="Drop location">
+                </div>
             </div>
-            <div class="search-input-group">
-                <i class="fas fa-map-marker-alt" style="color: #ff3366; font-size: 14px;"></i>
-                <input type="text" id="fsDrop" class="search-input" placeholder="Drop location" autocomplete="off">
+
+            <div class="map-back-arrow" onclick="closeFullScreenMap()">
+                <i class="fas fa-arrow-left"></i>
             </div>
-                </div>  <!-- यह search-input-group का closing tag है -->
-    </div>  <!-- यह map-search-overlay का closing tag है -->
-</div>  <!-- यह full-screen-map का closing tag है - यही गायब था! -->
+        </div>
+
 
     <!-- Header -->
     <div class="header">
