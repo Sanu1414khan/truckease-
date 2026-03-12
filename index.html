@@ -768,15 +768,28 @@
         }
 
         // ---------- FULL SCREEN MAP FUNCTIONS ----------
-window.openFullScreenMap = function() {
+           window.openFullScreenMap = function() {
     document.getElementById('fullScreenMap').classList.add('active');
     if (!fullScreenMap) {
         fullScreenMap = L.map('fullScreenMapContainer', {
-            zoomControl: false  // यह लाइन जोड़ें - Plus/Minus हट जाएगा
-        }).setView([40.7128, -74.0060], 12);
+            zoomControl: false
+        }).setView([28.6139, 77.2090], 2); // जूम लेवल 2 से पूरी दुनिया दिखेगी
+        
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '© OpenStreetMap'
         }).addTo(fullScreenMap);
+        
+        // Try to get user's current location
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+                function(position) {
+                    fullScreenMap.setView([position.coords.latitude, position.coords.longitude], 12);
+                },
+                function(error) {
+                    console.log("Location access denied, showing world view");
+                }
+            );
+        }
     } else {
         fullScreenMap.invalidateSize();
     }
