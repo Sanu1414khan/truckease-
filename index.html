@@ -985,8 +985,16 @@ window.handleSearchKey = function(event, inputId) {
         }
 
         window.closeFullScreenMap = function() {
-            document.getElementById('fullScreenMap').classList.remove('active');
-        };
+    document.getElementById('fullScreenMap').classList.remove('active');
+    // सभी बटन और मार्कर रीसेट करें
+    removeAllButtons();
+    if (pickupMarker) {
+        if (pickupMarker.dragging) {
+            pickupMarker.dragging.disable();
+        }
+        pickupMarker = null;
+    }
+};
 
         window.confirmMapAddress = function() {
             const pickup = document.getElementById('fsPickup').value.trim();
