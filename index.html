@@ -817,47 +817,60 @@ let confirmLocationBtn = null;   // "Confirm Location" बटन
     if (fsDrop) document.getElementById('fsDrop').value = fsDrop;
 };
 
-        // ---------- GLOBAL SEARCH FUNCTION ----------
+        // ---------- PICKUP SEARCH FUNCTION WITH 3-STEP CONTROL ----------
 window.searchLocation = async function(inputId) {
+    // सिर्फ pickup के लिए काम करेगा
+    if (inputId !== 'fsPickup') return;
+    
     const query = document.getElementById(inputId).value.trim();
     if (!query) return;
     
     document.getElementById('loading').classList.add('active');
     
     try {
+        // भारतीय एड्रेस को प्राथमिकता
+        const searchQuery = query.includes(',') ? query : query + ', India';
+        
         const response = await fetch(
-            `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=1`,
+            `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(searchQuery)}&limit=5&countrycodes=in`,
             { headers: { 'User-Agent': 'TruckEase-App/1.0' } }
         );
         const data = await response.json();
         
         if (data.length > 0) {
-            const lat = parseFloat(data[0].lat);
-            const lon = parseFloat(data[0].lon);
-            const displayName = data[0].display_name;
+            const bestResult = data[0];
+            const lat = parseFloat(bestResult.lat);
+            const lon = parseFloat(bestResult.lon);
+            const displayName = bestResult.display_name;
             
             if (fullScreenMap) {
                 fullScreenMap.flyTo([lat, lon], 15, { duration: 2 });
                 
-                // पुराने मार्कर हटाएँ
-                fullScreenMap.eachLayer(layer => {
-                    if (layer instanceof L.Marker) {
-                        fullScreenMap.removeLayer(layer);
-                    }
+                // पुराने मार्कर और बटन हटाएँ
+                if (pickupMarker) fullScreenMap.removeLayer(pickupMarker);
+                removeAllButtons();
+                
+                // नया मार्कर बनाएँ (नॉन-ड्रैगेबल)
+                pickupMarker = L.marker([lat, lon], {
+                    draggable: false
+                }).addTo(fullScreenMap);
+                
+                pickupMarker.bindPopup(`📍 ${displayName.substring(0, 50)}...`).openPopup();
+                
+                // मार्कर पर क्लिक करने पर "Move to Pin" बटन दिखाएँ
+                pickupMarker.on('click', function() {
+                    removeAllButtons(); // पहले के बटन हटाएँ
+                    showMoveToPinButton();
                 });
                 
-                // नियॉन मार्कर लगाएँ
-                const marker = L.marker([lat, lon]).addTo(fullScreenMap);
-                marker.bindPopup(`📍 ${displayName.substring(0, 50)}...`).openPopup();
+                // मैप पर कहीं और क्लिक करने पर बटन हटाएँ
+                fullScreenMap.on('click', function() {
+                    removeAllButtons();
+                });
                 
                 // वैल्यू स्टोर करें
-                if (inputId === 'fsPickup') {
-                    fsPickup = displayName;
-                    document.getElementById('fsPickup').value = displayName;
-                } else if (inputId === 'fsDrop') {
-                    fsDrop = displayName;
-                    document.getElementById('fsDrop').value = displayName;
-                }
+                fsPickup = displayName;
+                document.getElementById('fsPickup').value = displayName;
             }
         } else {
             alert('Location not found. Please try again.');
