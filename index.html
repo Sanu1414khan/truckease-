@@ -275,10 +275,10 @@
             height: 100%;
         }
 
-        /* Map Search Overlay - और भी ऊपर (Super High) */
+                /* Map Search Overlay - और भी ऊपर (Super High) */
         .map-search-overlay {
             position: absolute;
-            top: 25px;
+            top: 25px; /* 🎯 इसे 40px से और घटाकर 25px किया, ताकि बॉक्स एकदम ऊपर चले जाएँ */
             left: 20px;
             right: 20px;
             z-index: 2001;
@@ -293,47 +293,50 @@
             display: flex;
             align-items: center;
             gap: 10px;
-            background: rgba(15, 20, 25, 0.45);
+            background: rgba(15, 20, 25, 0.45); /* हल्का पारदर्शी */
             border: 1px solid rgba(0, 243, 255, 0.25);
             border-radius: 40px;
             padding: 4px 16px;
             transition: all 0.2s ease;
-            height: 46px;
+            height: 46px; /* 🎯 ऊंचाई को 2px और कम किया ताकि और स्लिम दिखें */
+            
+            /* 🎯 Blur पूरी तरह हटा दिया गया है */
             backdrop-filter: none;
             -webkit-backdrop-filter: none;
+            
             box-shadow: 0 4px 15px rgba(0,0,0,0.3);
             width: 100%;
         }
 
-        .search-input-group:focus-within {
-            border-color: #00f3ff;
-            box-shadow: 0 0 20px rgba(0, 243, 255, 0.4);
-            background: rgba(20, 25, 30, 0.5);
-        }
+.search-input-group:focus-within {
+    border-color: #00f3ff;
+    box-shadow: 0 0 20px rgba(0, 243, 255, 0.4);
+    background: rgba(20, 25, 30, 0.5);
+}
 
-        .search-input {
-            flex: 1;
-            background: transparent;
-            border: none;
-            color: #fff;
-            font-size: 15px;
-            padding: 8px 0;
-        }
+.search-input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    color: #fff;
+    font-size: 15px;
+    padding: 8px 0;  /* padding कम */
+}
 
-        .search-input::placeholder {
-            color: #ccc;
-            font-weight: 300;
-            font-size: 14px;
-        }
+.search-input::placeholder {
+    color: #ccc;
+    font-weight: 300;
+    font-size: 14px;
+}
 
-        /* --- बैक एरो स्टाइल (Cosmic Look) --- */
+                /* --- बैक एरो स्टाइल (Cosmic Look) --- */
         .map-back-arrow {
             position: fixed;
-            bottom: 30px;
+            bottom: 30px; /* आपके लाल गोले वाली सही ऊंचाई */
             left: 20px;
             width: 50px;
             height: 50px;
-            background: rgba(15, 20, 25, 0.45);
+            background: rgba(15, 20, 25, 0.45); 
             border: 1px solid rgba(0, 243, 255, 0.25);
             border-radius: 50%;
             display: flex;
@@ -353,34 +356,14 @@
         }
        
         .search-icon {
-            font-size: 14px;
-            transition: 0.2s;
-        }
-        .search-icon:hover {
-            opacity: 0.8;
-            transform: scale(1.1);
-        }
+    font-size: 14px;
+    transition: 0.2s;
+}
+.search-icon:hover {
+    opacity: 0.8;
+    transform: scale(1.1);
+}
         
-        /* बटन के लिए CSS - सिर्फ टेक्स्ट, कोई आइकन नहीं */
-        .custom-btn {
-            background: rgba(15, 20, 25, 0.9) !important;
-            border: 1px solid #00f3ff !important;
-            border-radius: 40px !important;
-            padding: 12px 24px !important;
-            color: #fff !important;
-            font-weight: 600 !important;
-            cursor: pointer !important;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.5) !important;
-            margin: 10px auto !important;
-            width: fit-content !important;
-            text-align: center !important;
-            font-size: 16px !important;
-            letter-spacing: 0.5px !important;
-        }
-        .custom-btn:hover {
-            background: rgba(25, 30, 35, 0.95) !important;
-            box-shadow: 0 0 20px rgba(0, 243, 255, 0.4) !important;
-        }
     </style>
 </head>
 <body>
@@ -409,23 +392,31 @@
         </div>
     </div>
 
-    <!-- FULL SCREEN MAP WITH SEARCH - सिर्फ Pickup बॉक्स -->
-    <div id="fullScreenMap" class="full-screen-map">
-        <div id="fullScreenMapContainer"></div>
-        
-        <div class="map-search-overlay">
-            <div class="search-input-group">
-                <i class="fas fa-circle" style="color: #00f3ff; font-size: 10px;"></i>
-                <input type="text" id="fsPickup" class="search-input" placeholder="Pickup location" onkeypress="handleSearchKey(event, 'fsPickup')">
-                <i class="fas fa-search search-icon" onclick="searchLocation('fsPickup')" style="color: #00f3ff; cursor: pointer;"></i>
+    <!-- FULL SCREEN MAP WITH SEARCH -->
+            <div id="fullScreenMap" class="full-screen-map">
+            <div id="fullScreenMapContainer"></div>
+            
+      <div class="map-search-overlay">
+    <div class="search-input-group">
+        <i class="fas fa-circle" style="color: #00f3ff; font-size: 10px;"></i>
+        <input type="text" id="fsPickup" class="search-input" placeholder="Pickup location" onkeypress="handleSearchKey(event, 'fsPickup')">
+        <i class="fas fa-search search-icon" onclick="searchLocation('fsPickup')" style="color: #00f3ff; cursor: pointer;"></i>
+    </div>
+    <div class="search-input-group">
+        <i class="fas fa-map-marker-alt" style="color: #ff3366; font-size: 12px;"></i>
+        <input type="text" id="fsDrop" class="search-input" placeholder="Drop location" onkeypress="handleSearchKey(event, 'fsDrop')">
+        <i class="fas fa-search search-icon" onclick="searchLocation('fsDrop')" style="color: #ff3366; cursor: pointer;"></i>
+    </div>
+</div>
+
+
             </div>
-            <!-- Drop location बॉक्स पूरी तरह हटा दिया गया है -->
+                
+            <div class="map-back-arrow" onclick="closeFullScreenMap()">
+                <i class="fas fa-arrow-left"></i>
+            </div>
         </div>
 
-        <div class="map-back-arrow" onclick="closeFullScreenMap()">
-            <i class="fas fa-arrow-left"></i>
-        </div>
-    </div>
 
     <!-- Header -->
     <div class="header">
@@ -435,7 +426,8 @@
                 <i class="fas fa-user"></i>
             </div>
         </div>
-        <div class="location-bar" id="currentLocText" onclick="openFullScreenMap()">
+<!-- इसे हटाकर यह नया कोड लगाएं -->
+<div class="location-bar" id="currentLocText" onclick="openFullScreenMap()">
             <i class="fas fa-map-marker-alt"></i> Where to? <span id="locationPlaceholder"></span>
         </div>
     </div>
@@ -681,12 +673,8 @@
         let currentStep = 0;
         let savedPlaces = [];
         let walletListener = null;
-        let fsPickup = ''; // सिर्फ pickup के लिए (fsDrop हटा दिया)
-        let moveToPinBtn = null;      // "Move to Pin" बटन
-        let selectLocationBtn = null; // "Select Location" बटन
-        let confirmLocationBtn = null;// "Confirm Location" बटन
-        let isDraggingEnabled = false;// ड्रैगिंग ऑन/ऑफ
-        let pickupMarker = null;      // pickup marker
+        let fsPickup = '', fsDrop = ''; // stored from full screen map
+        
 
         // ---------- ONBOARDING ----------
         if (!localStorage.getItem('onboardingSeen')) {
@@ -700,10 +688,11 @@
         // ---------- LOGIN / LOGOUT ----------
         window.toggleLogin = function() {
             if (currentUser) {
+                // logout
                 currentUser = null;
                 localStorage.removeItem('truckUser');
                 document.getElementById('userIcon').innerHTML = `<i class="fas fa-user"></i>`;
-                if (walletListener) walletListener();
+                if (walletListener) walletListener(); // unsubscribe
                 showScreen('homeScreen');
             } else {
                 document.getElementById('loginModal').classList.add('active');
@@ -722,6 +711,7 @@
             document.getElementById('loginModal').classList.remove('active');
             document.getElementById('loginError').innerText = '';
             
+            // Create user wallet in Firestore if not exists
             const userRef = db.collection('users').doc(currentUser.uid);
             userRef.get().then(doc => {
                 if (!doc.exists) {
@@ -786,259 +776,131 @@
                     perKmRate = parseFloat(card.dataset.perkm);
                     localStorage.setItem('lastVehicle', currentVehicle);
                     document.getElementById('selectedVehicleInfo').innerHTML = `🚘 ${currentVehicle}`;
-                    showScreen('bookingScreen');
+                    // इसे हटाकर सिर्फ showScreen('bookingScreen') रखें:
+                   showScreen('bookingScreen');
                 });
             });
         }
 
         // ---------- FULL SCREEN MAP FUNCTIONS ----------
-        window.openFullScreenMap = function() {
-            document.getElementById('fullScreenMap').classList.add('active');
-            if (!fullScreenMap) {
-                fullScreenMap = L.map('fullScreenMapContainer', {
-                    zoomControl: false
-                }).setView([28.6139, 77.2090], 2);
-                
-                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                    attribution: '© OpenStreetMap'
-                }).addTo(fullScreenMap);
-                
-                if (navigator.geolocation) {
-                    navigator.geolocation.getCurrentPosition(
-                        function(position) {
-                            fullScreenMap.setView([position.coords.latitude, position.coords.longitude], 12);
-                        },
-                        function(error) {
-                            console.log("Location access denied, showing world view");
-                        }
-                    );
+           window.openFullScreenMap = function() {
+    document.getElementById('fullScreenMap').classList.add('active');
+    if (!fullScreenMap) {
+        fullScreenMap = L.map('fullScreenMapContainer', {
+            zoomControl: false
+        }).setView([28.6139, 77.2090], 2); // जूम लेवल 2 से पूरी दुनिया दिखेगी
+        
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap'
+        }).addTo(fullScreenMap);
+        
+        // Try to get user's current location
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+                function(position) {
+                    fullScreenMap.setView([position.coords.latitude, position.coords.longitude], 12);
+                },
+                function(error) {
+                    console.log("Location access denied, showing world view");
                 }
-                
-                // मैप पर कहीं और क्लिक करने पर बटन हटाएँ
-                fullScreenMap.on('click', function() {
-                    removeAllButtons();
-                    if (pickupMarker && pickupMarker.dragging) {
-                        pickupMarker.dragging.disable();
-                    }
-                    isDraggingEnabled = false;
-                });
-            } else {
-                fullScreenMap.invalidateSize();
-            }
-            if (fsPickup) document.getElementById('fsPickup').value = fsPickup;
-        };
+            );
+        }
+    } else {
+        fullScreenMap.invalidateSize();
+    }
+    // Pre-fill if already have values
+    if (fsPickup) document.getElementById('fsPickup').value = fsPickup;
+    if (fsDrop) document.getElementById('fsDrop').value = fsDrop;
+};
 
+        // ---------- GLOBAL SEARCH FUNCTION ----------
+window.searchLocation = async function(inputId) {
+    const query = document.getElementById(inputId).value.trim();
+    if (!query) return;
+    
+    document.getElementById('loading').classList.add('active');
+    
+    try {
+        const response = await fetch(
+            `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=1`,
+            { headers: { 'User-Agent': 'TruckEase-App/1.0' } }
+        );
+        const data = await response.json();
+        
+        if (data.length > 0) {
+            const lat = parseFloat(data[0].lat);
+            const lon = parseFloat(data[0].lon);
+            const displayName = data[0].display_name;
+            
+            if (fullScreenMap) {
+                fullScreenMap.flyTo([lat, lon], 15, { duration: 2 });
+                
+                // पुराने मार्कर हटाएँ
+                fullScreenMap.eachLayer(layer => {
+                    if (layer instanceof L.Marker) {
+                        fullScreenMap.removeLayer(layer);
+                    }
+                });
+                
+                // नियॉन मार्कर लगाएँ
+                const marker = L.marker([lat, lon]).addTo(fullScreenMap);
+                marker.bindPopup(`📍 ${displayName.substring(0, 50)}...`).openPopup();
+                
+                // वैल्यू स्टोर करें
+                if (inputId === 'fsPickup') {
+                    fsPickup = displayName;
+                    document.getElementById('fsPickup').value = displayName;
+                } else if (inputId === 'fsDrop') {
+                    fsDrop = displayName;
+                    document.getElementById('fsDrop').value = displayName;
+                }
+            }
+        } else {
+            alert('Location not found. Please try again.');
+        }
+    } catch (error) {
+        console.error('Search error:', error);
+        alert('Error searching location. Please try again.');
+    } finally {
+        document.getElementById('loading').classList.remove('active');
+    }
+};
+
+// ---------- HANDLE ENTER KEY IN SEARCH ----------
+window.handleSearchKey = function(event, inputId) {
+    if (event.key === 'Enter') {
+        event.preventDefault();
+        searchLocation(inputId);
+    }
+};
+        
         window.closeFullScreenMap = function() {
             document.getElementById('fullScreenMap').classList.remove('active');
-            removeAllButtons();
-            if (pickupMarker) {
-                if (pickupMarker.dragging) {
-                    pickupMarker.dragging.disable();
-                }
-                pickupMarker = null;
-            }
-            isDraggingEnabled = false;
         };
 
-        // ---------- BUTTON FUNCTIONS (NO ICONS, ONLY TEXT) ----------
-        function showMoveToPinButton(lat, lon) {
-            moveToPinBtn = L.control({ position: 'bottomcenter' });
-            
-            moveToPinBtn.onAdd = function(map) {
-                this.div = L.DomUtil.create('div', 'custom-btn');
-                this.div.innerHTML = 'Move to Pin';
-                
-                this.div.onclick = function() {
-                    if (pickupMarker) {
-                        // मार्कर को ड्रैगेबल बनाएँ
-                        if (pickupMarker.dragging) {
-                            pickupMarker.dragging.enable();
-                        }
-                        isDraggingEnabled = true;
-                        
-                        // "Move to Pin" बटन हटाएँ
-                        if (moveToPinBtn) {
-                            moveToPinBtn.remove();
-                            moveToPinBtn = null;
-                        }
-                        
-                        // "Select Location" बटन दिखाएँ
-                        showSelectLocationButton();
-                    }
-                };
-                
-                return this.div;
-            };
-            
-            moveToPinBtn.addTo(fullScreenMap);
-        }
-        
-        function showSelectLocationButton() {
-            selectLocationBtn = L.control({ position: 'bottomcenter' });
-            
-            selectLocationBtn.onAdd = function(map) {
-                this.div = L.DomUtil.create('div', 'custom-btn');
-                this.div.innerHTML = 'Select Location';
-                
-                this.div.onclick = function() {
-                    if (selectLocationBtn) {
-                        selectLocationBtn.remove();
-                        selectLocationBtn = null;
-                    }
-                    
-                    showConfirmLocationButton();
-                };
-                
-                return this.div;
-            };
-            
-            selectLocationBtn.addTo(fullScreenMap);
-        }
-        
-        function showConfirmLocationButton() {
-            confirmLocationBtn = L.control({ position: 'bottomcenter' });
-            
-            confirmLocationBtn.onAdd = function(map) {
-                this.div = L.DomUtil.create('div', 'custom-btn');
-                this.div.innerHTML = 'Confirm Location';
-                
-                this.div.onclick = async function() {
-                    if (pickupMarker) {
-                        const position = pickupMarker.getLatLng();
-                        
-                        document.getElementById('loading').classList.add('active');
-                        
-                        try {
-                            const reverseResponse = await fetch(
-                                `https://nominatim.openstreetmap.org/reverse?format=json&lat=${position.lat}&lon=${position.lng}&zoom=18&addressdetails=1`,
-                                { headers: { 'User-Agent': 'TruckEase-App/1.0' } }
-                            );
-                            const reverseData = await reverseResponse.json();
-                            
-                            let newAddress = reverseData.display_name || `${position.lat.toFixed(6)}, ${position.lng.toFixed(6)}`;
-                            
-                            fsPickup = newAddress;
-                            document.getElementById('fsPickup').value = newAddress;
-                            
-                            pickupMarker.bindPopup(`📍 ${newAddress.substring(0, 50)}...`).openPopup();
-                            
-                            if (pickupMarker.dragging) {
-                                pickupMarker.dragging.disable();
-                            }
-                            isDraggingEnabled = false;
-                            
-                            if (confirmLocationBtn) {
-                                confirmLocationBtn.remove();
-                                confirmLocationBtn = null;
-                            }
-                            
-                        } catch (error) {
-                            console.error('Reverse geocoding error:', error);
-                            const fallbackAddress = `${position.lat.toFixed(6)}, ${position.lng.toFixed(6)}`;
-                            fsPickup = fallbackAddress;
-                            document.getElementById('fsPickup').value = fallbackAddress;
-                            pickupMarker.bindPopup(`📍 ${fallbackAddress}`).openPopup();
-                            
-                            if (pickupMarker.dragging) {
-                                pickupMarker.dragging.disable();
-                            }
-                            isDraggingEnabled = false;
-                            
-                            if (confirmLocationBtn) {
-                                confirmLocationBtn.remove();
-                                confirmLocationBtn = null;
-                            }
-                        } finally {
-                            document.getElementById('loading').classList.remove('active');
-                        }
-                    }
-                };
-                
-                return this.div;
-            };
-            
-            confirmLocationBtn.addTo(fullScreenMap);
-        }
-        
-        function removeAllButtons() {
-            if (moveToPinBtn) {
-                moveToPinBtn.remove();
-                moveToPinBtn = null;
+        window.confirmMapAddress = function() {
+            const pickup = document.getElementById('fsPickup').value.trim();
+            const drop = document.getElementById('fsDrop').value.trim();
+            if (!pickup || !drop) {
+                alert('Please enter both pickup and drop locations');
+                return;
             }
-            if (selectLocationBtn) {
-                selectLocationBtn.remove();
-                selectLocationBtn = null;
-            }
-            if (confirmLocationBtn) {
-                confirmLocationBtn.remove();
-                confirmLocationBtn = null;
-            }
-        }
-
-        // ---------- PICKUP SEARCH FUNCTION WITH 3-STEP CONTROL ----------
-        window.searchLocation = async function(inputId) {
-            const query = document.getElementById(inputId).value.trim();
-            if (!query) return;
-            
-            document.getElementById('loading').classList.add('active');
-            
-            try {
-                const searchQuery = query.includes(',') ? query : query + ', India';
-                
-                const response = await fetch(
-                    `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(searchQuery)}&limit=5&countrycodes=in`,
-                    { headers: { 'User-Agent': 'TruckEase-App/1.0' } }
-                );
-                const data = await response.json();
-                
-                if (data.length > 0) {
-                    const bestResult = data[0];
-                    const lat = parseFloat(bestResult.lat);
-                    const lon = parseFloat(bestResult.lon);
-                    const displayName = bestResult.display_name;
-                    
-                    if (fullScreenMap) {
-                        fullScreenMap.flyTo([lat, lon], 15, { duration: 2 });
-                        
-                        // पुराने मार्कर और बटन हटाएँ
-                        if (pickupMarker) fullScreenMap.removeLayer(pickupMarker);
-                        removeAllButtons();
-                        
-                        // नया मार्कर बनाएँ (नॉन-ड्रैगेबल)
-                        pickupMarker = L.marker([lat, lon], {
-                            draggable: false
-                        }).addTo(fullScreenMap);
-                        
-                        pickupMarker.bindPopup(`📍 ${displayName.substring(0, 50)}...`).openPopup();
-                        
-                        // मार्कर पर क्लिक करने पर "Move to Pin" बटन दिखाएँ
-                        pickupMarker.on('click', function() {
-                            removeAllButtons();
-                            showMoveToPinButton(lat, lon);
-                        });
-                        
-                        // वैल्यू स्टोर करें
-                        fsPickup = displayName;
-                        document.getElementById('fsPickup').value = displayName;
-                    }
-                } else {
-                    alert('Location not found. Please try again.');
-                }
-            } catch (error) {
-                console.error('Search error:', error);
-                alert('Error searching location. Please try again.');
-            } finally {
-                document.getElementById('loading').classList.remove('active');
+            fsPickup = pickup;
+            fsDrop = drop;
+            // Transfer to booking screen
+            document.getElementById('pickupAddr').value = pickup;
+            document.getElementById('dropAddr').value = drop;
+            document.getElementById('bookingPickup').value = pickup;
+            document.getElementById('bookingDrop').value = drop;
+            closeFullScreenMap();
+            showScreen('bookingScreen');
+            // Auto-confirm address if vehicle already selected
+            if (currentVehicle) {
+                confirmAddress();
             }
         };
 
-        // ---------- HANDLE ENTER KEY IN SEARCH ----------
-        window.handleSearchKey = function(event, inputId) {
-            if (event.key === 'Enter') {
-                event.preventDefault();
-                searchLocation(inputId);
-            }
-        };
+
 
         // ---------- CONFIRM ADDRESS (geocode and show map with fare) ----------
         window.confirmAddress = async function() {
@@ -1050,17 +912,20 @@
             }
             document.getElementById('loading').classList.add('active');
             try {
+                // Geocode pickup
                 const pickRes = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(pickup)}&limit=1`, { headers: { 'User-Agent': 'TruckEase-App/1.0' } });
                 const pickData = await pickRes.json();
                 if (!pickData.length) throw new Error('Pickup location not found');
                 const pickCoords = [parseFloat(pickData[0].lat), parseFloat(pickData[0].lon)];
 
+                // Geocode drop
                 const dropRes = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(drop)}&limit=1`, { headers: { 'User-Agent': 'TruckEase-App/1.0' } });
                 const dropData = await dropRes.json();
                 if (!dropData.length) throw new Error('Drop location not found');
                 const dropCoords = [parseFloat(dropData[0].lat), parseFloat(dropData[0].lon)];
 
-                const R = 3959;
+                // Calculate distance using Haversine formula (approximate)
+                const R = 3959; // miles
                 const lat1 = pickCoords[0] * Math.PI/180;
                 const lat2 = dropCoords[0] * Math.PI/180;
                 const dLat = (dropCoords[0]-pickCoords[0]) * Math.PI/180;
@@ -1071,31 +936,38 @@
                 const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
                 distanceMiles = R * c;
 
+                // Calculate fare
                 finalFare = basePrice + (distanceMiles * perKmRate) - promoDiscount;
                 if (finalFare < 0) finalFare = 0;
 
+                // Show map step
                 document.getElementById('addressStep').style.display = 'none';
                 document.getElementById('mapStep').style.display = 'block';
                 document.getElementById('fareAmount').innerText = '$' + finalFare.toFixed(2);
 
+                // Initialize map if not already
                 if (!bookingMap) {
                     bookingMap = L.map('bookingMap').setView(pickCoords, 10);
                     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(bookingMap);
                 } else {
                     bookingMap.setView(pickCoords, 10);
                 }
+                // Clear previous layers
                 bookingMap.eachLayer(layer => { if (layer instanceof L.Marker) bookingMap.removeLayer(layer); });
                 L.marker(pickCoords).addTo(bookingMap).bindPopup('Pickup').openPopup();
                 L.marker(dropCoords).addTo(bookingMap).bindPopup('Drop');
+                // Draw line
                 L.polyline([pickCoords, dropCoords], { color: '#00f3ff' }).addTo(bookingMap);
                 
             } catch (error) {
                 alert('Geocoding error: ' + error.message);
+                // Fallback to bypass mode with dummy coordinates
                 useBypassMode(pickup, drop);
             }
             document.getElementById('loading').classList.remove('active');
         };
 
+        // Fallback function
         function useBypassMode(pickup, drop) {
             distanceMiles = 12.5;
             finalFare = basePrice + (distanceMiles * perKmRate) - promoDiscount;
@@ -1143,6 +1015,7 @@
                 document.getElementById('successDetails').innerHTML = `<p><strong>Booking ID:</strong> ${docRef.id.slice(0,8)}</p><p><strong>Vehicle:</strong> ${currentVehicle}</p><p><strong>Fare:</strong> $${finalFare.toFixed(2)}</p><p><strong>Pickup:</strong> ${pickup.substring(0,30)}...</p>`;
                 showScreen('successScreen');
                 
+                // Update wallet balance
                 if (currentUser) {
                     const userRef = db.collection('users').doc(currentUser.uid);
                     userRef.get().then(doc => {
@@ -1398,6 +1271,14 @@
         if (currentUser) {
             document.getElementById('userIcon').innerHTML = `<i class="fas fa-user-check"></i>`;
         }
+
+        // Enter key on drop input in full screen map
+        document.getElementById('fsDrop')?.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                confirmMapAddress();
+            }
+        });
     </script>
 </body>
 </html>
