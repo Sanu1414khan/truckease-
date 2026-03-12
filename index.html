@@ -387,17 +387,22 @@
             <div id="fullScreenMap" class="full-screen-map">
             <div id="fullScreenMapContainer"></div>
             
-            <div class="map-search-overlay">
-                <div class="search-input-group">
-                    <i class="fas fa-circle" style="color: #00f3ff; font-size: 10px;"></i>
-                    <input type="text" id="fsPickup" class="search-input" placeholder="Pickup location">
-                </div>
-                <div class="search-input-group">
-                    <i class="fas fa-map-marker-alt" style="color: #ff3366; font-size: 12px;"></i>
-                    <input type="text" id="fsDrop" class="search-input" placeholder="Drop location">
-                </div>
-            </div>
+      <div class="map-search-overlay">
+    <div class="search-input-group">
+        <i class="fas fa-circle" style="color: #00f3ff; font-size: 10px;"></i>
+        <input type="text" id="fsPickup" class="search-input" placeholder="Pickup location" onkeypress="handleSearchKey(event, 'fsPickup')">
+        <i class="fas fa-search search-icon" onclick="searchLocation('fsPickup')" style="color: #00f3ff; cursor: pointer;"></i>
+    </div>
+    <div class="search-input-group">
+        <i class="fas fa-map-marker-alt" style="color: #ff3366; font-size: 12px;"></i>
+        <input type="text" id="fsDrop" class="search-input" placeholder="Drop location" onkeypress="handleSearchKey(event, 'fsDrop')">
+        <i class="fas fa-search search-icon" onclick="searchLocation('fsDrop')" style="color: #ff3366; cursor: pointer;"></i>
+    </div>
+</div>
 
+
+            </div>
+                
             <div class="map-back-arrow" onclick="closeFullScreenMap()">
                 <i class="fas fa-arrow-left"></i>
             </div>
