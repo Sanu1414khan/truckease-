@@ -802,6 +802,67 @@
     if (fsPickup) document.getElementById('fsPickup').value = fsPickup;
     if (fsDrop) document.getElementById('fsDrop').value = fsDrop;
 };
+
+        // ---------- GLOBAL SEARCH FUNCTION ----------
+window.searchLocation = async function(inputId) {
+    const query = document.getElementById(inputId).value.trim();
+    if (!query) return;
+    
+    document.getElementById('loading').classList.add('active');
+    
+    try {
+        const response = await fetch(
+            `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=1`,
+            { headers: { 'User-Agent': 'TruckEase-App/1.0' } }
+        );
+        const data = await response.json();
+        
+        if (data.length > 0) {
+            const lat = parseFloat(data[0].lat);
+            const lon = parseFloat(data[0].lon);
+            const displayName = data[0].display_name;
+            
+            if (fullScreenMap) {
+                fullScreenMap.flyTo([lat, lon], 15, { duration: 2 });
+                
+                // पुराने मार्कर हटाएँ
+                fullScreenMap.eachLayer(layer => {
+                    if (layer instanceof L.Marker) {
+                        fullScreenMap.removeLayer(layer);
+                    }
+                });
+                
+                // नियॉन मार्कर लगाएँ
+                const marker = L.marker([lat, lon]).addTo(fullScreenMap);
+                marker.bindPopup(`📍 ${displayName.substring(0, 50)}...`).openPopup();
+                
+                // वैल्यू स्टोर करें
+                if (inputId === 'fsPickup') {
+                    fsPickup = displayName;
+                    document.getElementById('fsPickup').value = displayName;
+                } else if (inputId === 'fsDrop') {
+                    fsDrop = displayName;
+                    document.getElementById('fsDrop').value = displayName;
+                }
+            }
+        } else {
+            alert('Location not found. Please try again.');
+        }
+    } catch (error) {
+        console.error('Search error:', error);
+        alert('Error searching location. Please try again.');
+    } finally {
+        document.getElementById('loading').classList.remove('active');
+    }
+};
+
+// ---------- HANDLE ENTER KEY IN SEARCH ----------
+window.handleSearchKey = function(event, inputId) {
+    if (event.key === 'Enter') {
+        event.preventDefault();
+        searchLocation(inputId);
+    }
+};
         
         window.closeFullScreenMap = function() {
             document.getElementById('fullScreenMap').classList.remove('active');
