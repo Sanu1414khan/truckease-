@@ -674,6 +674,10 @@
         let savedPlaces = [];
         let walletListener = null;
         let fsPickup = '', fsDrop = ''; // stored from full screen map
+        let moveToPinBtn = null;      // "Move to Pin" बटन
+        let selectLocationBtn = null; // "Select Location" बटन
+        let confirmLocationBtn = null;// "Confirm Location" बटन
+        let isDraggingEnabled = false;// ड्रैगिंग ऑन/ऑफ
 
         // ---------- ONBOARDING ----------
         if (!localStorage.getItem('onboardingSeen')) {
