@@ -890,7 +890,100 @@ window.handleSearchKey = function(event, inputId) {
         searchLocation(inputId);
     }
 };
-        
+
+
+                // ---------- BUTTON FUNCTIONS (Line 893 से यहाँ पेस्ट करें) ----------
+        function showMoveToPinButton() {
+            moveToPinBtn = L.control({ position: 'bottomcenter' });
+            moveToPinBtn.onAdd = function(map) {
+                this.div = L.DomUtil.create('div', 'custom-btn');
+                this.div.innerHTML = '<span style="font-family: Inter, sans-serif; font-weight: 600;">Move to Pin</span>';
+                this.div.style.background = 'rgba(15, 20, 25, 0.9)';
+                this.div.style.border = '1px solid #00f3ff';
+                this.div.style.borderRadius = '40px';
+                this.div.style.padding = '12px 24px';
+                this.div.style.color = '#fff';
+                this.div.style.cursor = 'pointer';
+                this.div.style.zIndex = '2003';
+                this.div.onclick = function() {
+                    if (pickupMarker) {
+                        if (pickupMarker.dragging) { pickupMarker.dragging.enable(); }
+                        if (moveToPinBtn) { moveToPinBtn.remove(); moveToPinBtn = null; }
+                        showSelectLocationButton();
+                    }
+                };
+                return this.div;
+            };
+            moveToPinBtn.addTo(fullScreenMap);
+        }
+
+        function showSelectLocationButton() {
+            selectLocationBtn = L.control({ position: 'bottomcenter' });
+            selectLocationBtn.onAdd = function(map) {
+                this.div = L.DomUtil.create('div', 'custom-btn');
+                this.div.innerHTML = '<span style="font-family: Inter, sans-serif; font-weight: 600;">Select Location</span>';
+                this.div.style.background = 'rgba(15, 20, 25, 0.9)';
+                this.div.style.border = '1px solid #00f3ff';
+                this.div.style.borderRadius = '40px';
+                this.div.style.padding = '12px 24px';
+                this.div.style.color = '#fff';
+                this.div.style.cursor = 'pointer';
+                this.div.style.zIndex = '2003';
+                this.div.onclick = function() {
+                    if (selectLocationBtn) { selectLocationBtn.remove(); selectLocationBtn = null; }
+                    showConfirmLocationButton();
+                };
+                return this.div;
+            };
+            selectLocationBtn.addTo(fullScreenMap);
+        }
+
+        function showConfirmLocationButton() {
+            confirmLocationBtn = L.control({ position: 'bottomcenter' });
+            confirmLocationBtn.onAdd = function(map) {
+                this.div = L.DomUtil.create('div', 'custom-btn');
+                this.div.innerHTML = '<span style="font-family: Inter, sans-serif; font-weight: 600;">Confirm Location</span>';
+                this.div.style.background = 'rgba(15, 20, 25, 0.9)';
+                this.div.style.border = '1px solid #00f3ff';
+                this.div.style.borderRadius = '40px';
+                this.div.style.padding = '12px 24px';
+                this.div.style.color = '#fff';
+                this.div.style.cursor = 'pointer';
+                this.div.style.zIndex = '2003';
+                this.div.onclick = async function() {
+                    if (pickupMarker) {
+                        const position = pickupMarker.getLatLng();
+                        document.getElementById('loading').classList.add('active');
+                        try {
+                            const reverseResponse = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${position.lat}&lon=${position.lng}&zoom=18`);
+                            const reverseData = await reverseResponse.json();
+                            let newAddress = reverseData.display_name || "Selected Location";
+                            
+                            fsPickup = newAddress;
+                            document.getElementById('fsPickup').value = newAddress;
+                            pickupMarker.bindPopup(`📍 ${newAddress.substring(0, 50)}...`).openPopup();
+                            
+                            if (pickupMarker.dragging) { pickupMarker.dragging.disable(); }
+
+                            // ✅ सानू भाई, यहाँ ड्रॉप बॉक्स का लॉक खुलेगा
+                            document.getElementById('fsDrop').readOnly = false;
+                            document.getElementById('fsDrop').style.opacity = '1';
+
+                            if (confirmLocationBtn) { confirmLocationBtn.remove(); confirmLocationBtn = null; }
+                        } finally { document.getElementById('loading').classList.remove('active'); }
+                    }
+                };
+                return this.div;
+            };
+            confirmLocationBtn.addTo(fullScreenMap);
+        }
+
+        function removeAllButtons() {
+            if (moveToPinBtn) { moveToPinBtn.remove(); moveToPinBtn = null; }
+            if (selectLocationBtn) { selectLocationBtn.remove(); selectLocationBtn = null; }
+            if (confirmLocationBtn) { confirmLocationBtn.remove(); confirmLocationBtn = null; }
+        }
+
         window.closeFullScreenMap = function() {
             document.getElementById('fullScreenMap').classList.remove('active');
         };
