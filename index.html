@@ -988,38 +988,13 @@ window.handleSearchKey = function(event, inputId) {
     document.getElementById('fullScreenMap').classList.remove('active');
     // सभी बटन और मार्कर रीसेट करें
     removeAllButtons();
-    if (pickupMarker) {
+    
         if (pickupMarker.dragging) {
             pickupMarker.dragging.disable();
         }
-        pickupMarker = null;
-    }
 };
 
-        window.confirmMapAddress = function() {
-            const pickup = document.getElementById('fsPickup').value.trim();
-            const drop = document.getElementById('fsDrop').value.trim();
-            if (!pickup || !drop) {
-                alert('Please enter both pickup and drop locations');
-                return;
-            }
-            fsPickup = pickup;
-            fsDrop = drop;
-            // Transfer to booking screen
-            document.getElementById('pickupAddr').value = pickup;
-            document.getElementById('dropAddr').value = drop;
-            document.getElementById('bookingPickup').value = pickup;
-            document.getElementById('bookingDrop').value = drop;
-            closeFullScreenMap();
-            showScreen('bookingScreen');
-            // Auto-confirm address if vehicle already selected
-            if (currentVehicle) {
-                confirmAddress();
-            }
-        };
-
-
-
+            
         // ---------- CONFIRM ADDRESS (geocode and show map with fare) ----------
         window.confirmAddress = async function() {
             const pickup = document.getElementById('pickupAddr').value;
@@ -1390,13 +1365,7 @@ window.handleSearchKey = function(event, inputId) {
             document.getElementById('userIcon').innerHTML = `<i class="fas fa-user-check"></i>`;
         }
 
-        // Enter key on drop input in full screen map
-        document.getElementById('fsDrop')?.addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                e.preventDefault();
-                confirmMapAddress();
-            }
-        });
+    
     </script>
 </body>
 </html>
