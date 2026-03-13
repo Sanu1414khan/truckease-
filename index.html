@@ -1248,8 +1248,7 @@ window.openFullScreenMap=function(){
 
   if(!_map){
     _map=L.map('fullScreenMapContainer',{
-      zoomControl:false,
-      tap:false
+      zoomControl:false
     }).setView([20.5937,78.9629],4);
 
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
@@ -1349,21 +1348,18 @@ window.searchLocation=async function(inputId){
 
     vib([15,10,20]);
 
-    // After map settles, show "click pin" hint
-    setTimeout(()=>{
-      // Attach click to show "Move to Pin"
-      _marker.off('click');
-      _marker.on('click',function(e){
-        L.DomEvent.stopPropagation(e);
+    // Attach click immediately on marker
+    _marker.off('click');
+    _marker.on('click',function(e){
+      L.DomEvent.stopPropagation(e);
+      removeInfoBtn();
+      showInfoBtn('📌  Move to Pin', function(){
+        vib(20);
         removeInfoBtn();
-        showInfoBtn('📌  Move to Pin', function(){
-          vib(20);
-          removeInfoBtn();
-          enableDragOnMarker();
-        });
+        enableDragOnMarker();
       });
-      showToast('📍 Tap the pin to adjust location');
-    },2000);
+    });
+    showToast('📍 Pin tap karein to adjust karein');
 
   }catch(err){
     console.error(err);
@@ -1379,21 +1375,33 @@ window.handleSearchKey=function(e,id){
 
 /* ═══ MAKE PIN MARKER ═══ */
 function makePinMarker(latlng, type, draggable){
-  const color = type==='pickup' ? '#0ffff0' : '#ff3366';
-  const icon=L.divIcon({
-    className:'',
-    html:`<div style="
-      width:28px;height:36px;
-      background:${color};
-      border-radius:50% 50% 50% 0;
-      transform:rotate(-45deg);
-      border:2px solid rgba(0,0,0,.3);
-      box-shadow:0 0 12px ${color},0 0 24px ${color}55;
-    "></div>`,
-    iconSize:[28,36],
-    iconAnchor:[14,36]
-  });
-  return L.marker(latlng,{icon,draggable}).addTo(_map);
+  // Standard Leaflet marker icon — same as Google Maps style pin
+  const color = type==='pickup' ? 'blue' : 'red';
+  // Use Leaflet's own default marker images (CDN hosted, always work)
+  const iconUrl = type==='pickup'
+    ? 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png'
+    : 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png';
+  const shadowUrl = 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png';
+
+  const icon = type==='pickup'
+    ? L.icon({
+        iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
+        shadowUrl: shadowUrl,
+        iconSize:[25,41],
+        iconAnchor:[12,41],
+        popupAnchor:[1,-34],
+        shadowSize:[41,41]
+      })
+    : L.icon({
+        iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png',
+        shadowUrl: shadowUrl,
+        iconSize:[25,41],
+        iconAnchor:[12,41],
+        popupAnchor:[1,-34],
+        shadowSize:[41,41]
+      });
+
+  return L.marker(latlng,{icon, draggable}).addTo(_map);
 }
 
 /* ═══ ENABLE DRAG ON MARKER ═══ */
