@@ -1265,10 +1265,10 @@ window.openFullScreenMap=function(){
     }
 
     // Map click → remove all buttons
-    _map.on('click',function(){
-      removeFloatBtn();
-      removeInfoBtn();
-    });
+_map.on('click',function(){
+  removeFloatBtn();
+  removeInfoBtn();
+});
 
   } else {
     setTimeout(()=>_map.invalidateSize(),100);
@@ -1349,16 +1349,17 @@ window.searchLocation=async function(inputId){
     vib([15,10,20]);
 
     // Attach click immediately on marker
-    _marker.off('click');
-    _marker.on('click',function(e){
-      L.DomEvent.stopPropagation(e);
-      removeInfoBtn();
-      showInfoBtn('📌  Move to Pin', function(){
-        vib(20);
-        removeInfoBtn();
-        enableDragOnMarker();
-      });
-    });
+_marker.off('click');
+_marker.on('click',function(e){
+  e.originalEvent._markerClick = true;
+  removeInfoBtn();
+  showInfoBtn('📌  Move to Pin', function(){
+    vib(20);
+    removeInfoBtn();
+    enableDragOnMarker();
+  });
+});
+    
     showToast('📍 Pin tap karein to adjust karein');
 
   }catch(err){
