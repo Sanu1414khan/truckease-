@@ -1586,7 +1586,7 @@ function showBookingButton(){
   div.innerHTML=`
     <div style="
       position:fixed;bottom:90px;left:50%;transform:translateX(-50%);
-      background:linear-gradient(135deg,rgba(0,255,240,.18),rgba(0,100,200,.25));
+      background:linear-gradient(135deg,rgba(0,255,240,.9),rgba(0,100,200,.95));
       border:2px solid #0ffff0;
       border-radius:50px;
       padding:16px 36px;
@@ -1596,7 +1596,7 @@ function showBookingButton(){
       font-size:.95rem;
       letter-spacing:.06em;
       text-shadow:0 0 10px #0ff,0 0 20px #0ff;
-      box-shadow:0 0 30px rgba(0,255,240,.4),0 0 60px rgba(0,255,240,.15);
+      box-shadow:0 0 30px rgba(0,255,240,.6);
       cursor:pointer;
       z-index:3000;
       white-space:nowrap;
@@ -1606,15 +1606,19 @@ function showBookingButton(){
     </div>
     <style>
       @keyframes bookPulse{
-        0%,100%{box-shadow:0 0 30px rgba(0,255,240,.4),0 0 60px rgba(0,255,240,.15);}
-        50%{box-shadow:0 0 50px rgba(0,255,240,.7),0 0 90px rgba(0,255,240,.3);}
+        0%,100%{box-shadow:0 0 30px rgba(0,255,240,.6);}
+        50%{box-shadow:0 0 50px rgba(0,255,240,.9);}
       }
     </style>
   `;
   document.getElementById('fullScreenMap').appendChild(div);
   _bookingBtn=div;
+  
+  // ✅ नया: रीबुकिंग बटन भी दिखाएँ
+  showRebookingButton();
+  
   vib([20,15,20,15,20,15,30]);
-}
+ }
 
 function removeBookingBtn(){
   if(_bookingBtn){_bookingBtn.remove();_bookingBtn=null;}
