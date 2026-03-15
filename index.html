@@ -1350,7 +1350,6 @@ window.searchLocation=async function(inputId){
     vib([15,10,20]);
 
     // Attach click immediately on marker
-_marker.off('click');
 _marker.on('click',function(e){
   e.originalEvent._markerClick = true;
   removeInfoBtn();
@@ -1360,6 +1359,20 @@ _marker.on('click',function(e){
     enableDragOnMarker();
   });
 });
+
+// ✅ नया लॉजिक: अगर मार्कर कन्फर्म हो चुका है, तब भी क्लिक पर मूव टू पिन दिखे
+if (_pickupConfirmed || _dropConfirmed) {
+  _marker.off('click');  // पुराना इवेंट हटाएँ
+  _marker.on('click', function(e){  // नया इवेंट लगाएँ
+    e.originalEvent._markerClick = true;
+    removeInfoBtn();
+    showInfoBtn('📌  Move to Pin (Reselect)', function(){
+      vib(20);
+      removeInfoBtn();
+      enableDragOnMarker();
+    });
+  });
+  
     
     showToast('📍 Pin tap karein to adjust karein');
 
