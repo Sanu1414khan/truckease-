@@ -368,28 +368,188 @@ body{background:var(--bg);font-family:'Rajdhani',sans-serif;padding-bottom:72px;
 .c-ok.final{background:rgba(220,20,0,.38);border-color:#f00;color:#ff3333;}
 
 /* ══ FULLSCREEN MAP MODULE ══ */
-.full-screen-map{display:none;position:fixed;top:0;left:0;width:100%;height:100%;z-index:2000;background:#0a0c14;}
-.full-screen-map.active{display:block;}
-#fullScreenMapContainer{width:100%;height:100%;}
-.map-search-overlay{position:absolute;top:25px;left:20px;right:20px;z-index:2001;display:flex;flex-direction:column;gap:8px;}
-...fs-search-group{
-  display:flex;align-items:center;gap:10px;background:rgba(13,17,23,.88);border:1.5px solid rgba(0,210,255,.3);border-radius:14px;padding:4px 16px;height:50px;backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);box-shadow:0 4px 22px rgba(0,0,0,.4);}
-.fs-search-group:focus-within{border-color:#0ffff0;box-shadow:0 0 18px rgba(0,255,240,.22);}
-.fs-search-input{flex:1;background:transparent;border:none;color:#fff;font-size:15px;font-family:'Rajdhani',sans-serif;font-weight:600;padding:8px 0;outline:none;}
-.fs-search-input::placeholder{color:#6aaccc;font-weight:400;font-size:14px;}
-.fs-search-icon{font-size:16px;color:#0ffff0;cursor:pointer;flex-shrink:0;transition:.18s;}
-.fs-search-icon:active{opacity:.6;}
-.fs-back-arrow{position:absolute;bottom:30px;left:20px;width:50px;height:50px;background:rgba(13,17,23,.92);border:1.5px solid rgba(0,210,255,.3);border-radius:50%;display:flex;align-items:center;justify-content:center;color:#0ffff0;font-size:20px;cursor:pointer;z-index:2002;box-shadow:0 4px 15px rgba(0,0,0,.4);transition:all .2s;}
-.fs-back-arrow svg{width:20px;height:20px;}
-.fs-back-arrow:active{transform:scale(.9);background:rgba(0,243,255,.15);}
-.fs-loading{display:none;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);z-index:2005;background:rgba(13,17,23,.95);border:1.5px solid rgba(0,210,255,.3);border-radius:16px;padding:18px 28px;color:#0ffff0;font-family:'Orbitron',sans-serif;font-size:.75rem;letter-spacing:.05em;align-items:center;gap:10px;}
-.fs-loading.active{display:flex;}
-.fs-spinner{width:18px;height:18px;border:2px solid rgba(0,255,240,.2);border-top:2px solid #0ffff0;border-radius:50%;animation:fsSpin .7s linear infinite;flex-shrink:0;}
-@keyframes fsSpin{to{transform:rotate(360deg);}}
-</style>
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
-</head>
-<body>
+.full-screen-map {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 2000;
+  background: #0a0c14;
+}
+
+.full-screen-map.active {
+  display: block;
+}
+
+#fullScreenMapContainer {
+  width: 100%;
+  height: 100%;
+}
+
+/* Fix for map-search-overlay to center the boxes */
+.map-search-overlay {
+  position: absolute;
+  top: 25px;
+  left: 0;
+  right: 0;
+  z-index: 2001;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 0 10px;
+}
+
+/* Search Box - Solid Dark Glassy Background (95% width) */
+.fs-search-group {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: rgba(13, 17, 23, 0.85);
+  border: 1.5px solid rgba(0, 243, 255, 0.4);
+  border-radius: 16px;
+  padding: 8px 18px;
+  height: 56px;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, .5);
+  width: 95%;
+  margin: 0 auto;
+  transition: all 0.2s ease;
+}
+
+.fs-search-group:focus-within {
+  border-color: #0ffff0;
+  box-shadow: 0 0 20px rgba(0, 243, 255, 0.3), 0 8px 25px rgba(0, 0, 0, .5);
+  background: rgba(15, 20, 28, .9);
+}
+
+/* Update input text style */
+.fs-search-input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  color: #fff;
+  font-size: 16px;
+  font-family: 'Rajdhani', sans-serif;
+  font-weight: 600;
+  padding: 8px 0;
+  outline: none;
+}
+
+.fs-search-input::placeholder {
+  color: #b0d0e8;
+  font-weight: 400;
+  font-size: 15px;
+  opacity: 0.9;
+}
+
+/* Search icon styling */
+.fs-search-icon {
+  font-size: 18px;
+  color: #0ffff0;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: 0.2s;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: rgba(0, 243, 255, 0.1);
+}
+
+.fs-search-icon:active {
+  opacity: 0.7;
+  transform: scale(0.95);
+  background: rgba(0, 243, 255, 0.2);
+}
+
+/* Special style for Drop box (locked) */
+#fsDropBox.fs-search-group {
+  opacity: 0.9;
+  border-color: rgba(255, 51, 102, 0.4);
+  background: rgba(13, 17, 23, 0.85);
+}
+
+#fsDropBox .fs-search-icon {
+  color: #ff3366;
+  background: rgba(255, 51, 102, 0.1);
+}
+
+.fs-back-arrow {
+  position: absolute;
+  bottom: 30px;
+  left: 20px;
+  width: 50px;
+  height: 50px;
+  background: rgba(13, 17, 23, .92);
+  border: 1.5px solid rgba(0, 210, 255, .3);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #0ffff0;
+  font-size: 20px;
+  cursor: pointer;
+  z-index: 2002;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, .4);
+  transition: all .2s;
+}
+
+.fs-back-arrow svg {
+  width: 20px;
+  height: 20px;
+}
+
+.fs-back-arrow:active {
+  transform: scale(.9);
+  background: rgba(0, 243, 255, .15);
+}
+
+.fs-loading {
+  display: none;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 2005;
+  background: rgba(13, 17, 23, .95);
+  border: 1.5px solid rgba(0, 210, 255, .3);
+  border-radius: 16px;
+  padding: 18px 28px;
+  color: #0ffff0;
+  font-family: 'Orbitron', sans-serif;
+  font-size: .75rem;
+  letter-spacing: .05em;
+  align-items: center;
+  gap: 10px;
+}
+
+.fs-loading.active {
+  display: flex;
+}
+
+.fs-spinner {
+  width: 18px;
+  height: 18px;
+  border: 2px solid rgba(0, 255, 240, .2);
+  border-top: 2px solid #0ffff0;
+  border-radius: 50%;
+  animation: fsSpin .7s linear infinite;
+  flex-shrink: 0;
+}
+
+@keyframes fsSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 
 <!-- ════ FULLSCREEN MAP MODULE ════ -->
 <div id="fullScreenMap" class="full-screen-map">
