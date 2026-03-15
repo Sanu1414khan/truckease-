@@ -1617,7 +1617,8 @@ window.onBookingNext=function(){
 /* ═══ INFO BUTTON (bottom center Leaflet control) ═══ */
 function showInfoBtn(label, onClickFn){
   removeInfoBtn();
-  _infoBtn=L.control({position:'bottomcenter'});
+  // पुरानी लाइन (लगभग 1747) को हटाकर यह नई लाइन लगाएँ:
+_infoBtn = L.control({position:'bottomleft'});
   _infoBtn.onAdd=function(){
     const d=L.DomUtil.create('div','te-info-btn');
     Object.assign(d.style,{
@@ -1634,7 +1635,11 @@ function showInfoBtn(label, onClickFn){
       boxShadow:'0 0 24px rgba(0,255,240,.3)',
       textShadow:'0 0 8px rgba(0,255,240,.35)',
       userSelect:'none',
-      transition:'all .15s'
+            transition: 'all .15s',
+    position: 'relative',
+    left: '50%',
+    transform: 'translateX(-50%)',
+});
     });
     d.innerText=label;
     L.DomEvent.disableClickPropagation(d);
