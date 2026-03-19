@@ -1391,17 +1391,30 @@ window.searchLocation=async function(inputId){
 
     vib([15,10,20]);
 
-    // Attach click immediately on marker
-_marker.off('click');
-_marker.on('click',function(e){
+    // Attach click on marker - ye function marker click handle karega
+function handleMarkerClick(e) {
   e.originalEvent._markerClick = true;
   removeInfoBtn();
-  showInfoBtn('📌  Move to Pin', function(){
+  
+  // Agar marker confirm ho chuka hai to bhi move to pin option de
+  let buttonText = '📌  Move to Pin';
+  
+  // Agar pickup ya drop confirm hai to text mein (Reselect) add karein
+  if((_activeFor === 'pickup' && _pickupConfirmed) || 
+     (_activeFor === 'drop' && _dropConfirmed)) {
+    buttonText = '📌  Move to Pin (Reselect)';
+  }
+  
+  showInfoBtn(buttonText, function(){
     vib(20);
     removeInfoBtn();
     enableDragOnMarker();
   });
-});
+}
+
+_marker.off('click');
+_marker.on('click', handleMarkerClick);
+    
     
     showToast('📍 Pin tap karein to adjust karein');
 
@@ -1529,10 +1542,27 @@ async function doReverseGeocode(){
       : '✅  Your Drop Confirmed';
 
     showInfoBtn(label, function(){
-      vib([30,20,30,20,30]);
+  vib([30,20,30,20,30]);
+  removeInfoBtn();
+  confirmLocation();
+  
+  // Confirm hone ke baad bhi marker par click listener laga do
+  if(_marker) {
+    _marker.off('click');
+    _marker.on('click', function(e) {
+      e.originalEvent._markerClick = true;
       removeInfoBtn();
-      confirmLocation();
+      
+      // Reselect button dikhao
+      showInfoBtn('📌  Move to Pin (Reselect)', function(){
+        vib(20);
+        removeInfoBtn();
+        enableDragOnMarker();
+      });
     });
+  }
+});
+    
 
   }catch(e){ console.error(e); showToast('Could not get address, try again.'); }
   finally{ setLoading(false); }
@@ -1540,30 +1570,72 @@ async function doReverseGeocode(){
 
 /* ═══ CONFIRM LOCATION (final step) ═══ */
 function confirmLocation(){
+  let confirmedMarker = null;
+  
   if(_activeFor==='pickup'){
     _pickupConfirmed=true;
-    // Save confirmed marker, remove working marker
-    if(_pickupMarker) _map.removeLayer(_pickupMarker);
-    _pickupMarker=_marker; _marker=null;
+    _pickupAddr = document.getElementById('fsPickup').value;
+    confirmedMarker = _marker;
     // Unlock drop
     unlockDrop();
     showToast('📍 Pickup set! Now enter Drop location.');
     vib([40,20,40]);
   } else {
     _dropConfirmed=true;
-    if(_dropMarker) _map.removeLayer(_dropMarker);
-    _dropMarker=_marker; _marker=null;
+    _dropAddr = document.getElementById('fsDrop').value;
+    confirmedMarker = _marker;
     showToast('🏁 Drop set! Ready to book.');
     vib([40,20,40]);
   }
-
+  
+  // Is marker ko confirm kar diya, isko ab bhi clickable banana hai
+  if(confirmedMarker) {
+    // Purane event listeners hatao
+    confirmedMarker.off('click');
+    confirmedMarker.off('drag');
+    
+    // Naya click listener lagao - taaki dubara select kar sake
+    confirmedMarker.on('click', function(e) {
+      e.originalEvent._markerClick = true;
+      removeInfoBtn();
+      
+      // ActiveFor ko set karo (pickup ya drop)
+      _activeFor = _pickupConfirmed && !_dropConfirmed ? 'drop' : 
+                   (!_pickupConfirmed && _dropConfirmed) ? 'pickup' : _activeFor;
+      
+      // Marker ko variable mein daalo taaki drag enable kar sakein
+      _marker = confirmedMarker;
+      
+      // Reselect button dikhao
+      showInfoBtn('📌  Move to Pin (Reselect)', function(){
+        vib(20);
+        removeInfoBtn();
+        
+        // Marker ko draggable banao
+        if(_marker) {
+          _marker.dragging.enable();
+          _marker.on('drag', function(){
+            removeInfoBtn();
+            removeFloatBtn();
+          });
+          _marker.on('dragend', function(){
+            vib([10,8,10]);
+            showConfirmNearPin();
+          });
+          showConfirmNearPin();
+        }
+      });
+    });
+  }
+  
+  _marker = null; // Working marker ko null karo
   updateSearchBoxes();
 
   // If both confirmed → show Booking button
   if(_pickupConfirmed && _dropConfirmed){
     setTimeout(showBookingButton, 500);
   }
-}
+  }
 
 /* ═══ UNLOCK DROP ═══ */
 function unlockDrop(){
