@@ -1543,26 +1543,12 @@ async function doReverseGeocode(){
       ? '✅  Your Source Confirmed'
       : '✅  Your Drop Confirmed';
 
-    showInfoBtn(label, function(){
-  vib([30,20,30,20,30]);
-  removeInfoBtn();
-  confirmLocation();
-
       
   showInfoBtn(label, function(){
   vib([30,20,30,20,30]);
   removeInfoBtn();
   confirmLocation();
 });
-    
-
-  }catch(e){ console.error(e); showToast('Could not get address, try again.'); }
-  finally{ setLoading(false); }
-}
-
-/* ═══ CONFIRM LOCATION (final step) ═══ */
-function confirmLocation(){
-  let confirmedMarker = null;
 function confirmLocation(){
   let confirmedMarker = _marker;  // जो मार्कर कंफर्म हो रहा है
   
@@ -1642,7 +1628,14 @@ function confirmLocation(){
   if(_pickupConfirmed && _dropConfirmed){
     setTimeout(showBookingButton, 500);
   }
+  }    
+
+  }catch(e){ console.error(e); showToast('Could not get address, try again.'); }
+  finally{ setLoading(false); }
 }
+
+/* ═══ CONFIRM LOCATION (final step) ═══ */
+
   
   if(_activeFor==='pickup'){
     _pickupConfirmed=true;
