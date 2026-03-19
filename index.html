@@ -385,6 +385,49 @@ body{background:var(--bg);font-family:'Rajdhani',sans-serif;padding-bottom:72px;
 .fs-loading.active{display:flex;}
 .fs-spinner{width:18px;height:18px;border:2px solid rgba(0,255,240,.2);border-top:2px solid #0ffff0;border-radius:50%;animation:fsSpin .7s linear infinite;flex-shrink:0;}
 @keyframes fsSpin{to{transform:rotate(360deg);}}
+
+  /* ═══ MOVE TO PIN BUTTON - PIN KE UPAR ═══ */
+.move-to-pin-popup .leaflet-popup-content-wrapper {
+  background: rgba(13, 17, 23, 0.9) !important;
+  border: 1.5px solid #0ffff0 !important;
+  border-radius: 30px !important;
+  padding: 0 !important;
+  box-shadow: 0 0 20px rgba(0, 255, 240, 0.3) !important;
+  backdrop-filter: blur(8px) !important;
+}
+
+.move-to-pin-popup .leaflet-popup-tip-container {
+  display: none !important;  /* नीचे का तीर हटाएँ */
+}
+
+.move-to-pin-popup .leaflet-popup-content {
+  margin: 0 !important;
+  min-width: auto !important;
+}
+
+.move-to-pin-btn {
+  padding: 8px 20px !important;
+  color: #0ffff0 !important;
+  font-family: 'Rajdhani', sans-serif !important;
+  font-weight: 700 !important;
+  font-size: 14px !important;
+  letter-spacing: 0.05em !important;
+  text-align: center !important;
+  cursor: pointer !important;
+  white-space: nowrap !important;
+  background: transparent !important;
+  border: none !important;
+  transition: all 0.2s ease !important;
+}
+
+.move-to-pin-btn:hover {
+  background: rgba(0, 255, 240, 0.1) !important;
+  border-radius: 30px !important;
+}
+
+.move-to-pin-btn:active {
+  transform: scale(0.96) !important;
+}
 </style>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 </head>
@@ -1613,52 +1656,42 @@ window.onBookingNext=function(){
   // Future: navigate to booking confirmation screen
   showToast('🚛 Booking flow — coming soon!');
 };
-
-/* ═══ INFO BUTTON (bottom center Leaflet control) ═══ */
+/* ═══ MOVE TO PIN BUTTON - PIN KE UPAR (POPUP STYLE) ═══ */
 function showInfoBtn(label, onClickFn){
   removeInfoBtn();
-  // पुरानी लाइन (लगभग 1747) को हटाकर यह नई लाइन लगाएँ:
-_infoBtn = L.control({position:'bottomleft'});
-  _infoBtn.onAdd=function(){
-    const d=L.DomUtil.create('div','te-info-btn');
-    Object.assign(d.style,{
-      background:'linear-gradient(135deg,rgba(13,17,23,.97),rgba(0,20,50,.97))',
-      border:'1.5px solid #0ffff0',
-      borderRadius:'50px',
-      padding:'14px 32px',
-      color:'#fff',
-      cursor:'pointer',
-      fontFamily:"'Rajdhani',sans-serif",
-      fontWeight:'700',
-      fontSize:'16px',
-      letterSpacing:'.05em',
-      boxShadow:'0 0 24px rgba(0,255,240,.3)',
-      textShadow:'0 0 8px rgba(0,255,240,.35)',
-      userSelect:'none',
-            transition: 'all .15s',
-    position: 'relative',
-    left: '50%',
-    transform: 'translateX(-50%)',
-});
-    
-    d.innerText=label;
-    L.DomEvent.disableClickPropagation(d);
-    d.addEventListener('click',function(e){
-      e.stopPropagation();
-      onClickFn();
-    });
-    d.addEventListener('mousedown',function(){d.style.transform='scale(.96)';});
-    d.addEventListener('mouseup',function(){d.style.transform='scale(1)';});
-    d.addEventListener('touchstart',function(){d.style.transform='scale(.96)';},{passive:true});
-    d.addEventListener('touchend',function(){d.style.transform='scale(1)';},{passive:true});
-    return d;
-  };
-  _infoBtn.addTo(_map);
+  
+  // Agar marker nahi hai to return
+  if(!_marker) return;
+  
+  // Popup banayein jo marker ke upar dikhe
+  _infoBtn = L.popup({
+    closeButton: false,
+    className: 'move-to-pin-popup',
+    offset: [0, -45],  // marker ke thoda upar
+    autoPan: false
+  })
+  .setLatLng(_marker.getLatLng())
+  .setContent(`<div class="move-to-pin-btn">${label}</div>`)
+  .addTo(_map);
+  
+  // Click handler for the button
+  setTimeout(() => {
+    const btn = document.querySelector('.move-to-pin-btn');
+    if(btn) {
+      btn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        onClickFn();
+      });
+    }
+  }, 100);
 }
 
 function removeInfoBtn(){
-  if(_infoBtn){try{_infoBtn.remove();}catch(e){}  _infoBtn=null;}
-}
+  if(_infoBtn) {
+    _map.closePopup(_infoBtn);
+    _infoBtn = null;
+  }
+ }
 
 function removeFloatBtn(){
   if(_floatBtn){try{_map.closePopup(_floatBtn);}catch(e){} _floatBtn=null;}
